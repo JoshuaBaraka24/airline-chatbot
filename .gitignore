@@ -1,0 +1,8 @@
+venv/
+models/
+.rasa/
+__pycache__/
+*.pyc
+*.tar.gz
+.env
+*.db
