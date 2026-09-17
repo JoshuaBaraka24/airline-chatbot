@@ -2,29 +2,99 @@ version: "3.1"
 
 stories:
 
-- story: happy path
+- story: check flight status with flight number
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - intent: check_flight_status
+    entities:
+    - flight_number: "KQ101"
+  - action: action_check_flight_status
 
-- story: sad path 1
+- story: check flight status without flight number
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - intent: check_flight_status
+  - action: utter_ask_flight_number
+  - intent: inform
+    entities:
+    - flight_number: "KQ202"
+  - action: action_check_flight_status
 
-- story: sad path 2
+- story: change booking with reference
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - intent: change_booking
+    entities:
+    - booking_reference: "BK001"
+  - action: utter_ask_new_date
+  - intent: inform
+    entities:
+    - date: "2026-10-20"
+  - action: action_change_booking
+
+- story: change booking without reference
+  steps:
+  - intent: change_booking
+  - action: utter_ask_booking_ref
+  - intent: inform
+    entities:
+    - booking_reference: "BK002"
+  - action: utter_ask_new_date
+  - intent: inform
+    entities:
+    - date: "2026-11-01"
+  - action: action_change_booking
+
+- story: cancel booking
+  steps:
+  - intent: cancel_booking
+    entities:
+    - booking_reference: "BK001"
+  - action: action_cancel_booking
+
+- story: cancel booking without reference
+  steps:
+  - intent: cancel_booking
+  - action: utter_ask_booking_ref
+  - intent: inform
+    entities:
+    - booking_reference: "BK003"
+  - action: action_cancel_booking
+
+- story: new booking full info
+  steps:
+  - intent: new_booking
+    entities:
+    - origin: "Nairobi"
+    - destination: "Mombasa"
+    - date: "2026-10-25"
+  - action: action_new_booking
+
+- story: new booking missing destination
+  steps:
+  - intent: new_booking
+  - action: utter_ask_destination
+  - intent: inform
+    entities:
+    - destination: "Dubai"
+  - action: utter_ask_origin
+  - intent: inform
+    entities:
+    - origin: "Nairobi"
+  - action: utter_ask_new_date
+  - intent: inform
+    entities:
+    - date: "2026-12-01"
+  - action: action_new_booking
+
+- story: baggage policy inquiry
+  steps:
+  - intent: baggage_policy
+  - action: utter_baggage_policy
+
+- story: check in procedure
+  steps:
+  - intent: check_in_procedure
+  - action: utter_check_in_procedure
+
+- story: check in status
+  steps:
+  - intent: check_in_status
+  - action: action_check_in_status
