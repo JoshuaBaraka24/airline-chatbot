@@ -1,91 +1,183 @@
 version: "3.1"
 
 nlu:
-- intent: greet
+- intent: check_flight_status
   examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+    - What is the status of flight [KQ101](flight_number)?
+    - Is [KQ 202](flight_number) on time?
+    - Check flight [KQ305](flight_number) for me
+    - Has [KQ101](flight_number) departed yet?
+    - When is [KQ 450](flight_number) landing?
+    - Is my flight delayed?
+    - Track flight [KQ 789](flight_number)
+    - What time does [KQ101](flight_number) arrive?
+    - Is [KQ202](flight_number) cancelled?
+    - Flight status for [KQ 300](flight_number)
+    - Where is flight [KQ101](flight_number) right now?
+    - Check the status of [KQ 505](flight_number)
+    - Has flight [KQ202](flight_number) taken off?
+    - Is there a delay on [KQ305](flight_number)?
+    - Give me an update on [KQ101](flight_number)
 
-- intent: goodbye
+- intent: change_booking
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - I want to change my flight
+    - Can I reschedule my booking?
+    - I need to move my flight to a different date
+    - Change my booking reference [BK001](booking_reference)
+    - I want to fly on [2026-10-20](date) instead
+    - Modify my reservation
+    - Can I change my flight from [Nairobi](origin) to [Mombasa](destination)?
+    - I need to reschedule booking [BK002](booking_reference)
+    - Change my flight date to [2026-11-05](date)
+    - I'd like to alter my travel plans
+    - Update my booking [BK003](booking_reference)
+    - Switch my flight to [2026-10-15](date)
+    - Can I move my booking to next week?
+    - I want to travel on a different day
+    - Reschedule [BK004](booking_reference) to [2026-12-01](date)
+
+- intent: cancel_booking
+  examples: |
+    - Cancel my booking
+    - I want to cancel my reservation
+    - Please cancel booking [BK001](booking_reference)
+    - Cancel my flight
+    - I need to cancel my trip
+    - Cancel reservation [BK002](booking_reference)
+    - I don't want to travel anymore
+    - Please cancel my ticket
+    - Cancel [BK003](booking_reference)
+    - I want a refund, cancel my booking
+    - Cancel my flight on [2026-10-20](date)
+    - Cancel my booking to [Mombasa](destination)
+    - I need to call off my trip
+    - Cancel flight [KQ101](flight_number) booking
+    - Please terminate my reservation [BK004](booking_reference)
+
+- intent: new_booking
+  examples: |
+    - I want to book a flight
+    - Book me a flight to [Mombasa](destination)
+    - I'd like to fly from [Nairobi](origin) to [Kisumu](destination)
+    - Make a new reservation
+    - Book a ticket to [Dubai](destination) on [2026-11-10](date)
+    - I want to travel to [London](destination)
+    - Reserve a seat on a flight to [Amsterdam](destination)
+    - Can I book a flight from [Nairobi](origin) to [Lagos](destination)?
+    - I need a flight to [Johannesburg](destination) on [2026-10-25](date)
+    - New booking please
+    - I want to fly to [Mumbai](destination)
+    - Book me from [Nairobi](origin) to [Paris](destination)
+    - I need to make a reservation
+    - Can you book a ticket for me?
+    - Reserve a flight to [Cape Town](destination) for [2026-12-15](date)
+
+- intent: baggage_policy
+  examples: |
+    - What is the baggage allowance?
+    - How many bags can I bring?
+    - What are the luggage rules?
+    - Can I carry an extra bag?
+    - What is the weight limit for luggage?
+    - How much baggage is allowed in economy?
+    - What are Kenya Airways baggage rules?
+    - Can I bring a sports bag?
+    - What counts as carry-on luggage?
+    - How heavy can my checked bag be?
+    - Is there a fee for extra baggage?
+    - What items are not allowed in luggage?
+    - Baggage policy for business class
+    - How many kilos can I carry?
+    - What is the cabin bag limit?
+
+- intent: check_in_procedure
+  examples: |
+    - How do I check in?
+    - What is the check-in process?
+    - Can I check in online?
+    - How early should I arrive at the airport?
+    - Where do I check in at JKIA?
+    - How do I get my boarding pass?
+    - Is online check-in available?
+    - When does check-in open?
+    - How do I check in for my Kenya Airways flight?
+    - What documents do I need to check in?
+    - Can I check in on my phone?
+    - How do I do web check-in?
+    - Check-in time for international flights
+    - When should I be at the airport?
+    - How does airport check-in work?
+
+- intent: check_in_status
+  examples: |
+    - Have I checked in yet?
+    - Is my check-in confirmed?
+    - Check my check-in status for [BK001](booking_reference)
+    - Am I checked in for flight [KQ101](flight_number)?
+    - What is my check-in status?
+    - Did my online check-in go through?
+    - Confirm my check-in for [BK002](booking_reference)
+    - Is check-in complete for [KQ202](flight_number)?
+    - Show my check-in status
+    - Has my check-in been processed?
+
+- intent: escalate_to_agent
+  examples: |
+    - I want to speak to a human
+    - Connect me to an agent
+    - I need a real person
+    - Talk to customer service
+    - Get me a human agent
+    - I want to talk to someone
+    - Agent please
+    - Connect me to customer support
+    - I need help from a person
+    - Transfer me to an agent
+
+- intent: out_of_scope
+  examples: |
+    - What is the weather in Nairobi?
+    - Tell me a joke
+    - Who is the CEO of Kenya Airways?
+    - What is the stock price?
+    - I want to complain about a staff member
+    - Book me a hotel
+    - What movies are showing?
+    - Help me with my visa
+    - I lost my passport
+    - Can I join the frequent flyer program?
+
+- intent: inform
+  examples: |
+    - [KQ101](flight_number)
+    - [BK001](booking_reference)
+    - [2026-10-20](date)
+    - [Nairobi](origin)
+    - [Mombasa](destination)
+    - the booking reference is [BK003](booking_reference)
+    - my flight is [KQ202](flight_number)
+    - [John Mwangi](passenger_name)
+    - the date is [2026-11-15](date)
+    - flying from [Nairobi](origin)
 
 - intent: affirm
   examples: |
     - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
+    - yes please
+    - that's correct
     - correct
+    - sure
+    - yeah
+    - ok
+    - confirm
 
 - intent: deny
   examples: |
     - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
-
-- intent: mood_great
-  examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
-
-- intent: mood_unhappy
-  examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
-
-- intent: bot_challenge
-  examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - no thank you
+    - that's wrong
+    - not correct
+    - cancel that
+    - never mind
+    - nope
