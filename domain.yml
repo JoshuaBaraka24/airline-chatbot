@@ -1,33 +1,84 @@
 version: "3.1"
 
 intents:
-  - greet
-  - goodbye
+  - check_flight_status
+  - change_booking
+  - cancel_booking
+  - new_booking
+  - baggage_policy
+  - check_in_procedure
+  - check_in_status
+  - escalate_to_agent
+  - out_of_scope
+  - inform
   - affirm
   - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+
+entities:
+  - flight_number
+  - booking_reference
+  - date
+  - origin
+  - destination
+  - passenger_name
+
+slots:
+  flight_number:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: flight_number
+  booking_reference:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: booking_reference
+  date:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: date
+  origin:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: origin
+  destination:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: destination
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
+    - text: "Hello! I'm the Kenya Airways virtual assistant. How can I help you today?"
+  utter_ask_flight_number:
+    - text: "Please provide your flight number (e.g. KQ101)."
+  utter_ask_booking_ref:
+    - text: "Please provide your booking reference number."
+  utter_ask_new_date:
+    - text: "What date would you like to change your flight to? (e.g. 2026-10-15)"
+  utter_ask_destination:
+    - text: "Where would you like to fly to?"
+  utter_ask_origin:
+    - text: "Where are you flying from?"
+  utter_escalate:
+    - text: "I'm connecting you to a Kenya Airways agent now. Please hold."
+  utter_out_of_scope:
+    - text: "I'm sorry, I can only assist with flight status, baggage, check-in, and bookings. For other queries, please call +254 20 327 4747."
+  utter_baggage_policy:
+    - text: "Kenya Airways allows 23kg for Economy and 32kg for Business class. Carry-on limit is 12kg. Extra baggage can be purchased at kenyaairways.com."
+  utter_check_in_procedure:
+    - text: "You can check in online at kenyaairways.com from 36 hours before departure, or at the airport counter 3 hours before. Have your booking reference ready."
+  utter_default:
+    - text: "I didn't understand that. Could you rephrase? Or type 'agent' to speak to a human."
 
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
-
-  utter_goodbye:
-  - text: "Bye"
-
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+actions:
+  - action_check_flight_status
+  - action_change_booking
+  - action_cancel_booking
+  - action_new_booking
+  - action_check_in_status
 
 session_config:
   session_expiration_time: 60
