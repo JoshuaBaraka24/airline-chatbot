@@ -16,3 +16,8 @@ rules:
   steps:
   - intent: nlu_fallback
   - action: utter_default
+
+- rule: bot capabilities
+  steps:
+  - intent: bot_capabilities
+  - action: utter_bot_capabilities

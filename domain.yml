@@ -13,6 +13,7 @@ intents:
   - inform
   - affirm
   - deny
+  - bot_capabilities
 
 entities:
   - flight_number
@@ -72,6 +73,8 @@ responses:
     - text: "You can check in online at kenyaairways.com from 36 hours before departure, or at the airport counter 3 hours before. Have your booking reference ready."
   utter_default:
     - text: "I didn't understand that. Could you rephrase? Or type 'agent' to speak to a human."
+  utter_bot_capabilities:
+    - text: "I can help you with: flight status, booking cancellations, booking changes, new bookings, baggage policy, and check-in. What do you need?"
 
 actions:
   - action_check_flight_status

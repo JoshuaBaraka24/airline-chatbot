@@ -7,7 +7,7 @@ from typing import Any, Text, Dict, List
 DB_CONFIG = {
     "dbname": "airline_db",
     "user": "postgres",
-    "password": "YOUR_POSTGRES_PASSWORD",  # change this
+    "password": "super_user",  
     "host": "localhost",
     "port": "5432"
 }
