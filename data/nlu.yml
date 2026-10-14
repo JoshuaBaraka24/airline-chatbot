@@ -1,6 +1,80 @@
 version: "3.1"
 
 nlu:
+- intent: greet
+  examples: |
+    - hi
+    - hello
+    - hey
+    - hey there
+    - hello there
+    - good morning
+    - good afternoon
+    - good evening
+    - hi there, I need some help
+    - hello Kenya Airways
+    - howdy
+    - greetings
+    - hi, anyone there?
+    - habari
+    - jambo
+    - hello, I have a question
+    - morning
+    - hey bot
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you later
+    - bye bye
+    - that's all, bye
+    - have a nice day
+    - talk to you later
+    - I'm done, goodbye
+    - see you
+    - good night
+    - cheers, bye
+    - that will be all
+
+- intent: thank_you
+  examples: |
+    - thanks
+    - thank you
+    - thank you so much
+    - thanks a lot
+    - many thanks
+    - great, thanks
+    - perfect, thank you
+    - thanks for your help
+    - appreciate it
+    - asante
+    - asante sana
+    - that was helpful, thanks
+
+- intent: bot_capabilities
+  examples: |
+    - what can you do for me
+    - what can you help me with
+    - what do you do
+    - how can you help me
+    - what are your features
+    - what services do you offer
+    - what services do you provide
+    - what can I ask you
+    - help
+    - I need help
+    - what are you able to do
+    - what kind of things can you do
+    - what can this chatbot do
+    - what do you know about
+    - show me what you can do
+    - what are my options
+    - what can you assist with
+    - how does this work
+    - menu
+    - what topics can you handle
+
 - intent: check_flight_status
   examples: |
     - What is the status of flight [KQ101](flight_number)?
@@ -18,6 +92,18 @@ nlu:
     - Has flight [KQ202](flight_number) taken off?
     - Is there a delay on [KQ305](flight_number)?
     - Give me an update on [KQ101](flight_number)
+    - what is the status of my flight
+    - I want to check my flight status
+    - flight status please
+    - is my flight on schedule?
+    - is [kq601](flight_number) leaving on time
+    - status of [kq 702](flight_number)
+    - has my flight been cancelled?
+    - when does flight [KQ450](flight_number) depart
+    - what time is [KQ789](flight_number) leaving
+    - check flight status
+    - is the [KQ505](flight_number) flight still going ahead
+    - any delays on flight [KQ 601](flight_number)?
 
 - intent: change_booking
   examples: |
@@ -27,19 +113,31 @@ nlu:
     - Change my booking reference [BK001](booking_reference)
     - I want to fly on [2026-10-20](date) instead
     - Modify my reservation
-    - Can I change my flight from [Nairobi](origin) to [Mombasa](destination)?
     - I need to reschedule booking [BK002](booking_reference)
     - Change my flight date to [2026-11-05](date)
     - I'd like to alter my travel plans
     - Update my booking [BK003](booking_reference)
     - Switch my flight to [2026-10-15](date)
-    - Can I move my booking to next week?
+    - Can I move my booking to a later date?
     - I want to travel on a different day
     - Reschedule [BK004](booking_reference) to [2026-12-01](date)
+    - change my booking
+    - I need to change my reservation
+    - can I change the date of my flight
+    - move booking [bk001](booking_reference) to [tomorrow](date)
+    - I want to postpone my flight
+    - please change [BK005](booking_reference) to [25 October](date)
+    - rebook me on a later flight
+    - I'd like to change my travel date to [next Friday](date)
+    - can you push my flight to [October 28th](date)
+    - I want to amend my booking
+    - change the date on booking [BK002](booking_reference)
+    - I can't make my flight, can I change it?
 
 - intent: cancel_booking
   examples: |
     - Cancel my booking
+    - I want to cancel my booking
     - I want to cancel my reservation
     - Please cancel booking [BK001](booking_reference)
     - Cancel my flight
@@ -49,34 +147,54 @@ nlu:
     - Please cancel my ticket
     - Cancel [BK003](booking_reference)
     - I want a refund, cancel my booking
-    - Cancel my flight on [2026-10-20](date)
-    - Cancel my booking to [Mombasa](destination)
     - I need to call off my trip
-    - Cancel flight [KQ101](flight_number) booking
     - Please terminate my reservation [BK004](booking_reference)
+    - cancel booking
+    - can I cancel my flight?
+    - how do I cancel my booking
+    - I would like to cancel my ticket
+    - cancel [bk005](booking_reference) please
+    - I'm no longer travelling, please cancel
+    - get rid of my booking [BK001](booking_reference)
+    - I want to cancel my flight booking
+    - please cancel my reservation
+    - I need a cancellation for booking [BK003](booking_reference)
+    - scrap my booking
 
 - intent: new_booking
   examples: |
     - I want to book a flight
-    - Book me a flight to [Mombasa](destination)
-    - I'd like to fly from [Nairobi](origin) to [Kisumu](destination)
+    - Book me a flight to [Mombasa]{"entity": "city", "role": "to"}
+    - I'd like to fly from [Nairobi]{"entity": "city", "role": "from"} to [Kisumu]{"entity": "city", "role": "to"}
     - Make a new reservation
-    - Book a ticket to [Dubai](destination) on [2026-11-10](date)
-    - I want to travel to [London](destination)
-    - Reserve a seat on a flight to [Amsterdam](destination)
-    - Can I book a flight from [Nairobi](origin) to [Lagos](destination)?
-    - I need a flight to [Johannesburg](destination) on [2026-10-25](date)
+    - Book a ticket to [Dubai]{"entity": "city", "role": "to"} on [2026-11-10](date)
+    - I want to travel to [London]{"entity": "city", "role": "to"}
+    - Reserve a seat on a flight to [Amsterdam]{"entity": "city", "role": "to"}
+    - Can I book a flight from [Nairobi]{"entity": "city", "role": "from"} to [Lagos]{"entity": "city", "role": "to"}?
+    - I need a flight to [Johannesburg]{"entity": "city", "role": "to"} on [2026-10-25](date)
     - New booking please
-    - I want to fly to [Mumbai](destination)
-    - Book me from [Nairobi](origin) to [Paris](destination)
+    - I want to fly to [Mumbai]{"entity": "city", "role": "to"}
+    - Book me from [Nairobi]{"entity": "city", "role": "from"} to [Paris]{"entity": "city", "role": "to"}
     - I need to make a reservation
     - Can you book a ticket for me?
-    - Reserve a flight to [Cape Town](destination) for [2026-12-15](date)
+    - can you help me book my flight
+    - help me book a flight
+    - I want to buy a ticket
+    - are there flights from [Mombasa]{"entity": "city", "role": "from"} to [Nairobi]{"entity": "city", "role": "to"} on [Friday](date)?
+    - find me a flight to [Dubai]{"entity": "city", "role": "to"} [tomorrow](date)
+    - I'd like to book a trip from [Nairobi]{"entity": "city", "role": "from"} to [Amsterdam]{"entity": "city", "role": "to"} on [20 October](date)
+    - search flights to [Lagos]{"entity": "city", "role": "to"}
+    - show me flights from [Nairobi]{"entity": "city", "role": "from"} to [London]{"entity": "city", "role": "to"}
+    - I need a ticket to [Kisumu]{"entity": "city", "role": "to"} for [next Monday](date)
+    - book a flight for me
+    - I want to fly from [JKIA]{"entity": "city", "role": "from", "value": "Nairobi"} to [Mombasa]{"entity": "city", "role": "to"}
+    - what flights do you have to [Johannesburg]{"entity": "city", "role": "to"}?
 
 - intent: baggage_policy
   examples: |
     - What is the baggage allowance?
     - How many bags can I bring?
+    - How many bags can I carry?
     - What are the luggage rules?
     - Can I carry an extra bag?
     - What is the weight limit for luggage?
@@ -90,6 +208,15 @@ nlu:
     - Baggage policy for business class
     - How many kilos can I carry?
     - What is the cabin bag limit?
+    - can I carry bags that weigh 50 kg
+    - my suitcase is 30kg, is that okay?
+    - how much does excess baggage cost
+    - what happens if my bag is overweight
+    - can I take a laptop in my hand luggage
+    - can I carry liquids on board
+    - luggage allowance
+    - what size can my carry on be
+    - how much luggage can I check in
 
 - intent: check_in_procedure
   examples: |
@@ -108,19 +235,30 @@ nlu:
     - Check-in time for international flights
     - When should I be at the airport?
     - How does airport check-in work?
+    - when does online check in close
+    - how many hours before departure should I check in
+    - do I need to print my boarding pass
+    - can I choose my seat when checking in
+    - what time does the check-in counter close
 
 - intent: check_in_status
   examples: |
     - Have I checked in yet?
     - Is my check-in confirmed?
     - Check my check-in status for [BK001](booking_reference)
-    - Am I checked in for flight [KQ101](flight_number)?
+    - Am I checked in for my flight?
     - What is my check-in status?
     - Did my online check-in go through?
     - Confirm my check-in for [BK002](booking_reference)
-    - Is check-in complete for [KQ202](flight_number)?
+    - Is check-in complete for booking [BK004](booking_reference)?
     - Show my check-in status
     - Has my check-in been processed?
+    - am I checked in
+    - did I check in successfully for [bk003](booking_reference)
+    - check if [BK005](booking_reference) is checked in
+    - is my booking checked in
+    - was my web check-in successful?
+    - check-in status please
 
 - intent: escalate_to_agent
   examples: |
@@ -131,9 +269,16 @@ nlu:
     - Get me a human agent
     - I want to talk to someone
     - Agent please
+    - agent
     - Connect me to customer support
     - I need help from a person
     - Transfer me to an agent
+    - let me speak to a manager
+    - you're not helping, I want a person
+    - can I talk to a real agent
+    - human please
+    - put me through to customer care
+    - I'd rather talk to a human
 
 - intent: out_of_scope
   examples: |
@@ -147,19 +292,50 @@ nlu:
     - Help me with my visa
     - I lost my passport
     - Can I join the frequent flyer program?
+    - what is the capital of France
+    - order me a taxi
+    - what's 2 plus 2
+    - can you recommend a restaurant
+    - who won the football match yesterday
+    - write me a poem
+    - how do I reset my email password
+    - what is the exchange rate for dollars
+    - I want to rent a car
+    - tell me about the news
 
 - intent: inform
   examples: |
     - [KQ101](flight_number)
+    - [KQ 202](flight_number)
+    - [kq305](flight_number)
     - [BK001](booking_reference)
+    - [bk002](booking_reference)
+    - [BK006](booking_reference)
     - [2026-10-20](date)
-    - [Nairobi](origin)
-    - [Mombasa](destination)
+    - [tomorrow](date)
+    - [next Friday](date)
+    - [25 October](date)
+    - [October 28th](date)
+    - on [30/10/2026](date)
+    - the [27th](date)
+    - [Nairobi]{"entity": "city"}
+    - [Mombasa]{"entity": "city"}
+    - [Dubai]{"entity": "city"}
+    - [London]{"entity": "city"}
+    - [Kisumu]{"entity": "city"}
     - the booking reference is [BK003](booking_reference)
+    - my reference is [BK005](booking_reference)
+    - it's [bk004](booking_reference)
     - my flight is [KQ202](flight_number)
-    - [John Mwangi](passenger_name)
+    - flight number [KQ 450](flight_number)
     - the date is [2026-11-15](date)
-    - flying from [Nairobi](origin)
+    - I want to go on [20 October](date)
+    - make it [Monday](date)
+    - flying from [Nairobi]{"entity": "city", "role": "from"}
+    - from [Mombasa]{"entity": "city", "role": "from"}
+    - to [Amsterdam]{"entity": "city", "role": "to"}
+    - going to [Lagos]{"entity": "city", "role": "to"}
+    - from [Nairobi]{"entity": "city", "role": "from"} to [Dubai]{"entity": "city", "role": "to"}
 
 - intent: affirm
   examples: |
@@ -169,8 +345,16 @@ nlu:
     - correct
     - sure
     - yeah
+    - yep
     - ok
+    - okay
     - confirm
+    - go ahead
+    - yes, do it
+    - absolutely
+    - that's right
+    - please proceed
+    - y
 
 - intent: deny
   examples: |
@@ -178,15 +362,57 @@ nlu:
     - no thank you
     - that's wrong
     - not correct
-    - cancel that
     - never mind
     - nope
+    - no, don't
+    - stop
+    - forget it
+    - not now
+    - I changed my mind
+    - don't do that
+    - n
 
-- intent: bot_capabilities
+- synonym: Nairobi
   examples: |
-    - what can you do for me
-    - what can you help me with
-    - what do you do
-    - how can you help me
-    - what are your features
-    - what services do you offer
+    - JKIA
+    - NBO
+    - nairobi
+    - Nairobbi
+
+- synonym: Mombasa
+  examples: |
+    - MBA
+    - mombasa
+    - Moi International
+
+- synonym: Johannesburg
+  examples: |
+    - Joburg
+    - JNB
+
+- regex: flight_number
+  examples: |
+    - [Kk][Qq]\s?\d{2,4}
+
+- regex: booking_reference
+  examples: |
+    - [Bb][Kk]\d{3}
+
+- lookup: city
+  examples: |
+    - Nairobi
+    - Mombasa
+    - Kisumu
+    - Dubai
+    - London
+    - Amsterdam
+    - Johannesburg
+    - Lagos
+    - Mumbai
+    - Paris
+    - Cape Town
+    - Entebbe
+    - Kigali
+    - Dar es Salaam
+    - Addis Ababa
+    - Accra
