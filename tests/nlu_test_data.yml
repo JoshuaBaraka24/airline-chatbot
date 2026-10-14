@@ -1,0 +1,110 @@
+version: "3.1"
+
+# Held-out NLU test set (NFR-01: intent accuracy >= 85%).
+# None of these sentences appear in data/nlu.yml.
+# Run: rasa test nlu --nlu tests/nlu_test_data.yml
+
+nlu:
+- intent: greet
+  examples: |
+    - hi good morning
+    - hello, is anyone available
+    - hey hello
+
+- intent: goodbye
+  examples: |
+    - ok bye now
+    - goodbye and thanks
+    - catch you later
+
+- intent: thank_you
+  examples: |
+    - thank you very much
+    - thanks, that helps
+    - cool, thanks
+
+- intent: bot_capabilities
+  examples: |
+    - what services can you give me
+    - what are you for
+    - tell me what you can help with
+    - what can you do
+
+- intent: check_flight_status
+  examples: |
+    - is flight [KQ606](flight_number) delayed today
+    - can you tell me if [KQ 101](flight_number) is on time
+    - I'd like the status of my flight
+    - has [kq202](flight_number) left yet
+
+- intent: change_booking
+  examples: |
+    - I need to change the date of booking [BK002](booking_reference)
+    - can I rebook my flight for another day
+    - I want to reschedule my trip to [next Tuesday](date)
+    - please move my reservation
+
+- intent: cancel_booking
+  examples: |
+    - please cancel my flight reservation
+    - I need to cancel booking [BK004](booking_reference)
+    - how can I cancel my trip
+    - cancel my ticket please
+
+- intent: new_booking
+  examples: |
+    - I want to book a ticket to [Lagos]{"entity": "city", "role": "to"}
+    - can you find me a flight from [Nairobi]{"entity": "city", "role": "from"} to [Dubai]{"entity": "city", "role": "to"}
+    - I would like to make a booking
+    - book a seat for me please
+
+- intent: baggage_policy
+  examples: |
+    - how much luggage am I allowed
+    - can my bag weigh 40 kg
+    - what is the hand luggage limit
+    - do you charge for extra bags
+
+- intent: check_in_procedure
+  examples: |
+    - how can I check in for my flight
+    - what time should I get to the airport
+    - where can I get a boarding pass
+    - can I do check-in on the website
+
+- intent: check_in_status
+  examples: |
+    - did my check-in work
+    - am I already checked in for [BK001](booking_reference)
+    - is my check in done
+
+- intent: escalate_to_agent
+  examples: |
+    - I want to talk to a person please
+    - get me customer service
+    - can I speak with an agent
+
+- intent: out_of_scope
+  examples: |
+    - what's the weather like in Mombasa today
+    - can you book me an uber
+    - sing me a song
+
+- intent: inform
+  examples: |
+    - [BK003](booking_reference)
+    - [KQ450](flight_number)
+    - [Lagos]{"entity": "city"}
+    - [20 November](date)
+
+- intent: affirm
+  examples: |
+    - yes that's fine
+    - sure go ahead
+    - yes correct
+
+- intent: deny
+  examples: |
+    - no thanks
+    - no, stop
+    - not that
