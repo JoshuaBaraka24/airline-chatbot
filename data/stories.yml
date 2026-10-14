@@ -62,8 +62,10 @@ stories:
   steps:
   - intent: new_booking
     entities:
-    - origin: "Nairobi"
-    - destination: "Mombasa"
+    - city: "Nairobi"
+      role: from
+    - city: "Mombasa"
+      role: to
     - date: "2026-10-25"
   - action: action_new_booking
 
@@ -73,11 +75,13 @@ stories:
   - action: utter_ask_destination
   - intent: inform
     entities:
-    - destination: "Dubai"
+    - city: "Dubai"
+      role: to
   - action: utter_ask_origin
   - intent: inform
     entities:
-    - origin: "Nairobi"
+    - city: "Nairobi"
+      role: from
   - action: utter_ask_new_date
   - intent: inform
     entities:
