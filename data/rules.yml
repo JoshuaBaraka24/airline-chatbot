@@ -21,3 +21,18 @@ rules:
   steps:
   - intent: bot_capabilities
   - action: utter_bot_capabilities
+
+- rule: greet
+  steps:
+  - intent: greet
+  - action: utter_greet
+
+- rule: say goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: respond to thanks
+  steps:
+  - intent: thank_you
+  - action: utter_you_are_welcome

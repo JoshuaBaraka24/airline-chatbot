@@ -1,6 +1,9 @@
 version: "3.1"
 
 intents:
+  - greet
+  - goodbye
+  - thank_you
   - check_flight_status
   - change_booking
   - cancel_booking
@@ -19,9 +22,10 @@ entities:
   - flight_number
   - booking_reference
   - date
-  - origin
-  - destination
-  - passenger_name
+  - city:
+      roles:
+        - from
+        - to
 
 slots:
   flight_number:
@@ -43,16 +47,22 @@ slots:
     type: text
     mappings:
       - type: from_entity
-        entity: origin
+        entity: city
+        role: from
   destination:
     type: text
     mappings:
       - type: from_entity
-        entity: destination
+        entity: city
+        role: to
 
 responses:
   utter_greet:
     - text: "Hello! I'm the Kenya Airways virtual assistant. How can I help you today?"
+  utter_goodbye:
+    - text: "Goodbye, and thank you for flying Kenya Airways!"
+  utter_you_are_welcome:
+    - text: "You're welcome! Is there anything else I can help you with?"
   utter_ask_flight_number:
     - text: "Please provide your flight number (e.g. KQ101)."
   utter_ask_booking_ref:
