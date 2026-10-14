@@ -1,104 +1,142 @@
 version: "3.1"
 
+# Multi-turn conversations combining several tasks. Single-step behaviour
+# (form activation, submission, FAQs) is defined in rules.yml; these
+# stories teach TEDPolicy how tasks follow one another.
+
 stories:
 
-- story: check flight status with flight number
+- story: greet, check flight status, then ask about baggage
   steps:
+  - intent: greet
+  - action: utter_greet
   - intent: check_flight_status
     entities:
     - flight_number: "KQ101"
+  - action: flight_status_form
+  - active_loop: flight_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
   - action: action_check_flight_status
+  - intent: baggage_policy
+  - action: utter_baggage_policy
+  - intent: thank_you
+  - action: utter_you_are_welcome
 
-- story: check flight status without flight number
+- story: flight status without a flight number
   steps:
   - intent: check_flight_status
-  - action: utter_ask_flight_number
+  - action: flight_status_form
+  - active_loop: flight_status_form
+  - slot_was_set:
+    - requested_slot: flight_number
   - intent: inform
     entities:
     - flight_number: "KQ202"
+  - action: flight_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
   - action: action_check_flight_status
 
-- story: change booking with reference
+- story: change booking over several turns and confirm
   steps:
   - intent: change_booking
+  - action: change_booking_form
+  - active_loop: change_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - intent: inform
     entities:
     - booking_reference: "BK001"
-  - action: utter_ask_new_date
+  - action: change_booking_form
+  - slot_was_set:
+    - requested_slot: travel_date
   - intent: inform
     entities:
-    - date: "2026-10-20"
+    - date: "next Friday"
+  - action: change_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_change
+  - intent: affirm
+  - action: change_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
   - action: action_change_booking
+  - intent: goodbye
+  - action: utter_goodbye
 
-- story: change booking without reference
-  steps:
-  - intent: change_booking
-  - action: utter_ask_booking_ref
-  - intent: inform
-    entities:
-    - booking_reference: "BK002"
-  - action: utter_ask_new_date
-  - intent: inform
-    entities:
-    - date: "2026-11-01"
-  - action: action_change_booking
-
-- story: cancel booking
+- story: cancel booking, then decline at confirmation
   steps:
   - intent: cancel_booking
-    entities:
-    - booking_reference: "BK001"
-  - action: action_cancel_booking
-
-- story: cancel booking without reference
-  steps:
-  - intent: cancel_booking
-  - action: utter_ask_booking_ref
-  - intent: inform
     entities:
     - booking_reference: "BK003"
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_cancel
+  - intent: deny
+  - action: cancel_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
   - action: action_cancel_booking
 
-- story: new booking full info
+- story: new booking collecting route and date
   steps:
   - intent: new_booking
-    entities:
-    - city: "Nairobi"
-      role: from
-    - city: "Mombasa"
-      role: to
-    - date: "2026-10-25"
-  - action: action_new_booking
-
-- story: new booking missing destination
-  steps:
-  - intent: new_booking
-  - action: utter_ask_destination
-  - intent: inform
     entities:
     - city: "Dubai"
       role: to
-  - action: utter_ask_origin
+  - action: new_booking_form
+  - active_loop: new_booking_form
+  - slot_was_set:
+    - requested_slot: origin
   - intent: inform
     entities:
     - city: "Nairobi"
-      role: from
-  - action: utter_ask_new_date
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: travel_date
   - intent: inform
     entities:
-    - date: "2026-12-01"
+    - date: "25 October"
+  - action: new_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
   - action: action_new_booking
 
-- story: baggage policy inquiry
+- story: capabilities, then check-in status and procedure
   steps:
-  - intent: baggage_policy
-  - action: utter_baggage_policy
-
-- story: check in procedure
-  steps:
+  - intent: bot_capabilities
+  - action: utter_bot_capabilities
+  - intent: check_in_status
+    entities:
+    - booking_reference: "BK002"
+  - action: check_in_status_form
+  - active_loop: check_in_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_check_in_status
   - intent: check_in_procedure
   - action: utter_check_in_procedure
 
-- story: check in status
+- story: abandon a cancellation midway
   steps:
-  - intent: check_in_status
-  - action: action_check_in_status
+  - intent: cancel_booking
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - intent: deny
+  - action: action_deactivate_loop
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_stop_task
+  - intent: thank_you
+  - action: utter_you_are_welcome
