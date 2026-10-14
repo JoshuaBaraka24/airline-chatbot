@@ -7,6 +7,7 @@ Endpoints
     POST /api/chat                  send a message, receive the bot's replies
     POST /api/chat/{sender_id}/end  close a conversation
     GET  /api/health                status of the API, Rasa and the database
+    GET  /                          the chat widget (frontend/)
 Interactive API docs are served at /docs.
 """
 import logging
@@ -14,13 +15,14 @@ import time
 import uuid
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, Path, status
+from fastapi import FastAPI, HTTPException, Path, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, validator
 
 from backend import conversation_log, rasa_client
-from backend.config import ALLOWED_ORIGINS, MAX_MESSAGE_LENGTH
+from backend.config import ALLOWED_ORIGINS, FRONTEND_DIR, MAX_MESSAGE_LENGTH
 
 logger = logging.getLogger("backend")
 
@@ -37,6 +39,23 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
+
+# The widget only loads its own scripts and styles and only calls this API.
+# Swagger UI (/docs) loads assets from a CDN, so it is left out.
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+    "connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+)
+_DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    if not request.url.path.startswith(_DOCS_PATHS):
+        response.headers["Content-Security-Policy"] = CONTENT_SECURITY_POLICY
+    return response
 
 
 class ChatRequest(BaseModel):
@@ -122,3 +141,7 @@ def health() -> JSONResponse:
             "database": "up" if database_ok else "down",
         },
     )
+
+
+# Registered last so the API routes above take precedence
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

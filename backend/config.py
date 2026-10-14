@@ -14,6 +14,7 @@ ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 MAX_MESSAGE_LENGTH = 500
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 DB_SETTINGS = {
     "dbname": os.getenv("DB_NAME", "airline_db"),
