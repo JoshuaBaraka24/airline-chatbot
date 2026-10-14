@@ -61,8 +61,14 @@ rasa run --enable-api            # 2. Rasa server     :5005 (--enable-api is nee
 uvicorn backend.main:app --port 8000   # 3. API gateway :8000, docs at http://127.0.0.1:8000/docs
 ```
 
-To chat in the terminal without the gateway, run `rasa shell` alongside the
-action server.
+To chat in the terminal, keep the action server running and use `rasa shell`
+**instead of** `rasa run` (terminal 2). Both start a Rasa server on port 5005,
+so running them together fails with `[Errno 10048] ... ('0.0.0.0', 5005)`.
+To keep the full stack running as well, give the shell its own port:
+
+```powershell
+rasa shell --port 5006
+```
 
 Sample data: booking references `BK001`–`BK006` and flight numbers `KQ101`,
 `KQ202`, `KQ305`, `KQ450`, `KQ505`, `KQ601`, `KQ702`, `KQ789`. Departures
