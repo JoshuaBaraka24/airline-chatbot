@@ -8,7 +8,7 @@ cancel). It escalates to a human agent when it can't help.
 ## Architecture
 
 ```
-Chat widget (HTML/CSS/JS)          ← M5, in progress
+Chat widget       frontend/        served by the gateway at /, voice I/O, WCAG 2.1 AA
         │  REST (JSON)
 FastAPI gateway   backend/          :8000   session tokens, validation, conversation logging
         │  REST channel
@@ -28,9 +28,10 @@ PostgreSQL        database/         :5432   users, flights, bookings, conversati
 | `domain.yml` | Intents, entities, slots, forms and responses |
 | `config.yml` | NLU pipeline and dialogue policies |
 | `actions/` | Custom actions: `forms.py` (validation), `actions.py` (tasks), `repository.py` (SQL), `parsing.py` (dates, references) |
-| `backend/` | FastAPI gateway |
+| `frontend/` | Chat widget: `index.html`, `styles.css`, `chat.js` (API client), `voice.js` (Web Speech API) |
+| `backend/` | FastAPI gateway; also serves the widget |
 | `database/` | `schema.sql`, `seed.sql`, `init_db.py` |
-| `tests/` | pytest unit tests, Rasa end-to-end test stories and the held-out NLU test set |
+| `tests/` | pytest unit tests, Rasa end-to-end test stories, the held-out NLU test set and browser tests (`tests/e2e/`) |
 | `docs/` | Evaluation reports |
 
 ## Setup
@@ -60,6 +61,13 @@ rasa run actions                 # 1. action server   :5055
 rasa run --enable-api            # 2. Rasa server     :5005 (--enable-api is needed for conversation logging)
 uvicorn backend.main:app --port 8000   # 3. API gateway :8000, docs at http://127.0.0.1:8000/docs
 ```
+
+Then open **http://127.0.0.1:8000** and click **Chat with us**. The widget has:
+
+- Quick-reply buttons for common tasks, and yes/no buttons for confirmations
+- Voice input (microphone button) and read-aloud replies (speaker toggle). Speech recognition needs Chrome or Edge; the mic button is hidden in other browsers
+- A high-contrast theme toggle, full keyboard use (Tab, Enter, Escape closes) and screen-reader labels
+- A conversation that survives a page reload; the refresh button starts a new one
 
 To chat in the terminal, keep the action server running and use `rasa shell`
 **instead of** `rasa run` (terminal 2). Both start a Rasa server on port 5005,
@@ -97,6 +105,10 @@ pytest                                                   # unit tests: parsing h
 rasa data validate                                       # domain and training data consistency
 rasa test nlu --nlu tests\nlu_test_data.yml              # held-out NLU evaluation
 rasa test core --stories tests\test_stories.yml          # end-to-end conversation tests
+
+# Browser tests for the widget (needs Node.js 18+, Chrome and the running stack)
+python database\init_db.py
+cd tests\e2e; npm install; npm test
 ```
 
 Current results (14 Oct 2026):
@@ -107,7 +119,9 @@ Current results (14 Oct 2026):
 | Entity weighted F1 | 0.87 | |
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
-| Unit tests | 47 passed | |
+| Unit tests | 50 passed | |
+| Widget browser checks | 28 / 28 | |
+| Widget accessibility (axe-core) | 0 violations in 4 states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
 
@@ -121,7 +135,7 @@ Tracked with [GitHub milestones](https://github.com/JoshuaBaraka24/airline-chatb
 | M2: NLU Model Training | Jul–Aug 2026 | Done |
 | M3: Dialogue Manager Development | Jul–Sep 2026 | Done |
 | M4: Backend API & Database | Aug–Sep 2026 | Done |
-| M5: Chat Widget (Frontend) | Sep–Oct 2026 | In progress |
+| M5: Chat Widget (Frontend) | Sep–Oct 2026 | Done |
 | M6: System Integration & Testing | Oct–Nov 2026 | Not started |
 | M7: User Acceptance Testing | Nov 2026 | Not started |
 | M8: Report Writing & Final Submission | Oct–Dec 2026 | Not started |
