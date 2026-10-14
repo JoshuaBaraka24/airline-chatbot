@@ -1,8 +1,22 @@
+# Python
 venv/
-models/
-.rasa/
+.venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# Rasa
+models/
+.rasa/
+results/
 *.tar.gz
+
+# Secrets and local data
 .env
 *.db
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

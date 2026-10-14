@@ -1,0 +1,18 @@
+# Conversational AI (NLU + dialogue management + custom actions)
+rasa==3.6.20
+rasa-sdk==3.6.2
+transformers==4.30.0
+# Newer setuptools removed pkg_resources, which Rasa 3.6 still imports
+setuptools==69.5.1
+
+# Database
+psycopg2-binary==2.9.13
+
+# Backend API gateway
+fastapi==0.95.2
+uvicorn==0.53.0
+httpx==0.28.1
+
+# Configuration and testing
+python-dotenv==1.0.1
+pytest==8.3.3
