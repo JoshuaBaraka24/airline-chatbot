@@ -20,3 +20,7 @@ results/
 .idea/
 Thumbs.db
 .DS_Store
+
+# Browser tests
+node_modules/
+tests/e2e/screenshots/
