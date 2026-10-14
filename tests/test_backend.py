@@ -101,3 +101,25 @@ def test_health_reports_components(client, calls, monkeypatch):
     response = client.get("/api/health")
     assert response.status_code == 503
     assert response.json()["rasa"] == "down"
+
+
+def test_widget_is_served_with_security_headers(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert 'id="chat-panel"' in response.text
+    assert "script-src 'self'" in response.headers["content-security-policy"]
+    assert response.headers["x-content-type-options"] == "nosniff"
+    for asset in ("/chat.js", "/voice.js", "/styles.css"):
+        assert client.get(asset).status_code == 200
+
+
+def test_api_routes_take_precedence_over_static_files(client, calls):
+    assert client.get("/api/health").json()["status"] == "ok"
+
+
+def test_api_docs_are_not_restricted_by_widget_csp(client):
+    response = client.get("/docs")
+
+    assert response.status_code == 200
+    assert "content-security-policy" not in response.headers
