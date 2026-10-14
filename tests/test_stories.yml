@@ -1,91 +1,140 @@
-#### This file contains tests to evaluate that your bot behaves as expected.
-#### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
+version: "3.1"
+
+# End-to-end conversation tests. Run with: rasa test core --stories tests/test_stories.yml
+# Each step checks the predicted intent (from the raw user text) and the next action.
 
 stories:
-- story: happy path 1
-  steps:
-  - user: |
-      hello there!
-    intent: greet
-  - action: utter_greet
-  - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
 
-- story: happy path 2
+- story: greet and ask what the bot can do
   steps:
   - user: |
-      hello there!
+      hello there
     intent: greet
   - action: utter_greet
   - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
-  - user: |
-      bye-bye!
-    intent: goodbye
-  - action: utter_goodbye
+      what services do you provide
+    intent: bot_capabilities
+  - action: utter_bot_capabilities
 
-- story: sad path 1
+- story: flight status in one message
   steps:
   - user: |
-      hello
-    intent: greet
-  - action: utter_greet
+      what is the status of flight [KQ101](flight_number)?
+    intent: check_flight_status
+  - action: flight_status_form
+  - active_loop: flight_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_check_flight_status
+
+- story: flight status over two turns
+  steps:
   - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
+      is my flight delayed?
+    intent: check_flight_status
+  - action: flight_status_form
+  - active_loop: flight_status_form
+  - slot_was_set:
+    - requested_slot: flight_number
+  - user: |
+      [KQ202](flight_number)
+    intent: inform
+  - action: flight_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_check_flight_status
+
+- story: cancel booking with confirmation
+  steps:
+  - user: |
+      I want to cancel my booking
+    intent: cancel_booking
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - user: |
+      [BK001](booking_reference)
+    intent: inform
+  - action: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_cancel
   - user: |
       yes
     intent: affirm
-  - action: utter_happy
+  - action: cancel_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_cancel_booking
 
-- story: sad path 2
+- story: change booking, then stop midway
   steps:
   - user: |
-      hello
-    intent: greet
-  - action: utter_greet
+      I need to change my flight
+    intent: change_booking
+  - action: change_booking_form
+  - active_loop: change_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
   - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      not really
+      never mind
     intent: deny
-  - action: utter_goodbye
+  - action: action_deactivate_loop
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_stop_task
 
-- story: sad path 3
+- story: new booking with route in first message
   steps:
   - user: |
-      hi
-    intent: greet
-  - action: utter_greet
+      can you help me book a flight from [Nairobi]{"entity": "city", "role": "from"} to [Dubai]{"entity": "city", "role": "to"}
+    intent: new_booking
+  - action: new_booking_form
+  - active_loop: new_booking_form
+  - slot_was_set:
+    - requested_slot: travel_date
   - user: |
-      very terrible
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      no
-    intent: deny
-  - action: utter_goodbye
+      [next Friday](date)
+    intent: inform
+  - action: new_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_new_booking
 
-- story: say goodbye
+- story: escalate in the middle of a form
   steps:
   - user: |
-      bye-bye!
+      what's my check-in status
+    intent: check_in_status
+  - action: check_in_status_form
+  - active_loop: check_in_status_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - user: |
+      I want to speak to a human
+    intent: escalate_to_agent
+  - action: action_deactivate_loop
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_escalate_to_agent
+
+- story: baggage question and goodbye
+  steps:
+  - user: |
+      can I carry bags that weigh 50 kg
+    intent: baggage_policy
+  - action: utter_baggage_policy
+  - user: |
+      thanks
+    intent: thank_you
+  - action: utter_you_are_welcome
+  - user: |
+      bye
     intent: goodbye
   - action: utter_goodbye
-
-- story: bot challenge
-  steps:
-  - user: |
-      are you a bot?
-    intent: bot_challenge
-  - action: utter_iamabot
