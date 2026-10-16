@@ -333,3 +333,51 @@ class ActionAskConfirmChange(Action):
             logger.exception("Could not load change details for %s", booking_ref)
             dispatcher.utter_message(text=f"Shall I move booking {booking_ref} to {new_date}?", buttons=YES_NO_BUTTONS)
         return []
+
+
+class ActionAskBookingReference(Action):
+    """Asks for a booking reference, offering a logged-in passenger's own bookings as buttons.
+
+    The web portal passes the passenger's user_id as message metadata.
+    """
+
+    # Bookings each form can act on
+    STATUSES_BY_FORM = {
+        "cancel_booking_form": ("confirmed",),
+        "change_booking_form": ("confirmed",),
+        "check_in_status_form": ("confirmed", "checked_in"),
+    }
+
+    def name(self) -> Text:
+        return "action_ask_booking_reference"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
+        metadata = tracker.latest_message.get("metadata") or {}
+        user_id = metadata.get("user_id")
+        form = (tracker.active_loop or {}).get("name")
+        bookings = []
+        if user_id:
+            try:
+                bookings = repo.bookings_for_user(int(user_id), self.STATUSES_BY_FORM.get(form, ("confirmed", "checked_in")))
+            except Exception:
+                logger.exception("Could not load bookings for user %s", user_id)
+
+        if not bookings:
+            dispatcher.utter_message(response="utter_ask_booking_reference")
+            return []
+
+        buttons = [
+            {
+                "title": f"{b['booking_ref']} · {b['flight_number']} {b['origin']} → {b['destination']}, "
+                         f"{b['departure_time']:%d %b}",
+                "payload": f'/inform{{"booking_reference":"{b["booking_ref"]}"}}',
+            }
+            for b in bookings
+        ]
+        name = metadata.get("name", "").split(" ")[0]
+        greeting = f"{name}, which" if name else "Which"
+        dispatcher.utter_message(
+            text=f"{greeting} booking is this about? Choose one below or type a booking reference.",
+            buttons=buttons,
+        )
+        return []

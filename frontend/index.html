@@ -4,107 +4,115 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kenya Airways Virtual Assistant</title>
-  <meta name="description" content="Demo page for the Kenya Airways conversational agent.">
+  <meta name="description" content="Check flight status, manage bookings, and get check-in and baggage help from the Kenya Airways virtual assistant.">
+  <link rel="stylesheet" href="site.css">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <a class="skip-link" href="#chat-launcher">Skip to virtual assistant</a>
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
 
-  <!-- Stand-in host page: the widget is designed to be embedded on an airline website -->
-  <header class="site-header">
-    <div class="site-header__inner">
-      <span class="site-logo" aria-hidden="true">KQ</span>
-      <span class="site-name">Kenya Airways</span>
-    </div>
-  </header>
-  <main class="site-main" id="main">
-    <h1>Need help with your trip?</h1>
-    <p>Our virtual assistant can check flight status, find flights, change or cancel a booking,
-      tell you whether you're checked in and answer baggage questions, 24 hours a day.</p>
-    <p class="site-hint">Open the assistant with the chat button in the bottom-right corner.</p>
-  </main>
-
-  <button id="chat-launcher" class="launcher" type="button"
-          aria-haspopup="dialog" aria-controls="chat-panel" aria-expanded="false">
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" focusable="false">
-      <path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"/>
-    </svg>
-    <span class="launcher__label">Chat with us</span>
-  </button>
-
-  <section id="chat-panel" class="chat" role="dialog" aria-modal="false"
-           aria-labelledby="chat-title" hidden>
-    <header class="chat__header">
-      <div class="chat__identity">
-        <span class="chat__avatar" aria-hidden="true">KQ</span>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__grid">
         <div>
-          <h2 id="chat-title" class="chat__title">Virtual Assistant</h2>
-          <p class="chat__status" id="chat-status">
-            <span class="chat__status-dot" aria-hidden="true"></span>
-            <span id="chat-status-text">Connecting…</span>
-          </p>
+          <h1 id="hero-title">Travel help, any time you need it</h1>
+          <p>Ask our virtual assistant about your flight, change or cancel a booking, check in,
+             or find out what you can pack. Answers in seconds, 24 hours a day.</p>
+          <div class="hero__actions">
+            <button type="button" class="btn btn--light" id="hero-chat">Chat with the assistant</button>
+            <a class="btn btn--ghost" href="account.html" id="hero-manage">Manage my bookings</a>
+          </div>
+        </div>
+
+        <div class="card status-card" id="flight-status">
+          <h2>Check flight status</h2>
+          <form class="status-form" id="status-form" novalidate>
+            <label for="status-input" class="visually-hidden">Flight number</label>
+            <input id="status-input" class="input" name="flight_number" placeholder="Flight number, e.g. KQ101"
+                   maxlength="8" autocomplete="off" aria-describedby="status-message" required>
+            <button type="submit" class="btn btn--primary">Search</button>
+          </form>
+          <p class="muted" id="status-message" role="status">Try KQ101, KQ202 or KQ505.</p>
+          <ul class="status-results" id="status-results" aria-label="Flight status results"></ul>
         </div>
       </div>
-      <div class="chat__tools">
-        <button type="button" class="icon-btn" id="tts-toggle" aria-pressed="false"
-                title="Read replies aloud">
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-            <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/>
-          </svg>
-          <span class="visually-hidden">Read replies aloud</span>
-        </button>
-        <button type="button" class="icon-btn" id="contrast-toggle" aria-pressed="false"
-                title="High contrast">
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-            <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18V4a8 8 0 0 1 0 16z"/>
-          </svg>
-          <span class="visually-hidden">High contrast</span>
-        </button>
-        <button type="button" class="icon-btn" id="restart-btn" title="Start a new conversation">
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-            <path fill="currentColor" d="M17.65 6.35A8 8 0 1 0 19.73 14h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-          </svg>
-          <span class="visually-hidden">Start a new conversation</span>
-        </button>
-        <button type="button" class="icon-btn" id="close-btn" title="Close chat">
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-            <path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          <span class="visually-hidden">Close chat</span>
-        </button>
+    </section>
+
+    <section class="section container" aria-labelledby="help-title">
+      <h2 class="section__title" id="help-title">How can we help?</h2>
+      <p class="section__lead">Pick a topic and the assistant will take it from there.</p>
+      <div class="tiles">
+        <article class="card tile">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+          </span>
+          <h3>Flight status</h3>
+          <p>Departure and arrival times, delays and cancellations.</p>
+          <button type="button" class="btn btn--secondary btn--small" data-ask="/check_flight_status" data-label="Flight status">Ask the assistant</button>
+        </article>
+        <article class="card tile">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/></svg>
+          </span>
+          <h3>Change a booking</h3>
+          <p>Move your flight to another date, with the details shown before anything changes.</p>
+          <button type="button" class="btn btn--secondary btn--small" data-ask="/change_booking" data-label="Change a booking">Ask the assistant</button>
+        </article>
+        <article class="card tile">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+          </span>
+          <h3>Check-in</h3>
+          <p>When online check-in opens and whether you're already checked in.</p>
+          <button type="button" class="btn btn--secondary btn--small" data-ask="/check_in_status" data-label="Am I checked in?">Ask the assistant</button>
+        </article>
+        <article class="card tile">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M17 6h-2V3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h1v1h2v-1h4v1h2v-1h1a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM11 4h2v2h-2z"/></svg>
+          </span>
+          <h3>Baggage</h3>
+          <p>Checked and cabin allowances, overweight bags and extra baggage.</p>
+          <button type="button" class="btn btn--secondary btn--small" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
+        </article>
       </div>
-    </header>
+    </section>
 
-    <div class="chat__log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions"
-         aria-label="Conversation" tabindex="0"></div>
+    <section class="section container" id="travel-info" aria-labelledby="info-title">
+      <h2 class="section__title" id="info-title">Travel information</h2>
+      <p class="section__lead">The essentials at a glance. Allowances can vary by route and fare, so always check your e-ticket.</p>
+      <div class="info-grid">
+        <div class="card">
+          <h3>Baggage allowance</h3>
+          <table class="table">
+            <caption class="visually-hidden">Baggage allowance by cabin</caption>
+            <thead><tr><th scope="col">Cabin</th><th scope="col">Checked bags</th><th scope="col">Cabin bag</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Economy</th><td>Up to 23 kg each</td><td>1 bag up to 12 kg</td></tr>
+              <tr><th scope="row">Business</th><td>Up to 32 kg each</td><td>1 bag up to 12 kg</td></tr>
+            </tbody>
+          </table>
+          <p class="muted">No single bag may weigh more than 32 kg; heavier items travel as cargo.
+            Extra and overweight bags can be bought in advance.</p>
+        </div>
+        <div class="card">
+          <h3>Check-in</h3>
+          <ol class="steps">
+            <li><strong>Online, from 36 hours before departure</strong> Check in at kenyaairways.com and get your boarding pass.</li>
+            <li><strong>At the airport, from 3 hours before</strong> Counters open three hours before departure.</li>
+            <li><strong>Bring your documents</strong> Your booking reference and a valid passport or ID.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <p class="chat__typing" id="chat-typing" hidden>
-      <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
-      <span class="visually-hidden">The assistant is typing</span>
-    </p>
+  <div id="site-footer"></div>
 
-    <form class="chat__composer" id="chat-form" autocomplete="off">
-      <label for="chat-input" class="visually-hidden">Type your message</label>
-      <input id="chat-input" name="message" type="text" maxlength="500"
-             placeholder="Type your message…" aria-describedby="chat-hint" required>
-      <button type="button" class="icon-btn icon-btn--mic" id="mic-btn" aria-pressed="false"
-              title="Speak your message" hidden>
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-          <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
-        </svg>
-        <span class="visually-hidden">Speak your message</span>
-      </button>
-      <button type="submit" class="send-btn" id="send-btn">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" focusable="false">
-          <path fill="currentColor" d="M2 21 23 12 2 3v7l15 2-15 2z"/>
-        </svg>
-        <span class="visually-hidden">Send</span>
-      </button>
-    </form>
-    <p class="chat__hint" id="chat-hint">Press Enter to send. Type “agent” at any time to reach a person.</p>
-  </section>
-
+  <script src="api.js"></script>
+  <script src="site.js"></script>
   <script src="voice.js"></script>
   <script src="chat.js"></script>
+  <script src="home.js"></script>
 </body>
 </html>

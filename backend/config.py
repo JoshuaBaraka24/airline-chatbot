@@ -14,6 +14,12 @@ ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 MAX_MESSAGE_LENGTH = 500
+
+# Web portal login sessions
+SESSION_COOKIE = "kq_session"
+SESSION_HOURS = int(os.getenv("SESSION_HOURS", "8"))
+# Set to true when served over HTTPS so the cookie is never sent in clear text
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 DB_SETTINGS = {

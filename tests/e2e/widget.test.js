@@ -68,11 +68,12 @@ async function axe(page, label) {
   await page.screenshot({ path: path.join(SHOTS, "1-closed.png") });
   await axe(page, "page, chat closed");
 
-  // Keyboard only: skip link -> launcher -> open
+  // Keyboard only: skip link, then open the assistant from its launcher
   await page.keyboard.press("Tab");
   check("first Tab focuses skip link", await page.evaluate(() => document.activeElement.className === "skip-link"));
   await page.keyboard.press("Enter");
-  check("skip link moves focus to launcher", await page.evaluate(() => document.activeElement.id === "chat-launcher"));
+  check("skip link jumps to main content", await page.evaluate(() => window.location.hash === "#main"));
+  await page.focus("#chat-launcher");
   await page.keyboard.press("Enter");
   await page.waitForSelector("#chat-panel:not([hidden])");
   check("Enter on launcher opens panel and focuses input", await page.evaluate(() => document.activeElement.id === "chat-input"));
