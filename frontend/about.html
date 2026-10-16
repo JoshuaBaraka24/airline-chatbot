@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About this prototype · Kenya Airways Virtual Assistant</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="about">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="page-banner page-banner--about" aria-labelledby="page-title">
+      <div class="container">
+        <p class="breadcrumb"><a href="index.html">Home</a> / About</p>
+        <h1 id="page-title">About this prototype</h1>
+        <p>A conversational agent for Kenya Airways customer support, built on a fine-tuned BERT language model.</p>
+      </div>
+    </section>
+
+    <div class="section container about-grid">
+      <section class="card" aria-labelledby="project-title">
+        <h2 id="project-title">The project</h2>
+        <p>Kenya Airways proposed the concept of a virtual assistant that handles routine customer questions
+           (flight status, baggage, check-in and booking changes) so contact-centre agents can focus on
+           complex cases. This prototype was designed and built to that brief and will be presented to
+           Kenya Airways at the end of the project.</p>
+        <p>Passengers can ask in natural language, by text or voice. The assistant understands the request,
+           keeps track of the conversation over several turns, carries out simple transactions with a
+           confirmation step, and hands over to a human agent when needed. Staff can review conversations
+           and escalations in a dashboard.</p>
+        <p class="muted">All flights, bookings and accounts in this prototype are sample data. Policy details
+           such as baggage allowances are illustrative and would be confirmed with Kenya Airways.</p>
+      </section>
+
+      <section class="card" aria-labelledby="facts-title">
+        <h2 id="facts-title">Project details</h2>
+        <dl class="facts">
+          <dt>Developed by</dt><dd>Adalo Joshua Baraka</dd>
+          <dt>Programme</dt><dd>BSc Informatics and Computer Science, ICS Project II</dd>
+          <dt>Institution</dt><dd>School of Computing and Engineering Sciences, Strathmore University</dd>
+          <dt>Supervisor</dt><dd>Mr. Daniel Machanje</dd>
+          <dt>Client</dt><dd>Kenya Airways</dd>
+          <dt>Technology</dt><dd>Rasa with BERT (NLU and dialogue), FastAPI, PostgreSQL, accessible HTML/CSS/JavaScript</dd>
+        </dl>
+      </section>
+    </div>
+
+    <section class="section container" aria-labelledby="credits-title">
+      <div class="card">
+        <h2 id="credits-title">Photo credits</h2>
+        <p class="muted">Photographs are from Wikimedia Commons and used under the licences shown; they have been
+           resized and compressed. The Kenya Airways name and logo are trademarks of Kenya Airways PLC.</p>
+        <div class="table-wrap">
+          <table class="table credits">
+            <caption class="visually-hidden">Photographs used on this site, with authors and licences</caption>
+            <thead><tr><th scope="col">Photo</th><th scope="col">Used for</th><th scope="col">Title and author</th><th scope="col">Licence</th></tr></thead>
+            <tbody id="credit-rows"><tr><td colspan="4">Loading credits…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="voice.js"></script>
+  <script src="chat.js"></script>
+  <script src="about.js"></script>
+</body>
+</html>
