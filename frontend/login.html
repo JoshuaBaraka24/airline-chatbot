@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in · Kenya Airways Virtual Assistant</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body data-page="login">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="auth">
+    <div class="card auth__card">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" class="tab" role="tab" id="tab-login" aria-controls="panel-login" aria-selected="true">Log in</button>
+        <button type="button" class="tab" role="tab" id="tab-register" aria-controls="panel-register" aria-selected="false" tabindex="-1">Create account</button>
+      </div>
+
+      <div class="alert" id="auth-error" role="alert" hidden></div>
+
+      <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+        <h1 class="visually-hidden">Log in</h1>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" class="input" type="email" name="email" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input id="login-password" class="input" type="password" name="password" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="btn btn--primary auth__submit">Log in</button>
+        </form>
+        <div class="alert alert--info demo-accounts">
+          <strong>Demo accounts</strong> (sample data only)<br>
+          Passenger: <code>john@email.com</code> / <code>Passenger@2026</code><br>
+          Staff: <code>admin@kq-demo.local</code> / <code>Admin@2026</code>
+        </div>
+      </section>
+
+      <section id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
+        <h1 class="visually-hidden">Create an account</h1>
+        <form id="register-form" novalidate>
+          <div class="field">
+            <label for="register-name">Full name</label>
+            <input id="register-name" class="input" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input id="register-email" class="input" type="email" name="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="register-password">Password</label>
+            <input id="register-password" class="input" type="password" name="password"
+                   autocomplete="new-password" aria-describedby="password-hint" required>
+            <span class="field__hint" id="password-hint">At least 8 characters, with letters and numbers.</span>
+          </div>
+          <button type="submit" class="btn btn--primary auth__submit">Create account</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>
