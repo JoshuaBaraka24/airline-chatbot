@@ -1,10 +1,10 @@
-# Logo
+# Assets
 
-Place the official Kenya Airways logo here as **`logo.png`** (a transparent PNG
-around 160×80 px works well). The header picks it up automatically; until the
-file exists, a "KQ" mark is shown instead.
+| Path | What it is | Source and licence |
+|---|---|---|
+| `logo.svg` | Kenya Airways logo | Wikimedia Commons, [File:Kenya Airways Logo.svg](https://commons.wikimedia.org/wiki/File:Kenya_Airways_Logo.svg). Public domain for copyright; **trademark of Kenya Airways PLC**, used in this prototype built for Kenya Airways. Replace with the brand team's master file if provided. |
+| `photos/*.jpg` | Page backgrounds and destination photos | Wikimedia Commons, freely licensed (CC BY / CC BY-SA / public domain). Authors, licences and sources are listed in `photos/credits.json` and shown on the About page (`about.html`). Images were resized and re-compressed. |
+| `favicon.svg`, `illustrations/empty-suitcase.svg`, `destinations/default.svg` | Icon and small illustrations | Original artwork made for this project. |
 
-Download the logo from an official Kenya Airways source (website or media kit).
-The logo is a Kenya Airways trademark: it is used here only for a non-commercial
-student demonstration, and the site footer says the project is not affiliated
-with Kenya Airways. Do not host the portal publicly with the logo.
+To swap a photo, replace the file under `photos/` with one of the same name and update its entry in
+`photos/credits.json`.

@@ -15,6 +15,7 @@
 .launcher:hover { background: var(--brand-dark); }
 :root[data-theme="high-contrast"] .launcher { border-color: var(--border); }
 .launcher[aria-expanded="true"] { display: none; }
+.launcher__new { margin-left: 2px; }
 
 /* ---------- Chat panel ---------- */
 

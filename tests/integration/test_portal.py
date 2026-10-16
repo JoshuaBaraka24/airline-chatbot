@@ -82,3 +82,13 @@ def test_admin_resolves_only_escalated_conversations(admin):
 
 def test_transcript_of_unknown_conversation_is_404(admin):
     assert admin.get("/api/admin/conversations/999/transcript").status_code == 404
+
+
+def test_departures_board_lists_upcoming_flights_in_order(client):
+    flights = client.get("/api/flights/departures", params={"limit": 5}).json()
+
+    assert len(flights) == 5
+    times = [f["departure_time"] for f in flights]
+    assert times == sorted(times)
+    assert {"flight_number", "origin", "destination", "status"} <= set(flights[0])
+    assert client.get("/api/flights/departures", params={"limit": 0}).status_code == 422

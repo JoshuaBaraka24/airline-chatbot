@@ -1,14 +1,17 @@
 # Kenya Airways Virtual Assistant
 
-An NLP-based conversational agent for airline customer support, built for
-ICS Project II. It handles four support domains: **flight status**,
-**baggage policy**, **check-in** and **booking management** (new, change,
-cancel). It escalates to a human agent when it can't help.
+A prototype conversational agent for **Kenya Airways** customer support. Kenya Airways proposed the
+concept, and the finished system will be presented to them. It handles four support domains:
+**flight status**, **baggage policy**, **check-in** and **booking management** (new, change, cancel),
+and hands over to a human agent when it can't help.
+
+Developed by Adalo Joshua Baraka (BSc Informatics and Computer Science, ICS Project II, Strathmore
+University), supervised by Mr. Daniel Machanje. All flights, bookings and accounts are sample data.
 
 ## Architecture
 
 ```
-Web portal        frontend/        home, login, My bookings, staff dashboard + chat widget (WCAG 2.1 AA)
+Web portal        frontend/        8 pages + chat widget on every passenger page (WCAG 2.1 AA)
         │  REST (JSON)
 FastAPI gateway   backend/          :8000   session tokens, validation, conversation logging
         │  REST channel
@@ -28,7 +31,7 @@ PostgreSQL        database/         :5432   users, flights, bookings, conversati
 | `domain.yml` | Intents, entities, slots, forms and responses |
 | `config.yml` | NLU pipeline and dialogue policies |
 | `actions/` | Custom actions: `forms.py` (validation), `actions.py` (tasks), `repository.py` (SQL), `parsing.py` (dates, references) |
-| `frontend/` | Web portal pages (`index`, `login`, `account`, `admin`), shared `site.css`/`site.js`/`api.js`, and the chat widget (`chat.js`, `voice.js`, `styles.css`). Put the logo in `frontend/assets/logo.png` |
+| `frontend/` | Portal pages (`index`, `flight-status`, `destinations`, `travel-info`, `assistant`, `about`, `login`, `account`, `admin`), shared `site.css`/`site.js`/`api.js`, the chat widget (`chat.js`, `voice.js`, `styles.css`) and `assets/` (logo, photos with `credits.json`) |
 | `backend/` | FastAPI gateway; also serves the widget |
 | `database/` | `schema.sql`, `seed.sql`, `init_db.py` |
 | `tests/` | pytest unit tests, Rasa end-to-end test stories, the held-out NLU test set and browser tests (`tests/e2e/`) |
@@ -66,7 +69,12 @@ Then open **http://127.0.0.1:8000**. The portal has:
 
 | Page | What it does |
 |---|---|
-| **Home** | Flight status search, feature highlights, "ask the assistant" shortcuts, popular destinations with **Find flights**, baggage and check-in information |
+| **Home** | Introduces the new assistant, quick flight status search, topic shortcuts and popular destinations |
+| **Flight status** | Search by flight number, plus an upcoming departures board |
+| **Destinations** | All routes from Nairobi with photos; **Find flights** starts a search in the assistant |
+| **Travel info** | Baggage allowance, check-in times and FAQs |
+| **Virtual Assistant** (new) | What the assistant can do, with clickable example questions, how it works, and test results |
+| **About** | The project, who built it, and photo credits |
 | **Log in / Create account** | Passenger registration and login; staff log in here too |
 | **My bookings** (passengers) | Your bookings with flight details and one-click buttons that ask the assistant to change, cancel or check them |
 | **Staff dashboard** (admin, FR-06) | Conversation statistics, the conversation log with a status filter, transcripts, and "Mark resolved" for chats escalated to an agent |
@@ -86,15 +94,15 @@ Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` an
 
 The other sample passengers (`amina@`, `peter@`, `grace@`, `david@`, `mary@email.com`) use the passenger password.
 
-**Illustrations:** the hero scene, destination pictures, login and empty-state artwork in
-`frontend/assets/` are original SVGs made for this project, so there are no licensing issues. To use
-photos instead, replace a file in `frontend/assets/destinations/` (e.g. `dubai.svg`) and update its
-path in `index.html` and `account.js`.
+The Virtual Assistant is announced as a **new feature** across the site: a dismissible banner, a
+**New** badge in the navigation and on the chat button (until it is first opened), and its own page.
 
-**Logo:** save the official Kenya Airways logo as `frontend/assets/logo.png` and it appears in the
-header automatically (see `frontend/assets/README.md`). Until then a "KQ" mark is shown. The footer
-states that this is a student project not affiliated with Kenya Airways, so keep the portal local or
-private rather than hosting it publicly.
+**Photos and logo:** photographs are from Wikimedia Commons under CC BY, CC BY-SA or public-domain
+licences. Each one's author, licence and source is in `frontend/assets/photos/credits.json` and on the
+About page, as the licences require. The Kenya Airways logo (`frontend/assets/logo.svg`) is the
+airline's trademark, used in this prototype built for them. If Kenya Airways provides official brand
+assets or its own photography, replace the files with the same names (see `frontend/assets/README.md`).
+Baggage and check-in details are illustrative and should be confirmed with Kenya Airways.
 
 To chat in the terminal, keep the action server running and use `rasa shell`
 **instead of** `rasa run` (terminal 2). Both start a Rasa server on port 5005,
@@ -146,9 +154,9 @@ Current results (16 Oct 2026):
 | Entity weighted F1 | 0.87 | |
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
-| Unit + integration tests (pytest) | 80 passed | |
-| Browser checks: widget / portal | 28 / 28 and 52 / 52 | |
-| Accessibility (axe-core) | 0 violations across 12 page states | WCAG 2.1 AA (NFR-03) |
+| Unit + integration tests (pytest) | 81 passed | |
+| Browser checks: widget / portal | 28 / 28 and 74 / 74 | |
+| Accessibility (axe-core) | 0 violations across 17 page states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
 

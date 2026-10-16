@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel information · Kenya Airways</title>
+  <meta name="description" content="Kenya Airways baggage allowance, check-in times and travel questions.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="info">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="page-banner page-banner--info" aria-labelledby="page-title">
+      <div class="container">
+        <p class="breadcrumb"><a href="index.html">Home</a> / Travel information</p>
+        <h1 id="page-title">Travel information</h1>
+        <p>Baggage allowances, check-in times and answers to common questions, before you get to the airport.</p>
+      </div>
+    </section>
+
+    <div class="section container info-grid">
+      <section class="card" id="baggage" aria-labelledby="baggage-title">
+        <h2 id="baggage-title">Baggage allowance</h2>
+        <table class="table">
+          <caption class="visually-hidden">Baggage allowance by cabin</caption>
+          <thead><tr><th scope="col">Cabin</th><th scope="col">Checked bags</th><th scope="col">Cabin bag</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Economy</th><td>Up to 23 kg each</td><td>1 bag up to 12 kg</td></tr>
+            <tr><th scope="row">Business</th><td>Up to 32 kg each</td><td>1 bag up to 12 kg</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">No single bag may weigh more than 32 kg; heavier items travel as cargo. Extra and overweight
+          bags can be bought in advance. Allowances vary by route and fare, so always check your e-ticket.</p>
+      </section>
+
+      <section class="card" id="check-in" aria-labelledby="checkin-title">
+        <h2 id="checkin-title">Check-in</h2>
+        <ol class="steps">
+          <li><strong>Online, from 36 hours before departure</strong> Check in on the website and get your boarding pass.</li>
+          <li><strong>At the airport, from 3 hours before</strong> Counters open three hours before departure.</li>
+          <li><strong>Bring your documents</strong> Your booking reference and a valid passport or ID.</li>
+        </ol>
+        <button type="button" class="btn btn--secondary btn--small" data-ask="/check_in_status" data-label="Am I checked in?">Check my check-in status</button>
+      </section>
+    </div>
+
+    <section class="section container" aria-labelledby="faq-title">
+      <div class="card faq">
+        <h2 id="faq-title">Frequently asked questions</h2>
+        <details>
+          <summary>Can I carry a bag that weighs more than 32 kg?</summary>
+          <p>No. For safety, no single checked bag may weigh more than 32 kg. Split the contents across bags or send heavier items as cargo.</p>
+        </details>
+        <details>
+          <summary>How do I change the date of my flight?</summary>
+          <p>Ask the Virtual Assistant or use My bookings. You'll see the current and new flight before anything changes, and nothing is updated until you confirm.</p>
+        </details>
+        <details>
+          <summary>Can I cancel my booking online?</summary>
+          <p>Yes, confirmed bookings can be cancelled through the Virtual Assistant. Refunds are processed within 7 business days. Bookings that are already checked in need an agent.</p>
+        </details>
+        <details>
+          <summary>What if my flight is delayed or cancelled?</summary>
+          <p>Check the latest status on the Flight status page or ask the assistant. If your flight is cancelled, the assistant can move your booking to another date or connect you to an agent.</p>
+        </details>
+        <details>
+          <summary>How do I reach a person?</summary>
+          <p>Type "agent" in the Virtual Assistant at any time, or call +254 20 327 4747.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="card cta-band">
+        <div>
+          <h2>Still have a question?</h2>
+          <p>The Virtual Assistant knows the baggage and check-in rules and can look up your booking.</p>
+        </div>
+        <button type="button" class="btn btn--primary" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="voice.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>

@@ -71,3 +71,18 @@ def flight_status(
     if not flights:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No upcoming flights found for {normalised}.")
     return flights
+
+
+@router.get("/flights/departures", response_model=List[Flight])
+def departures(limit: int = Query(12, ge=1, le=50)) -> List[dict]:
+    """Next departures across the network, for the Flight status page board."""
+    with get_cursor() as cur:
+        cur.execute(
+            """SELECT flight_number, origin, destination, departure_time, arrival_time, status
+               FROM flights
+               WHERE departure_time > NOW()
+               ORDER BY departure_time
+               LIMIT %s""",
+            (limit,),
+        )
+        return cur.fetchall()
