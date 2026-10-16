@@ -31,21 +31,22 @@ async function logout(page) {
   await page.reload({ waitUntil: "networkidle0" });
   await page.waitForSelector(".site-header");
   check("header shows Log in for guests", await page.$("#login-link"));
-  check("footer carries the not-affiliated notice", (await page.$eval(".site-footer__note", (e) => e.textContent)).includes("Not affiliated"));
-  await page.type("#status-input", "kq202");
-  await page.click("#status-form button");
-  await page.waitForSelector(".flight-row");
-  const rows = await page.$$eval(".flight-row", (els) => els.map((e) => e.textContent));
-  check("flight status search lists KQ202 departures", rows.length === 2 && rows[0].includes("Nairobi → Dubai") && rows[0].includes("Delayed"), rows.join(" | "));
-  await page.$eval("#status-input", (e) => (e.value = ""));
-  await page.type("#status-input", "hello");
-  await page.click("#status-form button");
-  check("invalid flight number explained", (await page.$eval("#status-message", (e) => e.textContent)).includes("like KQ101"));
+  check("header shows the Kenya Airways logo", await page.$eval(".brand__logo", (i) => i.getAttribute("src") === "assets/logo.svg" && i.naturalWidth > 0));
+  const note = await page.$eval(".site-footer__note", (e) => e.textContent);
+  check("footer presents the site as a prototype for Kenya Airways", note.includes("developed for Kenya Airways") && !note.includes("Not affiliated"));
+  check("announcement bar introduces the new assistant", (await page.$eval("#announce", (e) => e.textContent)).includes("Virtual Assistant"));
+  check("Virtual Assistant nav link is marked New", (await page.$eval('.nav__link[href="assistant.html"]', (e) => e.textContent)).includes("New"));
+  check("chat launcher is marked New", await page.$("#launcher-new"));
+  check("hero uses the Kenya Airways aircraft photo",
+    (await page.$eval(".hero", (e) => getComputedStyle(e).backgroundImage)).includes("hero-kq-787.jpg"));
   await h.axe(page, report, "home");
   await h.shot(page, SHOTS, "portal-1-home.png");
-  const art = await page.$$eval("img", (imgs) => imgs.map((i) => ({ src: i.getAttribute("src"), ok: i.complete && i.naturalWidth > 0 })));
-  check("hero and destination artwork loads", art.length >= 7 && art.every((i) => i.ok), JSON.stringify(art.filter((i) => !i.ok)));
-  check("six destinations are shown", (await page.$$(".destination")).length === 6);
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete), { timeout: 10000 });
+  const art = await page.$$eval("img", (imgs) => imgs.map((i) => ({ src: i.getAttribute("src"), ok: i.naturalWidth > 0 })));
+  check("logo and destination photos load", art.length >= 5 && art.every((i) => i.ok), JSON.stringify(art.filter((i) => !i.ok)));
+  check("three destinations are previewed on the home page", (await page.$$(".destination")).length === 3);
   check("favicon is linked", await page.$('link[rel="icon"][href="assets/favicon.svg"]'));
 
   const beforeDubai = await h.botCount(page);
@@ -53,11 +54,12 @@ async function logout(page) {
   await page.waitForSelector("#chat-panel:not([hidden])");
   await h.waitForReply(page, beforeDubai);
   check("Find flights to Dubai skips straight to the travel date", /What date would you like to travel/.test(await h.lastBot(page)), await h.lastBot(page));
+  check("opening the assistant clears its New badge", !(await page.$("#launcher-new")));
   await h.sendChat(page, "never mind");
   await page.click("#close-btn");
 
   await page.click("#theme-toggle");
-  check("high contrast hides the decorative hero art", await page.$eval(".hero__art", (i) => getComputedStyle(i).display === "none"));
+  check("high contrast removes the hero photo", (await page.$eval(".hero", (e) => getComputedStyle(e).backgroundImage)) === "none");
   await h.axe(page, report, "home, high contrast");
   await page.click("#theme-toggle");
 
@@ -69,6 +71,64 @@ async function logout(page) {
   check("guest booking question asks for a reference", /provide your booking reference/i.test(await h.sendChat(page, "I want to cancel my booking")));
   await h.sendChat(page, "never mind");
   check("guest asking for an agent is escalated", /connecting you to a Kenya Airways agent/i.test(await h.sendChat(page, "agent")));
+  await page.click("#close-btn");
+
+  // ---------- Flight status page ----------
+  await page.$eval("#quick-status-input", (e) => (e.value = ""));
+  await page.type("#quick-status-input", "kq202");
+  await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.click("#quick-status-form button")]);
+  check("home search opens the Flight status page", page.url().includes("flight-status.html?flight=kq202"));
+  await page.waitForSelector(".flight-row");
+  const rows = await page.$$eval(".flight-row", (els) => els.map((e) => e.textContent));
+  check("flight status search lists KQ202 departures", rows.length === 2 && rows[0].includes("Nairobi → Dubai") && rows[0].includes("Delayed"), rows.join(" | "));
+  check("overnight arrivals are marked +1", rows[0].includes("+1"), rows[0]);
+  await page.$eval("#status-input", (e) => (e.value = ""));
+  await page.type("#status-input", "hello");
+  await page.click("#status-form button");
+  check("invalid flight number explained", (await page.$eval("#status-message", (e) => e.textContent)).includes("like KQ101"));
+  await page.waitForFunction(() => document.querySelectorAll("#board-rows tr").length > 0);
+  check("departures board lists 12 upcoming flights", (await page.$$("#board-rows tr")).length === 12);
+  check("Flight status is the current nav item", (await page.$eval('.nav__link[aria-current="page"]', (e) => e.getAttribute("href"))) === "flight-status.html");
+  await h.axe(page, report, "flight status");
+  await h.shot(page, SHOTS, "portal-2-flight-status.png");
+
+  // ---------- Destinations, travel info, assistant and about pages ----------
+  await page.goto(`${BASE}/destinations.html`, { waitUntil: "networkidle0" });
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete), { timeout: 10000 });
+  check("Destinations page shows all 7 routes with photos",
+    (await page.$$(".destination")).length === 7 && (await page.$$eval(".destination__image", (imgs) => imgs.every((i) => i.naturalWidth > 0))));
+  await h.axe(page, report, "destinations");
+
+  await page.goto(`${BASE}/travel-info.html`, { waitUntil: "networkidle0" });
+  await page.click(".faq summary");
+  check("Travel info FAQ expands", await page.$eval(".faq details", (d) => d.open));
+  await h.axe(page, report, "travel info");
+
+  await page.goto(`${BASE}/assistant.html`, { waitUntil: "networkidle0" });
+  check("Virtual Assistant page is marked New and hides the announcement", (await page.$(".page-banner .pill-new")) && !(await page.$("#announce")));
+  const beforePrompt = await h.botCount(page);
+  await page.click('.prompt[data-chat="Is flight KQ202 on time?"]');
+  await h.waitForReply(page, beforePrompt);
+  check("example prompt runs in the assistant", /Flight KQ202/.test(await h.lastBot(page)), await h.lastBot(page));
+  await page.click("#close-btn");
+  await h.axe(page, report, "virtual assistant");
+  await h.shot(page, SHOTS, "portal-3-assistant.png");
+
+  await page.goto(`${BASE}/about.html`, { waitUntil: "networkidle0" });
+  await page.waitForFunction(() => document.querySelectorAll("#credit-rows tr").length > 1);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForFunction(() => [...document.images].every((i) => i.complete), { timeout: 10000 });
+  const credits = await page.$$eval("#credit-rows tr", (trs) => trs.map((tr) => ({ text: tr.textContent, img: tr.querySelector("img").naturalWidth > 0 })));
+  check("About page credits all 13 photos with licences", credits.length === 13 && credits.every((c) => c.img && /CC BY|Public domain/.test(c.text)));
+  check("About page names the student, supervisor and client",
+    await page.$eval(".facts", (e) => ["Adalo Joshua Baraka", "Mr. Daniel Machanje", "Kenya Airways"].every((t) => e.textContent.includes(t))));
+  await h.axe(page, report, "about");
+
+  await page.goto(BASE, { waitUntil: "networkidle0" });
+  await page.click("#announce-close");
+  await page.reload({ waitUntil: "networkidle0" });
+  check("dismissed announcement stays hidden", !(await page.$("#announce")));
 
   // ---------- Access control ----------
   await page.goto(`${BASE}/account.html`, { waitUntil: "networkidle0" });
@@ -81,7 +141,7 @@ async function logout(page) {
   await page.waitForSelector("#auth-error:not([hidden])");
   check("wrong password shows an error", (await page.$eval("#auth-error", (e) => e.textContent)).includes("Incorrect email or password"));
   await h.axe(page, report, "login");
-  await h.shot(page, SHOTS, "portal-2-login.png");
+  await h.shot(page, SHOTS, "portal-4-login.png");
 
   await page.click("#tab-register");
   await page.type("#register-name", "Wanjiru Njeri");
@@ -107,10 +167,10 @@ async function logout(page) {
   const cards = await page.$$eval(".booking", (els) => els.map((e) => e.textContent));
   check("John sees only booking BK001", cards.length === 1 && cards[0].includes("BK001") && cards[0].includes("Mombasa"), cards.join(" | "));
   check("booking card shows the destination artwork",
-    await page.$eval(".booking__banner", (i) => i.getAttribute("src") === "assets/destinations/mombasa.svg" && i.complete && i.naturalWidth > 0));
+    await page.$eval(".booking__banner", (i) => i.getAttribute("src") === "assets/photos/mombasa.jpg" && i.complete && i.naturalWidth > 0));
   check("chat from the previous user was cleared", (await page.evaluate(() => sessionStorage.getItem("kq-chat-transcript"))) === null);
   await h.axe(page, report, "my bookings");
-  await h.shot(page, SHOTS, "portal-3-account.png");
+  await h.shot(page, SHOTS, "portal-5-account.png");
 
   let reply = await (async () => {
     const n = await h.botCount(page);
@@ -130,7 +190,7 @@ async function logout(page) {
   check("choosing a booking button goes to confirmation", /Are you sure you want to cancel it/.test(reply), reply.slice(0, 80));
   reply = await h.clickChip(page, "Yes");
   check("confirming cancels the booking", /BK001 has been cancelled/.test(reply), reply);
-  await h.shot(page, SHOTS, "portal-4-chat.png");
+  await h.shot(page, SHOTS, "portal-6-chat.png");
   await page.reload({ waitUntil: "networkidle0" });
   await page.waitForSelector(".booking");
   check("My bookings shows the cancellation", (await page.$eval(".booking__status", (e) => e.textContent)) === "Cancelled");
@@ -154,7 +214,7 @@ async function logout(page) {
   const statuses = await page.$$eval("#conversation-rows .badge", (els) => els.map((e) => e.textContent));
   check("status filter shows only escalated chats", statuses.length >= 1 && statuses.every((s) => s === "Escalated"), statuses.join(","));
   await h.axe(page, report, "staff dashboard");
-  await h.shot(page, SHOTS, "portal-5-admin.png");
+  await h.shot(page, SHOTS, "portal-7-admin.png");
 
   await page.click("#conversation-rows .btn--secondary");
   await page.waitForSelector("#transcript[open] .transcript__line");
@@ -171,7 +231,7 @@ async function logout(page) {
   await page.click("#theme-toggle");
   check("header high-contrast toggle works", await page.evaluate(() => document.documentElement.dataset.theme === "high-contrast"));
   await h.axe(page, report, "dashboard, high contrast");
-  await h.shot(page, SHOTS, "portal-6-admin-contrast.png");
+  await h.shot(page, SHOTS, "portal-8-admin-contrast.png");
   await page.click("#theme-toggle");
   await logout(page);
 
@@ -184,7 +244,7 @@ async function logout(page) {
     && (await page.$eval("#menu-toggle", (e) => e.getAttribute("aria-expanded"))) === "true");
   check("no horizontal scroll on phones", await page.evaluate(() => document.documentElement.scrollWidth <= 390));
   await h.axe(page, report, "home on phone");
-  await h.shot(page, SHOTS, "portal-7-mobile.png");
+  await h.shot(page, SHOTS, "portal-9-mobile.png");
 
   const csp = consoleErrors.filter((e) => /Content Security Policy/i.test(e));
   check("no CSP violations", csp.length === 0, csp.join(" | "));
