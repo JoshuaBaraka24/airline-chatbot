@@ -52,6 +52,9 @@
   document.querySelectorAll("[data-ask]").forEach((button) => {
     button.addEventListener("click", () => window.KQChat.open(button.dataset.ask, button.dataset.label));
   });
+  document.querySelectorAll("[data-chat]").forEach((button) => {
+    button.addEventListener("click", () => window.KQChat.open(button.dataset.chat));
+  });
   document.getElementById("hero-chat").addEventListener("click", () => window.KQChat.open());
 
   window.KQSite.ready.then((user) => {

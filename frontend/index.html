@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kenya Airways Virtual Assistant</title>
   <meta name="description" content="Check flight status, manage bookings, and get check-in and baggage help from the Kenya Airways virtual assistant.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="site.css">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -14,8 +15,10 @@
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
+      <img class="hero__art" src="assets/illustrations/hero-savanna.svg" alt="">
       <div class="container hero__grid">
         <div>
+          <span class="hero__eyebrow">Virtual assistant online 24/7</span>
           <h1 id="hero-title">Travel help, any time you need it</h1>
           <p>Ask our virtual assistant about your flight, change or cancel a booking, check in,
              or find out what you can pack. Answers in seconds, 24 hours a day.</p>
@@ -38,6 +41,27 @@
         </div>
       </div>
     </section>
+
+    <div class="container">
+      <section class="card features" aria-label="Why use the assistant">
+        <div class="feature">
+          <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg></span>
+          <div><h3>Help around the clock</h3><p>Get answers day or night, without waiting on hold.</p></div>
+        </div>
+        <div class="feature">
+          <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></span>
+          <div><h3>Answers in seconds</h3><p>Most replies arrive in under a second.</p></div>
+        </div>
+        <div class="feature">
+          <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></span>
+          <div><h3>Type or speak</h3><p>Use the microphone, and have replies read aloud.</p></div>
+        </div>
+        <div class="feature">
+          <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18z"/></svg></span>
+          <div><h3>Built for everyone</h3><p>Keyboard, screen reader and high-contrast friendly.</p></div>
+        </div>
+      </section>
+    </div>
 
     <section class="section container" aria-labelledby="help-title">
       <h2 class="section__title" id="help-title">How can we help?</h2>
@@ -74,6 +98,73 @@
           <h3>Baggage</h3>
           <p>Checked and cabin allowances, overweight bags and extra baggage.</p>
           <button type="button" class="btn btn--secondary btn--small" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container" id="destinations" aria-labelledby="destinations-title">
+      <h2 class="section__title" id="destinations-title">Popular destinations</h2>
+      <p class="section__lead">Direct flights from Nairobi. Pick a city and the assistant will find you a flight.</p>
+      <div class="destinations">
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/mombasa.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Mombasa</h3>
+            <span class="destination__country">Kenya</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 1 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Mombasa"
+                    aria-label="Find flights to Mombasa">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/dubai.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Dubai</h3>
+            <span class="destination__country">United Arab Emirates</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 5 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Dubai"
+                    aria-label="Find flights to Dubai">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/london.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">London</h3>
+            <span class="destination__country">United Kingdom</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 9 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to London"
+                    aria-label="Find flights to London">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/amsterdam.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Amsterdam</h3>
+            <span class="destination__country">Netherlands</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 8 h 30 min</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Amsterdam"
+                    aria-label="Find flights to Amsterdam">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/johannesburg.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Johannesburg</h3>
+            <span class="destination__country">South Africa</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 4 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Johannesburg"
+                    aria-label="Find flights to Johannesburg">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/destinations/lagos.svg" alt="" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Lagos</h3>
+            <span class="destination__country">Nigeria</span>
+            <p class="destination__meta"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg> Direct from Nairobi · about 6 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Lagos"
+                    aria-label="Find flights to Lagos">Find flights</button>
+          </div>
         </article>
       </div>
     </section>
