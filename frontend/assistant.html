@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Assistant · Kenya Airways</title>
+  <meta name="description" content="New: the Kenya Airways Virtual Assistant handles flight status, bookings, check-in and baggage questions 24/7.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="assistant">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="page-banner page-banner--assistant" aria-labelledby="page-title">
+      <div class="container">
+        <p class="breadcrumb"><a href="index.html">Home</a> / Virtual Assistant</p>
+        <span class="pill-new">New</span>
+        <h1 id="page-title">Meet the Kenya Airways Virtual Assistant</h1>
+        <p>Ask in your own words, by typing or speaking. The assistant understands what you need,
+           looks up your flight or booking, and gets it done, with a person always one message away.</p>
+        <p class="section-gap"><button type="button" class="btn btn--light" id="start-chat">Start a conversation</button></p>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="can-title">
+      <h2 class="section__title" id="can-title">What it can do</h2>
+      <p class="section__lead">Tap an example to try it. The assistant opens with your question already asked.</p>
+      <div class="capabilities">
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span>
+          <h3>Flight status</h3>
+          <p>Live departure and arrival times, delays and cancellations, with advice on what to do next.</p>
+          <button type="button" class="prompt" data-chat="Is flight KQ202 on time?">Is flight KQ202 on time?</button>
+        </article>
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/></svg></span>
+          <h3>Change a booking</h3>
+          <p>Moves your booking to another date. It shows the current and new flight and waits for your confirmation.</p>
+          <button type="button" class="prompt" data-chat="I need to change my flight">I need to change my flight</button>
+        </article>
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>
+          <h3>Cancel a booking</h3>
+          <p>Cancels confirmed bookings after showing you exactly which flight will be cancelled.</p>
+          <button type="button" class="prompt" data-chat="I want to cancel my booking">I want to cancel my booking</button>
+        </article>
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
+          <h3>Find a flight</h3>
+          <p>Searches the schedule for your route and dates and lists the flights with seats available.</p>
+          <button type="button" class="prompt" data-chat="Find me a flight from Nairobi to Dubai">Find me a flight from Nairobi to Dubai</button>
+        </article>
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></span>
+          <h3>Check-in</h3>
+          <p>Tells you whether you're checked in and exactly when online check-in opens for your flight.</p>
+          <button type="button" class="prompt" data-chat="Am I checked in?">Am I checked in?</button>
+        </article>
+        <article class="card capability">
+          <span class="tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M17 6h-2V3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h1v1h2v-1h4v1h2v-1h1a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM11 4h2v2h-2z"/></svg></span>
+          <h3>Baggage questions</h3>
+          <p>Checked and cabin allowances, overweight bags and what to do with heavy items.</p>
+          <button type="button" class="prompt" data-chat="Can I carry a bag that weighs 30 kg?">Can I carry a bag that weighs 30 kg?</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container info-grid" aria-label="How it works and accessibility">
+      <div class="card">
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li><strong>Ask in your own words</strong> Type or tap the microphone. No menus or keywords needed.</li>
+          <li><strong>It understands what you need</strong> A language model trained on airline questions picks out your request, flight number, booking reference and dates.</li>
+          <li><strong>It checks before acting</strong> It looks up your flight or booking and asks you to confirm before changing anything.</li>
+          <li><strong>A person is one message away</strong> Type "agent" at any time, or the assistant hands over if it can't help.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>Built for everyone</h2>
+        <ul class="auth__perks auth__perks--dark">
+          <li>Speak your question and have answers read aloud</li>
+          <li>Works fully with a keyboard and screen readers</li>
+          <li>High-contrast mode from the header or the chat window</li>
+          <li>Logged in? It offers your own bookings, so there are no references to type</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="proof-title">
+      <div class="card">
+        <h2 id="proof-title">Tested before launch</h2>
+        <div class="proof">
+          <div><div class="proof__value">96%</div><div class="proof__label">of test questions understood correctly</div></div>
+          <div><div class="proof__value">&lt;1 s</div><div class="proof__label">typical reply time</div></div>
+          <div><div class="proof__value">24/7</div><div class="proof__label">available, with handover to agents</div></div>
+          <div><div class="proof__value">AA</div><div class="proof__label">WCAG 2.1 accessibility level met in audits</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="voice.js"></script>
+  <script src="chat.js"></script>
+  <script src="assistant.js"></script>
+</body>
+</html>
