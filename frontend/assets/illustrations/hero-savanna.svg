@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMax slice">
+  <!-- Decorative hero scene: Mount Kenya, savanna and an aircraft. Transparent so it sits on the hero gradient. -->
+  <defs>
+    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sun -->
+  <circle cx="1130" cy="210" r="120" fill="#ffb347" opacity="0.18"/>
+  <circle cx="1130" cy="210" r="78" fill="#ffc46b" opacity="0.28"/>
+
+  <!-- Far mountains with snow caps (Mount Kenya) -->
+  <path d="M760 330 L905 205 L940 230 L985 168 L1022 214 L1050 196 L1210 330 Z" fill="#fff" opacity="0.10"/>
+  <path d="M955 196 L985 168 L1006 194 L992 190 L979 204 L968 194 Z" fill="#fff" opacity="0.55"/>
+  <path d="M1031 207 L1050 196 L1068 212 L1056 210 L1046 218 Z" fill="#fff" opacity="0.45"/>
+
+  <!-- Rolling hills -->
+  <path d="M0 340 C180 300 320 318 480 330 C640 342 780 296 960 304 C1120 312 1280 290 1440 300 V420 H0 Z" fill="#000" opacity="0.14"/>
+  <path d="M0 372 C200 348 360 360 560 366 C760 372 940 346 1120 352 C1260 356 1360 344 1440 340 V420 H0 Z" fill="#3d0410" opacity="0.55"/>
+
+  <!-- Acacia trees -->
+  <g fill="#3d0410" opacity="0.85">
+    <path d="M1180 360 l4 -62 h6 l4 62 z"/>
+    <path d="M1120 300 C1140 280 1230 276 1262 296 C1240 306 1150 308 1120 300 Z"/>
+    <path d="M1150 296 l36 4 l-30 -16 z"/>
+    <path d="M240 368 l3 -44 h5 l3 44 z"/>
+    <path d="M196 326 C214 312 276 310 298 324 C280 332 216 334 196 326 Z"/>
+  </g>
+
+  <!-- Giraffes -->
+  <g fill="#2a020a" opacity="0.9">
+    <path d="M1000 366 l-4 -34 c-2 -8 2 -14 10 -16 l36 -4 c6 -1 9 -6 10 -12 l8 -46 l4 -6 l9 4 l-2 5 l-6 2 l-9 50 c-1 8 -2 14 -6 18 l-2 39 h-6 l-2 -32 h-28 l-4 32 z"/>
+    <path d="M900 368 l-3 -28 c-1 -7 2 -11 8 -13 l28 -3 c5 -1 7 -4 8 -9 l6 -36 l3 -5 l7 3 l-2 4 l-4 2 l-7 40 c-1 6 -2 11 -5 14 l-1 31 h-5 l-2 -25 h-22 l-3 25 z"/>
+  </g>
+
+  <!-- Foreground grass -->
+  <path d="M0 392 C240 380 480 388 720 384 C960 380 1200 390 1440 380 V420 H0 Z" fill="#2a020a" opacity="0.7"/>
+
+  <!-- Aircraft and contrail -->
+  <path d="M520 120 C700 86 860 58 1010 44" stroke="url(#trail)" stroke-width="3" fill="none" stroke-dasharray="2 10" stroke-linecap="round"/>
+  <g transform="translate(1000 12) rotate(80 30 30) scale(2.5)" fill="#fff">
+    <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>
+  </g>
+</svg>

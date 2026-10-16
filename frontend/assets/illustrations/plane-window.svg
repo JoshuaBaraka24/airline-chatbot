@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520">
+  <!-- Decorative view from an aircraft window over the clouds -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3f7fc4"/><stop offset="0.55" stop-color="#9cc8ee"/><stop offset="1" stop-color="#ffe2b8"/>
+    </linearGradient>
+    <clipPath id="window"><rect x="90" y="90" width="220" height="320" rx="110"/></clipPath>
+  </defs>
+  <!-- Cabin wall -->
+  <rect width="400" height="520" rx="36" fill="#f3efe9"/>
+  <rect x="70" y="70" width="260" height="360" rx="130" fill="#e3ddd4"/>
+  <rect x="80" y="80" width="240" height="340" rx="120" fill="#cfc7bb"/>
+  <!-- View -->
+  <g clip-path="url(#window)">
+    <rect x="90" y="90" width="220" height="320" fill="url(#sky)"/>
+    <circle cx="250" cy="300" r="46" fill="#fff4d6" opacity="0.9"/>
+    <path d="M60 330 q30 -30 66 -12 q24 -24 58 -6 q32 -20 62 4 q30 -10 50 10 q30 0 40 20 v80 h-280z" fill="#fff"/>
+    <path d="M60 370 q36 -24 74 -6 q30 -18 66 0 q34 -16 66 4 q26 -6 50 12 v40 h-256z" fill="#f2f6fb"/>
+    <!-- Wing -->
+    <path d="M90 250 L300 300 L310 318 L90 286 Z" fill="#e9edf2"/>
+    <path d="M90 286 L310 318 L300 324 L90 296 Z" fill="#b9c2cd"/>
+    <path d="M286 296 l14 -26 h8 l-6 30 z" fill="#c8102e"/>
+  </g>
+  <!-- Window shade -->
+  <rect x="90" y="90" width="220" height="70" rx="0" fill="#e8e2d8" clip-path="url(#window)"/>
+  <rect x="180" y="148" width="40" height="8" rx="4" fill="#b8ae9f"/>
+  <!-- Seat-back details -->
+  <rect x="150" y="452" width="100" height="10" rx="5" fill="#d8d0c4"/>
+</svg>

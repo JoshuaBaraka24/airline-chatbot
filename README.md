@@ -66,7 +66,7 @@ Then open **http://127.0.0.1:8000**. The portal has:
 
 | Page | What it does |
 |---|---|
-| **Home** | Flight status search, "ask the assistant" shortcuts, baggage and check-in information |
+| **Home** | Flight status search, feature highlights, "ask the assistant" shortcuts, popular destinations with **Find flights**, baggage and check-in information |
 | **Log in / Create account** | Passenger registration and login; staff log in here too |
 | **My bookings** (passengers) | Your bookings with flight details and one-click buttons that ask the assistant to change, cancel or check them |
 | **Staff dashboard** (admin, FR-06) | Conversation statistics, the conversation log with a status filter, transcripts, and "Mark resolved" for chats escalated to an agent |
@@ -85,6 +85,11 @@ Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` an
 | Staff | `admin@kq-demo.local` | `Admin@2026` |
 
 The other sample passengers (`amina@`, `peter@`, `grace@`, `david@`, `mary@email.com`) use the passenger password.
+
+**Illustrations:** the hero scene, destination pictures, login and empty-state artwork in
+`frontend/assets/` are original SVGs made for this project, so there are no licensing issues. To use
+photos instead, replace a file in `frontend/assets/destinations/` (e.g. `dubai.svg`) and update its
+path in `index.html` and `account.js`.
 
 **Logo:** save the official Kenya Airways logo as `frontend/assets/logo.png` and it appears in the
 header automatically (see `frontend/assets/README.md`). Until then a "KQ" mark is shown. The footer
@@ -142,8 +147,8 @@ Current results (16 Oct 2026):
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
 | Unit + integration tests (pytest) | 80 passed | |
-| Browser checks: widget / portal | 28 / 28 and 44 / 44 | |
-| Accessibility (axe-core) | 0 violations across 11 page states | WCAG 2.1 AA (NFR-03) |
+| Browser checks: widget / portal | 28 / 28 and 52 / 52 | |
+| Accessibility (axe-core) | 0 violations across 12 page states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
 

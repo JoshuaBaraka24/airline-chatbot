@@ -8,6 +8,13 @@
   const subtitle = document.getElementById("account-subtitle");
   const template = document.getElementById("booking-template");
   const site = window.KQSite;
+  // Cities with their own artwork in assets/destinations/
+  const ARTWORK = ["nairobi", "mombasa", "kisumu", "dubai", "london", "amsterdam", "johannesburg", "lagos"];
+
+  function artworkFor(city) {
+    const slug = city.toLowerCase().replace(/[^a-z]/g, "");
+    return `assets/destinations/${ARTWORK.includes(slug) ? slug : "default"}.svg`;
+  }
 
   function actionButton(label, message, primary = false) {
     const button = document.createElement("button");
@@ -23,6 +30,7 @@
     const flight = booking.flight;
     const ref = booking.booking_ref;
     card.setAttribute("aria-label", `Booking ${ref}, ${flight.origin} to ${flight.destination}`);
+    card.querySelector(".booking__banner").src = artworkFor(flight.destination);
     card.querySelector(".booking__ref").textContent = `BOOKING ${ref}`;
     card.querySelector(".booking__status").append(site.statusBadge(booking.status));
     card.querySelector(".from-city").textContent = flight.origin;

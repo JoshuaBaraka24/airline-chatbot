@@ -43,6 +43,23 @@ async function logout(page) {
   check("invalid flight number explained", (await page.$eval("#status-message", (e) => e.textContent)).includes("like KQ101"));
   await h.axe(page, report, "home");
   await h.shot(page, SHOTS, "portal-1-home.png");
+  const art = await page.$$eval("img", (imgs) => imgs.map((i) => ({ src: i.getAttribute("src"), ok: i.complete && i.naturalWidth > 0 })));
+  check("hero and destination artwork loads", art.length >= 7 && art.every((i) => i.ok), JSON.stringify(art.filter((i) => !i.ok)));
+  check("six destinations are shown", (await page.$$(".destination")).length === 6);
+  check("favicon is linked", await page.$('link[rel="icon"][href="assets/favicon.svg"]'));
+
+  const beforeDubai = await h.botCount(page);
+  await page.click('[data-chat="I want to fly from Nairobi to Dubai"]');
+  await page.waitForSelector("#chat-panel:not([hidden])");
+  await h.waitForReply(page, beforeDubai);
+  check("Find flights to Dubai skips straight to the travel date", /What date would you like to travel/.test(await h.lastBot(page)), await h.lastBot(page));
+  await h.sendChat(page, "never mind");
+  await page.click("#close-btn");
+
+  await page.click("#theme-toggle");
+  check("high contrast hides the decorative hero art", await page.$eval(".hero__art", (i) => getComputedStyle(i).display === "none"));
+  await h.axe(page, report, "home, high contrast");
+  await page.click("#theme-toggle");
 
   const before = await h.botCount(page);
   await page.click('[data-ask="/baggage_policy"]');
@@ -79,6 +96,7 @@ async function logout(page) {
   await page.waitForSelector("#bookings[aria-busy=false]");
   check("new account lands on My bookings", page.url().endsWith("/account.html"));
   check("new account sees the empty state", !(await page.$eval("#bookings-empty", (e) => e.hidden)));
+  check("empty state shows its illustration", await page.$eval("#bookings-empty img", (i) => i.complete && i.naturalWidth > 0));
   check("header greets the new passenger", (await page.$eval(".user-chip__name", (e) => e.textContent)) === "Wanjiru Njeri");
   await logout(page);
   check("logout returns to Log in", await page.$("#login-link"));
@@ -88,6 +106,8 @@ async function logout(page) {
   await page.waitForSelector(".booking");
   const cards = await page.$$eval(".booking", (els) => els.map((e) => e.textContent));
   check("John sees only booking BK001", cards.length === 1 && cards[0].includes("BK001") && cards[0].includes("Mombasa"), cards.join(" | "));
+  check("booking card shows the destination artwork",
+    await page.$eval(".booking__banner", (i) => i.getAttribute("src") === "assets/destinations/mombasa.svg" && i.complete && i.naturalWidth > 0));
   check("chat from the previous user was cleared", (await page.evaluate(() => sessionStorage.getItem("kq-chat-transcript"))) === null);
   await h.axe(page, report, "my bookings");
   await h.shot(page, SHOTS, "portal-3-account.png");
