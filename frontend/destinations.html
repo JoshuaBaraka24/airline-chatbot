@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Destinations · Kenya Airways</title>
+  <meta name="description" content="Direct Kenya Airways flights from Nairobi to Africa, the Middle East and Europe.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="destinations">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="page-banner page-banner--destinations" aria-labelledby="page-title">
+      <div class="container">
+        <p class="breadcrumb"><a href="index.html">Home</a> / Destinations</p>
+        <h1 id="page-title">Fly from Nairobi, the heart of Africa</h1>
+        <p>Direct flights from Jomo Kenyatta International Airport. Choose a city and the Virtual Assistant will find flights for your dates.</p>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="kenya-title">
+      <h2 class="section__title" id="kenya-title">Within Kenya</h2>
+      <div class="destinations">
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/mombasa.jpg" alt="Nyali Beach, Mombasa" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Mombasa</h3>
+            <span class="destination__country">Kenya · Indian Ocean coast</span>
+            <p class="destination__meta">Direct from Nairobi · about 1 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Mombasa" aria-label="Find flights to Mombasa">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/kisumu.jpg" alt="A fisherman returning at sunset on Lake Victoria, Kisumu" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Kisumu</h3>
+            <span class="destination__country">Kenya · Lake Victoria</span>
+            <p class="destination__meta">Direct from Nairobi · about 1 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Kisumu" aria-label="Find flights to Kisumu">Find flights</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="world-title">
+      <h2 class="section__title" id="world-title">Africa, the Middle East and Europe</h2>
+      <div class="destinations">
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/dubai.jpg" alt="Burj Khalifa and the Dubai skyline from the sea" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Dubai</h3>
+            <span class="destination__country">United Arab Emirates</span>
+            <p class="destination__meta">Direct from Nairobi · about 5 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Dubai" aria-label="Find flights to Dubai">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/johannesburg.jpg" alt="Johannesburg skyline with the Hillbrow Tower at sunset" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Johannesburg</h3>
+            <span class="destination__country">South Africa</span>
+            <p class="destination__meta">Direct from Nairobi · about 4 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Johannesburg" aria-label="Find flights to Johannesburg">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/lagos.jpg" alt="Lagos skyline across the marina" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Lagos</h3>
+            <span class="destination__country">Nigeria</span>
+            <p class="destination__meta">Direct from Nairobi · about 6 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Lagos" aria-label="Find flights to Lagos">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/london.jpg" alt="The Palace of Westminster in London at night" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">London</h3>
+            <span class="destination__country">United Kingdom</span>
+            <p class="destination__meta">Direct from Nairobi · about 9 h</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to London" aria-label="Find flights to London">Find flights</button>
+          </div>
+        </article>
+        <article class="card destination">
+          <img class="destination__image" src="assets/photos/amsterdam.jpg" alt="Amsterdam canal houses at blue hour" width="400" height="220" loading="lazy">
+          <div class="destination__body">
+            <h3 class="destination__name">Amsterdam</h3>
+            <span class="destination__country">Netherlands</span>
+            <p class="destination__meta">Direct from Nairobi · about 8 h 30 min</p>
+            <button type="button" class="btn btn--primary btn--small" data-chat="I want to fly from Nairobi to Amsterdam" aria-label="Find flights to Amsterdam">Find flights</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="voice.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
