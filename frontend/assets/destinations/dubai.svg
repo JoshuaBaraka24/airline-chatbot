@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a76"/><stop offset="0.6" stop-color="#ffc99a"/><stop offset="1" stop-color="#ffe6c7"/></linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#sky)"/>
+  <circle cx="96" cy="128" r="40" fill="#fff3d6" opacity="0.8"/>
+  <!-- Skyline -->
+  <g fill="#3a2440">
+    <rect x="30" y="132" width="26" height="60"/>
+    <rect x="60" y="118" width="20" height="74"/>
+    <rect x="84" y="140" width="30" height="52"/>
+    <path d="M128 192 V112 l14 -12 l14 12 V192z"/>
+    <rect x="236" y="122" width="22" height="70"/>
+    <path d="M262 192 V100 c0 -10 22 -10 22 0 V192z"/>
+    <rect x="290" y="136" width="26" height="56"/>
+    <path d="M322 192 V120 l20 -14 V192z"/>
+    <rect x="348" y="146" width="30" height="46"/>
+  </g>
+  <!-- Burj Khalifa -->
+  <path d="M196 192 V150 h4 V112 h4 V76 h3 V40 h2 V12 h2 V40 h2 V76 h3 V112 h4 V150 h4 V192 Z" fill="#2a1830"/>
+  <g fill="#ffd89a" opacity="0.7">
+    <rect x="36" y="140" width="4" height="4"/><rect x="46" y="152" width="4" height="4"/>
+    <rect x="66" y="128" width="4" height="4"/><rect x="92" y="150" width="4" height="4"/>
+    <rect x="242" y="134" width="4" height="4"/><rect x="298" y="148" width="4" height="4"/>
+    <rect x="356" y="158" width="4" height="4"/><rect x="270" y="112" width="4" height="4"/>
+  </g>
+  <!-- Dunes -->
+  <path d="M0 196 C80 178 160 200 240 188 C310 178 360 192 400 184 V220 H0Z" fill="#e9b872"/>
+  <path d="M0 208 C100 198 200 214 300 204 C350 200 380 206 400 202 V220 H0Z" fill="#d89c50"/>
+</svg>

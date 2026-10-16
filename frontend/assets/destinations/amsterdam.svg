@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ec5f0"/><stop offset="1" stop-color="#e6f3fd"/></linearGradient>
+  </defs>
+  <rect width="400" height="220" fill="url(#sky)"/>
+  <path d="M60 46 q16 -14 34 -2 q14 -8 26 4 h-60z" fill="#fff" opacity="0.85"/>
+  <!-- Canal houses with gables -->
+  <path d="M20 160 V84 h16 v-12 h12 v-10 h12 v10 h12 v12 h16 V160z" fill="#8b4a2f"/>
+  <path d="M88 160 V70 c0 -20 46 -20 46 0 V160z" fill="#1d3557"/>
+  <path d="M134 160 V92 h10 v-10 h8 v-10 h10 v10 h8 v10 h10 V160z" fill="#b5523b"/>
+  <path d="M180 160 V78 l24 -26 l24 26 V160z" fill="#2f6f5e"/>
+  <path d="M228 160 V88 h14 v-12 h12 v-10 h12 v10 h12 v12 h14 V160z" fill="#7a3b62"/>
+  <path d="M296 160 V74 c0 -18 40 -18 40 0 V160z" fill="#c8102e"/>
+  <path d="M336 160 V90 l22 -22 l22 22 V160z" fill="#8b5e34"/>
+  <!-- Windows -->
+  <g fill="#fdf5e0" opacity="0.9">
+    <rect x="30" y="96" width="10" height="14"/><rect x="52" y="96" width="10" height="14"/><rect x="72" y="96" width="10" height="14"/>
+    <rect x="30" y="124" width="10" height="14"/><rect x="72" y="124" width="10" height="14"/>
+    <rect x="98" y="84" width="10" height="14"/><rect x="116" y="84" width="10" height="14"/><rect x="98" y="114" width="10" height="14"/><rect x="116" y="114" width="10" height="14"/>
+    <rect x="144" y="104" width="8" height="12"/><rect x="164" y="104" width="8" height="12"/><rect x="144" y="130" width="8" height="12"/><rect x="164" y="130" width="8" height="12"/>
+    <rect x="192" y="90" width="10" height="14"/><rect x="208" y="90" width="10" height="14"/><rect x="192" y="120" width="10" height="14"/><rect x="208" y="120" width="10" height="14"/>
+    <rect x="240" y="100" width="10" height="14"/><rect x="262" y="100" width="10" height="14"/><rect x="284" y="100" width="10" height="14"/><rect x="262" y="128" width="10" height="14"/>
+    <rect x="306" y="88" width="8" height="14"/><rect x="322" y="88" width="8" height="14"/><rect x="306" y="118" width="8" height="14"/><rect x="322" y="118" width="8" height="14"/>
+    <rect x="348" y="102" width="10" height="14"/><rect x="364" y="102" width="10" height="14"/><rect x="348" y="128" width="10" height="14"/>
+  </g>
+  <!-- Canal and reflections -->
+  <rect y="160" width="400" height="8" fill="#5b6470"/>
+  <rect y="168" width="400" height="52" fill="#3f7fa6"/>
+  <g fill="#fff" opacity="0.18">
+    <rect x="20" y="172" width="70" height="4"/><rect x="88" y="180" width="46" height="4"/><rect x="180" y="174" width="48" height="4"/>
+    <rect x="296" y="182" width="40" height="4"/><rect x="228" y="190" width="70" height="3"/>
+  </g>
+  <!-- Bicycle -->
+  <g stroke="#1f2937" stroke-width="2" fill="none">
+    <circle cx="176" cy="152" r="7"/><circle cx="198" cy="152" r="7"/>
+    <path d="M176 152 l8 -10 h10 l4 10 M184 142 l-2 -4 h-4 M194 142 l2 -5"/>
+  </g>
+</svg>
