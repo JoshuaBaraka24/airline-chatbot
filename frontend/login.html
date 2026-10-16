@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Log in · Kenya Airways Virtual Assistant</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="site.css">
 </head>
 <body data-page="login">
@@ -11,6 +12,17 @@
   <div id="site-header"></div>
 
   <main id="main" class="auth">
+    <div class="auth__layout">
+    <aside class="auth__aside" aria-label="Why create an account">
+      <h2>Your trips, one click away</h2>
+      <p>Log in to see your bookings and let the assistant help with them instantly.</p>
+      <ul class="auth__perks">
+        <li>See all your bookings in one place</li>
+        <li>Change or cancel without typing references</li>
+        <li>Your conversations stay linked to your account</li>
+      </ul>
+      <img src="assets/illustrations/plane-window.svg" alt="" width="400" height="520">
+    </aside>
     <div class="card auth__card">
       <div class="tabs" role="tablist" aria-label="Account">
         <button type="button" class="tab" role="tab" id="tab-login" aria-controls="panel-login" aria-selected="true">Log in</button>
@@ -59,6 +71,7 @@
           <button type="submit" class="btn btn--primary auth__submit">Create account</button>
         </form>
       </section>
+    </div>
     </div>
   </main>
 
