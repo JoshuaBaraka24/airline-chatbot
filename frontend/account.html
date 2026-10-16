@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My bookings · Kenya Airways Virtual Assistant</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="site.css">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -19,6 +20,7 @@
     <div class="alert" id="bookings-error" role="alert" hidden></div>
     <div class="bookings" id="bookings" aria-labelledby="account-title" aria-busy="true"></div>
     <div class="card empty" id="bookings-empty" hidden>
+      <img src="assets/illustrations/empty-suitcase.svg" alt="" width="240" height="180">
       <h2>No bookings yet</h2>
       <p class="muted">The assistant can find flights for you.</p>
       <button type="button" class="btn btn--primary" id="find-flights">Find a flight</button>
@@ -29,6 +31,8 @@
 
   <template id="booking-template">
     <article class="card booking">
+      <img class="booking__banner" alt="" width="400" height="120">
+      <div class="booking__content">
       <div class="booking__top">
         <span class="booking__ref"></span>
         <span class="booking__status"></span>
@@ -43,6 +47,7 @@
         <span class="meta-flight-status"></span>
       </div>
       <div class="booking__actions"></div>
+      </div>
     </article>
   </template>
 
