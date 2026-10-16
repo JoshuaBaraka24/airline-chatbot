@@ -2,7 +2,7 @@
 -- Departure dates are relative to the day the seed is loaded, so the demo
 -- always has upcoming flights. Re-run database/init_db.py to refresh them.
 
-TRUNCATE conversations, bookings, flights, users RESTART IDENTITY CASCADE;
+TRUNCATE auth_sessions, conversations, bookings, flights, users RESTART IDENTITY CASCADE;
 
 INSERT INTO users (name, email, booking_ref) VALUES
     ('John Mwangi',   'john@email.com',  'BK001'),
@@ -11,6 +11,11 @@ INSERT INTO users (name, email, booking_ref) VALUES
     ('Grace Wanjiku', 'grace@email.com', 'BK004'),
     ('David Ochieng', 'david@email.com', 'BK005'),
     ('Mary Atieno',   'mary@email.com',  'BK006');
+
+-- Staff account for the admin dashboard. Passwords for all demo accounts are
+-- set by database/init_db.py, because hashing happens in Python.
+INSERT INTO users (name, email, role) VALUES
+    ('KQ Support Admin', 'admin@kq-demo.local', 'admin');
 
 INSERT INTO flights (flight_number, origin, destination, departure_time, arrival_time, status, seats_available)
 SELECT f.flight_number, f.origin, f.destination,
