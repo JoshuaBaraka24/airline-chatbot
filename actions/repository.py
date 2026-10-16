@@ -163,3 +163,14 @@ def mark_conversation_escalated(sender_id: str) -> None:
             "UPDATE conversations SET status = 'escalated' WHERE sender_id = %s",
             (sender_id,),
         )
+
+
+def bookings_for_user(user_id: int, statuses: tuple = ("confirmed", "checked_in")) -> List[dict]:
+    """A logged-in passenger's bookings, soonest first, for quick-reply buttons."""
+    with get_cursor() as cur:
+        cur.execute(
+            _BOOKING_SELECT + """ WHERE b.user_id = %s AND b.status = ANY(%s)
+                                  ORDER BY f.departure_time LIMIT 5""",
+            (user_id, list(statuses)),
+        )
+        return cur.fetchall()

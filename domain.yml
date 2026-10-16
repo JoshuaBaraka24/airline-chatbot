@@ -244,6 +244,7 @@ actions:
   - action_stop_task
   - action_ask_confirm_cancel
   - action_ask_confirm_change
+  - action_ask_booking_reference
   - validate_flight_status_form
   - validate_check_in_status_form
   - validate_cancel_booking_form
