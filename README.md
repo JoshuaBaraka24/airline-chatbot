@@ -8,7 +8,7 @@ cancel). It escalates to a human agent when it can't help.
 ## Architecture
 
 ```
-Chat widget       frontend/        served by the gateway at /, voice I/O, WCAG 2.1 AA
+Web portal        frontend/        home, login, My bookings, staff dashboard + chat widget (WCAG 2.1 AA)
         │  REST (JSON)
 FastAPI gateway   backend/          :8000   session tokens, validation, conversation logging
         │  REST channel
@@ -28,7 +28,7 @@ PostgreSQL        database/         :5432   users, flights, bookings, conversati
 | `domain.yml` | Intents, entities, slots, forms and responses |
 | `config.yml` | NLU pipeline and dialogue policies |
 | `actions/` | Custom actions: `forms.py` (validation), `actions.py` (tasks), `repository.py` (SQL), `parsing.py` (dates, references) |
-| `frontend/` | Chat widget: `index.html`, `styles.css`, `chat.js` (API client), `voice.js` (Web Speech API) |
+| `frontend/` | Web portal pages (`index`, `login`, `account`, `admin`), shared `site.css`/`site.js`/`api.js`, and the chat widget (`chat.js`, `voice.js`, `styles.css`). Put the logo in `frontend/assets/logo.png` |
 | `backend/` | FastAPI gateway; also serves the widget |
 | `database/` | `schema.sql`, `seed.sql`, `init_db.py` |
 | `tests/` | pytest unit tests, Rasa end-to-end test stories, the held-out NLU test set and browser tests (`tests/e2e/`) |
@@ -62,12 +62,34 @@ rasa run --enable-api            # 2. Rasa server     :5005 (--enable-api is nee
 uvicorn backend.main:app --port 8000   # 3. API gateway :8000, docs at http://127.0.0.1:8000/docs
 ```
 
-Then open **http://127.0.0.1:8000** and click **Chat with us**. The widget has:
+Then open **http://127.0.0.1:8000**. The portal has:
 
-- Quick-reply buttons for common tasks, and yes/no buttons for confirmations
-- Voice input (microphone button) and read-aloud replies (speaker toggle). Speech recognition needs Chrome or Edge; the mic button is hidden in other browsers
-- A high-contrast theme toggle, full keyboard use (Tab, Enter, Escape closes) and screen-reader labels
-- A conversation that survives a page reload; the refresh button starts a new one
+| Page | What it does |
+|---|---|
+| **Home** | Flight status search, "ask the assistant" shortcuts, baggage and check-in information |
+| **Log in / Create account** | Passenger registration and login; staff log in here too |
+| **My bookings** (passengers) | Your bookings with flight details and one-click buttons that ask the assistant to change, cancel or check them |
+| **Staff dashboard** (admin, FR-06) | Conversation statistics, the conversation log with a status filter, transcripts, and "Mark resolved" for chats escalated to an agent |
+
+The **Chat with us** button opens the assistant on every passenger page. When you're logged in, it
+offers your own bookings as buttons instead of asking you to type a reference. It also has quick
+replies, voice input and read-aloud replies (Chrome or Edge), a high-contrast theme, full keyboard
+use, and a conversation that survives a page reload.
+
+Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
+`DEMO_ADMIN_PASSWORD` before running `init_db.py`):
+
+| Role | Email | Password |
+|---|---|---|
+| Passenger (booking BK001) | `john@email.com` | `Passenger@2026` |
+| Staff | `admin@kq-demo.local` | `Admin@2026` |
+
+The other sample passengers (`amina@`, `peter@`, `grace@`, `david@`, `mary@email.com`) use the passenger password.
+
+**Logo:** save the official Kenya Airways logo as `frontend/assets/logo.png` and it appears in the
+header automatically (see `frontend/assets/README.md`). Until then a "KQ" mark is shown. The footer
+states that this is a student project not affiliated with Kenya Airways, so keep the portal local or
+private rather than hosting it publicly.
 
 To chat in the terminal, keep the action server running and use `rasa shell`
 **instead of** `rasa run` (terminal 2). Both start a Rasa server on port 5005,
@@ -101,17 +123,17 @@ Bot: Done! Booking BK002 is now on KQ202 departing Fri 23 Oct 2026 at 22:00.
 ## Testing
 
 ```powershell
-pytest                                                   # unit tests: parsing helpers, API gateway
+pytest                                                   # unit + integration tests (creates airline_db_test)
 rasa data validate                                       # domain and training data consistency
 rasa test nlu --nlu tests\nlu_test_data.yml              # held-out NLU evaluation
 rasa test core --stories tests\test_stories.yml          # end-to-end conversation tests
 
-# Browser tests for the widget (needs Node.js 18+, Chrome and the running stack)
+# Browser tests for the portal and widget (needs Node.js 18+, Chrome and the running stack)
 python database\init_db.py
 cd tests\e2e; npm install; npm test
 ```
 
-Current results (14 Oct 2026):
+Current results (16 Oct 2026):
 
 | Check | Result | Target |
 |---|---|---|
@@ -119,9 +141,9 @@ Current results (14 Oct 2026):
 | Entity weighted F1 | 0.87 | |
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
-| Unit tests | 50 passed | |
-| Widget browser checks | 28 / 28 | |
-| Widget accessibility (axe-core) | 0 violations in 4 states | WCAG 2.1 AA (NFR-03) |
+| Unit + integration tests (pytest) | 80 passed | |
+| Browser checks: widget / portal | 28 / 28 and 44 / 44 | |
+| Accessibility (axe-core) | 0 violations across 11 page states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
 
@@ -136,7 +158,7 @@ Tracked with [GitHub milestones](https://github.com/JoshuaBaraka24/airline-chatb
 | M3: Dialogue Manager Development | Jul–Sep 2026 | Done |
 | M4: Backend API & Database | Aug–Sep 2026 | Done |
 | M5: Chat Widget (Frontend) | Sep–Oct 2026 | Done |
-| M6: System Integration & Testing | Oct–Nov 2026 | Not started |
+| M6: System Integration & Testing | Oct–Nov 2026 | In progress (web portal and DB integration tests done) |
 | M7: User Acceptance Testing | Nov 2026 | Not started |
 | M8: Report Writing & Final Submission | Oct–Dec 2026 | Not started |
 
