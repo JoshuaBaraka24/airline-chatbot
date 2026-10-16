@@ -8,12 +8,12 @@
   const subtitle = document.getElementById("account-subtitle");
   const template = document.getElementById("booking-template");
   const site = window.KQSite;
-  // Cities with their own artwork in assets/destinations/
-  const ARTWORK = ["nairobi", "mombasa", "kisumu", "dubai", "london", "amsterdam", "johannesburg", "lagos"];
+  // Cities with a photo in assets/photos/ (see credits on the About page)
+  const PHOTOS = ["nairobi", "mombasa", "kisumu", "dubai", "london", "amsterdam", "johannesburg", "lagos"];
 
   function artworkFor(city) {
     const slug = city.toLowerCase().replace(/[^a-z]/g, "");
-    return `assets/destinations/${ARTWORK.includes(slug) ? slug : "default"}.svg`;
+    return PHOTOS.includes(slug) ? `assets/photos/${slug}.jpg` : "assets/destinations/default.svg";
   }
 
   function actionButton(label, message, primary = false) {
