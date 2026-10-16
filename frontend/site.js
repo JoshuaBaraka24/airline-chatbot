@@ -4,8 +4,6 @@
   "use strict";
 
   const THEME_KEY = "kq-chat-theme";
-  // Drop the official Kenya Airways logo here (see assets/README.md)
-  const LOGO_URL = "assets/logo.png";
 
   const ICONS = {
     contrast: '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18V4a8 8 0 0 1 0 16z"/></svg>',
@@ -38,13 +36,30 @@
   };
   setTheme(storedTheme(), false);
 
-  // ---------- header and footer ----------
+  // ---------- header, announcement and footer ----------
 
   const page = document.body.dataset.page || "home";
+  const ANNOUNCE_KEY = "kq-announce-assistant-dismissed";
 
-  function navLink(href, label, key) {
+  function navLink(href, label, key, extra = "") {
     const current = key === page ? ' aria-current="page"' : "";
-    return `<li><a class="nav__link" href="${href}"${current}>${label}</a></li>`;
+    return `<li><a class="nav__link" href="${href}"${current}>${label}${extra}</a></li>`;
+  }
+
+  function renderAnnouncement() {
+    let dismissed = false;
+    try { dismissed = localStorage.getItem(ANNOUNCE_KEY) === "1"; } catch (_) { /* storage unavailable */ }
+    if (dismissed || page === "assistant" || page === "admin") return "";
+    return `
+      <div class="announce" id="announce" role="region" aria-label="New feature">
+        <div class="container announce__bar">
+          <span class="pill-new">New</span>
+          <p class="announce__text">Meet the <strong>Kenya Airways Virtual Assistant</strong>: help with flights,
+             bookings, check-in and baggage, 24 hours a day.</p>
+          <a class="announce__link" href="assistant.html">Learn more<span aria-hidden="true"> →</span></a>
+          <button type="button" class="announce__close" id="announce-close" aria-label="Dismiss announcement">×</button>
+        </div>
+      </div>`;
   }
 
   function renderHeader(user) {
@@ -52,8 +67,10 @@
     if (!slot) return;
     const links = [
       navLink("index.html", "Home", "home"),
-      navLink("index.html#flight-status", "Flight status", "status"),
-      navLink("index.html#travel-info", "Travel info", "info"),
+      navLink("flight-status.html", "Flight status", "status"),
+      navLink("destinations.html", "Destinations", "destinations"),
+      navLink("travel-info.html", "Travel info", "info"),
+      navLink("assistant.html", "Virtual Assistant", "assistant", ' <span class="pill-new">New</span>'),
     ];
     if (user && user.role === "passenger") links.push(navLink("account.html", "My bookings", "account"));
     if (user && user.role === "admin") links.push(navLink("admin.html", "Staff dashboard", "admin"));
@@ -61,15 +78,15 @@
     const account = user
       ? `<span class="user-chip"><span class="user-chip__avatar" aria-hidden="true"></span>
            <span class="user-chip__name"></span></span>
-         <button type="button" class="btn btn--light btn--small" id="logout-btn">Log out</button>`
-      : `<a class="btn btn--light btn--small" href="login.html" id="login-link">Log in</a>`;
+         <button type="button" class="btn btn--secondary btn--small" id="logout-btn">Log out</button>`
+      : `<a class="btn btn--primary btn--small" href="login.html" id="login-link">Log in</a>`;
 
-    slot.outerHTML = `
+    slot.outerHTML = `${renderAnnouncement()}
       <header class="site-header">
         <div class="container site-header__bar">
-          <a class="brand" href="index.html" aria-label="Kenya Airways virtual assistant, home">
-            <span class="brand__mark" id="brand-mark" aria-hidden="true">KQ</span>
-            <span class="brand__name">Kenya Airways<span class="brand__tagline">The Pride of Africa · Virtual Assistant</span></span>
+          <a class="brand" href="index.html" aria-label="Kenya Airways, home">
+            <img class="brand__logo" src="assets/logo.svg" alt="" width="180" height="41">
+            <span class="brand__product">Virtual<br>Assistant</span>
           </a>
           <nav class="nav" id="site-nav" aria-label="Main" data-open="false">
             <ul class="nav__list">${links.join("")}</ul>
@@ -86,6 +103,14 @@
           </div>
         </div>
       </header>`;
+
+    const close = document.getElementById("announce-close");
+    if (close) {
+      close.addEventListener("click", () => {
+        try { localStorage.setItem(ANNOUNCE_KEY, "1"); } catch (_) { /* ignore */ }
+        document.getElementById("announce").remove();
+      });
+    }
 
     if (user) {
       // User-supplied text is set with textContent, never inserted as HTML
@@ -112,19 +137,6 @@
       nav.dataset.open = String(open);
       menu.setAttribute("aria-expanded", String(open));
     });
-
-    loadLogo();
-  }
-
-  function loadLogo() {
-    const mark = document.getElementById("brand-mark");
-    const logo = new Image();
-    logo.onload = () => {
-      logo.className = "brand__logo brand__logo--on-light";
-      logo.alt = "";
-      mark.replaceWith(logo);
-    };
-    logo.src = LOGO_URL; // if the file is missing, the "KQ" mark stays
   }
 
   function renderFooter(user) {
@@ -134,16 +146,17 @@
       <footer class="site-footer">
         <div class="container site-footer__grid">
           <div>
-            <h2>Kenya Airways Virtual Assistant</h2>
-            <p>Help with flight status, bookings, check-in and baggage, 24 hours a day.
+            <img class="site-footer__logo" src="assets/logo.svg" alt="Kenya Airways" width="180" height="41">
+            <p>The Virtual Assistant helps with flight status, bookings, check-in and baggage, 24 hours a day.
                Prefer to talk to someone? Call <a href="tel:+254203274747">+254 20 327 4747</a>.</p>
           </div>
           <div>
-            <h2>Help</h2>
+            <h2>Travel</h2>
             <ul>
-              <li><a href="index.html#flight-status">Flight status</a></li>
-              <li><a href="index.html#travel-info">Baggage &amp; check-in</a></li>
-              <li><a href="account.html">My bookings</a></li>
+              <li><a href="flight-status.html">Flight status</a></li>
+              <li><a href="destinations.html">Destinations</a></li>
+              <li><a href="travel-info.html">Baggage &amp; check-in</a></li>
+              <li><a href="assistant.html">Virtual Assistant</a></li>
             </ul>
           </div>
           <div>
@@ -153,13 +166,15 @@
                 ? `<li><a href="${user.role === "admin" ? "admin.html" : "account.html"}">${user.role === "admin" ? "Staff dashboard" : "My bookings"}</a></li>`
                 : `<li><a href="login.html">Log in</a></li>
                    <li><a href="login.html#register">Create an account</a></li>`}
+              <li><a href="about.html">About this prototype &amp; credits</a></li>
               <li><a href="/docs">API documentation</a></li>
             </ul>
           </div>
         </div>
         <p class="site-footer__note">
-          Student project (ICS Project II) for demonstration only. Not affiliated with or endorsed by Kenya Airways.
-          The Kenya Airways name and logo belong to Kenya Airways PLC.
+          Prototype of the Kenya Airways Virtual Assistant, developed for Kenya Airways as a Strathmore University
+          ICS Project II. Flights, bookings and accounts shown are sample data for demonstration.
+          The Kenya Airways name and logo are trademarks of Kenya Airways PLC. <a href="about.html">Photo credits</a>
         </p>
       </footer>`;
   }
@@ -180,6 +195,15 @@
       renderFooter(user);
       return user;
     });
+
+  // "Ask the assistant" shortcuts on any page: data-ask sends an intent payload with a
+  // friendly label, data-chat sends the text as typed.
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-ask], [data-chat]");
+    if (!trigger || !window.KQChat) return;
+    if (trigger.dataset.ask) window.KQChat.open(trigger.dataset.ask, trigger.dataset.label);
+    else window.KQChat.open(trigger.dataset.chat);
+  });
 
   window.KQSite = {
     ready,
@@ -204,6 +228,11 @@
     },
     formatTime(value) {
       return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+    },
+    /** Arrival time, with "+1" when it lands on a later day than it departs. */
+    formatArrival(departure, arrival) {
+      const days = Math.round((new Date(arrival).setHours(0, 0, 0, 0) - new Date(departure).setHours(0, 0, 0, 0)) / 86400000);
+      return window.KQSite.formatTime(arrival) + (days > 0 ? ` +${days}` : "");
     },
     statusBadge(status) {
       const labels = {
