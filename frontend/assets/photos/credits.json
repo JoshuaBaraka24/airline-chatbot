@@ -1,0 +1,119 @@
+[
+  {
+    "file": "assets/photos/hero-kq-787.jpg",
+    "used_for": "Home page background",
+    "title": "Kenya Airways Boeing 787-8 5Y-KZF (23621400162)",
+    "author": "BriYYZ from Toronto, Canada",
+    "license": "CC BY-SA 2.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kenya_Airways_Boeing_787-8_5Y-KZF_(23621400162).jpg"
+  },
+  {
+    "file": "assets/photos/flight-status-kq-787.jpg",
+    "used_for": "Flight status page banner",
+    "title": "Kenya Airways 787-8 5Y-KZG at LHR 02",
+    "author": "DaHuzyBru",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kenya_Airways_787-8_5Y-KZG_at_LHR_02.jpg"
+  },
+  {
+    "file": "assets/photos/jkia-terminal.jpg",
+    "used_for": "Travel information page banner",
+    "title": "Jomo Kenyatta International Airport terminal building",
+    "author": "Sdkb",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jomo_Kenyatta_International_Airport_terminal_building.jpg"
+  },
+  {
+    "file": "assets/photos/wing-sunset.jpg",
+    "used_for": "Log in page",
+    "title": "A wing tip of an airplane (40118125441)",
+    "author": "U.S. Department of Agriculture",
+    "license": "Public domain",
+    "license_url": null,
+    "source": "https://commons.wikimedia.org/wiki/File:A_wing_tip_of_an_airplane_(40118125441).jpg"
+  },
+  {
+    "file": "assets/photos/wing-clouds.jpg",
+    "used_for": "Virtual assistant page banner",
+    "title": "Airplane wing sky and clouds",
+    "author": "Tobias1984",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Airplane_wing_sky_and_clouds.jpg"
+  },
+  {
+    "file": "assets/photos/nairobi.jpg",
+    "used_for": "Destination: Nairobi",
+    "title": "Nairobi night skyline at dusk",
+    "author": "Nbi101",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Nairobi_night_skyline_at_dusk_.jpg"
+  },
+  {
+    "file": "assets/photos/mombasa.jpg",
+    "used_for": "Destination: Mombasa",
+    "title": "Nyali Beach from the Reef Hotel during high tide in Mombasa, Kenya 8",
+    "author": "CT Cooper",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Nyali_Beach_from_the_Reef_Hotel_during_high_tide_in_Mombasa,_Kenya_8.jpg"
+  },
+  {
+    "file": "assets/photos/kisumu.jpg",
+    "used_for": "Destination: Kisumu",
+    "title": "KISU - Fisherman returning at sunset on Lake Victoria, Kisumu, Kenya, 2012",
+    "author": "Josep M. Gracia",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:KISU_-_Fisherman_returning_at_sunset_on_Lake_Victoria,_Kisumu,_Kenya,_2012.jpg"
+  },
+  {
+    "file": "assets/photos/dubai.jpg",
+    "used_for": "Destination: Dubai",
+    "title": "Burj Khalifa from the sea, Dubai",
+    "author": "Jpbowen",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Burj_Khalifa_from_the_sea,_Dubai.jpg"
+  },
+  {
+    "file": "assets/photos/london.jpg",
+    "used_for": "Destination: London",
+    "title": "Palace of Westminster, London - Feb 2007",
+    "author": "Diliff",
+    "license": "CC BY-SA 2.5",
+    "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Palace_of_Westminster,_London_-_Feb_2007.jpg"
+  },
+  {
+    "file": "assets/photos/amsterdam.jpg",
+    "used_for": "Destination: Amsterdam",
+    "title": "Canal houses and Oude Kerk at blue hour with water reflection in Damrak Amsterdam Netherlands",
+    "author": "Basile Morin",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Canal_houses_and_Oude_Kerk_at_blue_hour_with_water_reflection_in_Damrak_Amsterdam_Netherlands.jpg"
+  },
+  {
+    "file": "assets/photos/johannesburg.jpg",
+    "used_for": "Destination: Johannesburg",
+    "title": "Johannesburg-city-skyline-night",
+    "author": "Frankbel",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Johannesburg-city-skyline-night.jpg"
+  },
+  {
+    "file": "assets/photos/lagos.jpg",
+    "used_for": "Destination: Lagos",
+    "title": "Lagos skyline with marina",
+    "author": "kopee15",
+    "license": "Public domain",
+    "license_url": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Lagos_skyline_with_marina.jpg"
+  }
+]
