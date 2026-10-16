@@ -12,8 +12,9 @@ def calls(monkeypatch):
     """Stub Rasa and the conversation log, recording what the API sends them."""
     recorded = {"sent": [], "turns": [], "closed": []}
 
-    def fake_send(sender_id, message):
+    def fake_send(sender_id, message, metadata=None):
         recorded["sent"].append((sender_id, message))
+        recorded["metadata"] = metadata
         return [
             {"recipient_id": sender_id, "text": "Please provide your flight number (e.g. KQ101)."},
             {"recipient_id": sender_id, "text": "Choose one", "buttons": [{"title": "Yes", "payload": "/affirm"}]},
@@ -23,7 +24,7 @@ def calls(monkeypatch):
     monkeypatch.setattr(rasa_client, "send_message", fake_send)
     monkeypatch.setattr(rasa_client, "latest_intent", lambda sender_id: "check_flight_status")
     monkeypatch.setattr(rasa_client, "is_healthy", lambda: True)
-    monkeypatch.setattr(conversation_log, "record_turn", lambda s, i: recorded["turns"].append((s, i)))
+    monkeypatch.setattr(conversation_log, "record_turn", lambda s, i, u=None: recorded["turns"].append((s, i)))
     monkeypatch.setattr(conversation_log, "close_conversation", lambda s: recorded["closed"].append(s))
     monkeypatch.setattr(conversation_log, "check_database", lambda: None)
     return recorded
@@ -67,7 +68,7 @@ def test_invalid_requests_are_rejected(client, calls, payload):
 
 
 def test_rasa_outage_returns_503(client, calls, monkeypatch):
-    def unavailable(sender_id, message):
+    def unavailable(sender_id, message, metadata=None):
         raise rasa_client.RasaUnavailableError("connection refused")
 
     monkeypatch.setattr(rasa_client, "send_message", unavailable)
@@ -78,7 +79,7 @@ def test_rasa_outage_returns_503(client, calls, monkeypatch):
 
 
 def test_logging_failure_does_not_break_chat(client, calls, monkeypatch):
-    def broken_log(sender_id, intent):
+    def broken_log(sender_id, intent, user_id=None):
         raise RuntimeError("database down")
 
     monkeypatch.setattr(conversation_log, "record_turn", broken_log)

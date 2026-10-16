@@ -7,7 +7,10 @@ Endpoints
     POST /api/chat                  send a message, receive the bot's replies
     POST /api/chat/{sender_id}/end  close a conversation
     GET  /api/health                status of the API, Rasa and the database
-    GET  /                          the chat widget (frontend/)
+    /api/auth/*                     register, log in, log out, current user
+    /api/me/bookings, /api/flights/status   passenger portal
+    /api/admin/*                    staff dashboard (admin role only)
+    GET  /                          the web portal and chat widget (frontend/)
 Interactive API docs are served at /docs.
 """
 import logging
@@ -15,13 +18,13 @@ import time
 import uuid
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, Path, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Path, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, validator
 
-from backend import conversation_log, rasa_client
+from backend import api_admin, api_auth, api_portal, auth, conversation_log, rasa_client
 from backend.config import ALLOWED_ORIGINS, FRONTEND_DIR, MAX_MESSAGE_LENGTH
 
 logger = logging.getLogger("backend")
@@ -30,9 +33,12 @@ UUID_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 app = FastAPI(
     title="Kenya Airways Virtual Assistant API",
-    description="REST gateway connecting the chat widget to the Rasa NLU and dialogue engine.",
-    version="1.0.0",
+    description="REST gateway connecting the web portal and chat widget to the Rasa NLU and dialogue engine.",
+    version="1.1.0",
 )
+app.include_router(api_auth.router)
+app.include_router(api_portal.router)
+app.include_router(api_admin.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -88,12 +94,14 @@ class ChatResponse(BaseModel):
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(request: ChatRequest) -> ChatResponse:
+def chat(request: ChatRequest, user: Optional[dict] = Depends(auth.optional_user)) -> ChatResponse:
     started = time.perf_counter()
     sender_id = request.sender_id or str(uuid.uuid4())
 
     try:
-        replies = rasa_client.send_message(sender_id, request.message)
+        # Tell the assistant who is logged in so it can offer the passenger's own bookings
+        metadata = {"user_id": user["user_id"], "name": user["name"]} if user else None
+        replies = rasa_client.send_message(sender_id, request.message, metadata)
     except rasa_client.RasaUnavailableError:
         logger.exception("Rasa server unavailable")
         raise HTTPException(
@@ -102,7 +110,9 @@ def chat(request: ChatRequest) -> ChatResponse:
         )
 
     try:
-        conversation_log.record_turn(sender_id, rasa_client.latest_intent(sender_id))
+        conversation_log.record_turn(
+            sender_id, rasa_client.latest_intent(sender_id), user["user_id"] if user else None
+        )
     except Exception:
         logger.exception("Could not log turn for %s", sender_id)
 
