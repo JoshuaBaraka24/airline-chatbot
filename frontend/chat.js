@@ -11,6 +11,7 @@
     transcript: "kq-chat-transcript",
     open: "kq-chat-open",
     tts: "kq-chat-tts",
+    seen: "kq-assistant-seen",
   };
   const WELCOME = {
     text: "Hello! I'm the Kenya Airways virtual assistant. How can I help you today?",
@@ -30,6 +31,7 @@
     <path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"/>
   </svg>
   <span class="launcher__label">Chat with us</span>
+  <span class="pill-new launcher__new" id="launcher-new">New</span>
 </button>
 
 <section id="chat-panel" class="chat" role="dialog" aria-modal="false"
@@ -309,6 +311,9 @@
     el.panel.hidden = false;
     el.launcher.setAttribute("aria-expanded", "true");
     save(sessionStorage, STORAGE.open, true);
+    save(localStorage, STORAGE.seen, true);
+    const badge = document.getElementById("launcher-new");
+    if (badge) badge.remove();
     if (!el.log.childElementCount) restoreTranscript();
     checkHealth();
     healthTimer = setInterval(checkHealth, HEALTH_INTERVAL_MS);
@@ -394,6 +399,11 @@
     el.input.value = "";
     sendMessage(text);
   });
+
+  if (load(localStorage, STORAGE.seen, false)) {
+    const badge = document.getElementById("launcher-new");
+    if (badge) badge.remove();
+  }
 
   // Reopen after a page reload if a conversation was in progress and the panel was open
   if (senderId && load(sessionStorage, STORAGE.open, false)) openChat();
