@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff dashboard · Kenya Airways Virtual Assistant</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body data-page="admin">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main" class="container">
+    <div class="page-head">
+      <h1>Staff dashboard</h1>
+      <p>Conversations handled by the virtual assistant and chats waiting for an agent.</p>
+    </div>
+    <div class="alert" id="admin-error" role="alert" hidden></div>
+
+    <section class="stats" aria-label="Conversation statistics">
+      <div class="card stat"><div class="stat__label">Conversations</div><div class="stat__value" id="stat-total">–</div></div>
+      <div class="card stat"><div class="stat__label">Today</div><div class="stat__value" id="stat-today">–</div></div>
+      <div class="card stat"><div class="stat__label">Active</div><div class="stat__value" id="stat-active">–</div></div>
+      <div class="card stat stat--alert"><div class="stat__label">Waiting for an agent</div><div class="stat__value" id="stat-escalated">–</div></div>
+      <div class="card stat"><div class="stat__label">Avg. turns</div><div class="stat__value" id="stat-turns">–</div></div>
+    </section>
+
+    <div class="dash-grid">
+      <section class="card" aria-labelledby="log-title">
+        <h2 id="log-title">Conversation log</h2>
+        <div class="toolbar">
+          <div class="field">
+            <label for="status-filter">Status</label>
+            <select id="status-filter" class="input">
+              <option value="">All</option>
+              <option value="escalated">Waiting for an agent</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--secondary" id="refresh-btn">Refresh</button>
+        </div>
+        <p class="visually-hidden" id="log-status" role="status"></p>
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="visually-hidden">Recent conversations</caption>
+            <thead>
+              <tr>
+                <th scope="col">Started</th>
+                <th scope="col">Passenger</th>
+                <th scope="col">Turns</th>
+                <th scope="col">Last request</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="conversation-rows"></tbody>
+          </table>
+        </div>
+        <p class="muted" id="log-empty" hidden>No conversations to show.</p>
+      </section>
+
+      <div>
+        <section class="card" aria-labelledby="intents-title">
+          <h2 id="intents-title">Most common requests</h2>
+          <ul class="bars" id="intent-bars"></ul>
+        </section>
+        <section class="card section-gap" aria-labelledby="bookings-title">
+          <h2 id="bookings-title">Bookings</h2>
+          <ul class="bars" id="booking-bars"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="transcript" id="transcript" aria-labelledby="transcript-title">
+    <div class="transcript__head">
+      <h2 id="transcript-title">Transcript</h2>
+      <button type="button" class="btn btn--secondary btn--small" id="transcript-close">Close</button>
+    </div>
+    <div class="transcript__body" id="transcript-body" tabindex="0" aria-labelledby="transcript-title"></div>
+  </dialog>
+
+  <div id="site-footer"></div>
+
+  <script src="api.js"></script>
+  <script src="site.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
