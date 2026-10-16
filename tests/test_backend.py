@@ -108,11 +108,24 @@ def test_widget_is_served_with_security_headers(client):
     response = client.get("/")
 
     assert response.status_code == 200
-    assert 'id="chat-panel"' in response.text
+    assert '<script src="chat.js"></script>' in response.text
     assert "script-src 'self'" in response.headers["content-security-policy"]
     assert response.headers["x-content-type-options"] == "nosniff"
-    for asset in ("/chat.js", "/voice.js", "/styles.css"):
+    for asset in ("/chat.js", "/voice.js", "/styles.css", "/site.css", "/site.js", "/api.js"):
         assert client.get(asset).status_code == 200
+
+
+@pytest.mark.parametrize("page, script", [
+    ("/login.html", "login.js"),
+    ("/account.html", "account.js"),
+    ("/admin.html", "admin.js"),
+])
+def test_portal_pages_are_served(client, page, script):
+    response = client.get(page)
+
+    assert response.status_code == 200
+    assert f'<script src="{script}"></script>' in response.text
+    assert client.get(f"/{script}").status_code == 200
 
 
 def test_api_routes_take_precedence_over_static_files(client, calls):
