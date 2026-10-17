@@ -94,8 +94,12 @@ Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` an
 
 The other sample passengers (`amina@`, `peter@`, `grace@`, `david@`, `mary@email.com`) use the passenger password.
 
-The Virtual Assistant is announced as a **new feature** across the site: a dismissible banner, a
-**New** badge in the navigation and on the chat button (until it is first opened), and its own page.
+The Virtual Assistant is presented as a **new feature**: a **New** badge in the navigation, in the home
+page hero and on the chat button (until it is first opened), and its own page.
+
+**Design:** the portal has its own visual style rather than copying the airline's website: a navy
+and sunset-gold header, warm sand pages, Kenya Airways red accents, and photo bands throughout
+(Discover Kenya, airport, cabin and sky scenes).
 
 **Photos and logo:** photographs are from Wikimedia Commons under CC BY, CC BY-SA or public-domain
 licences. Each one's author, licence and source is in `frontend/assets/photos/credits.json` and on the
@@ -155,7 +159,7 @@ Current results (16 Oct 2026):
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
 | Unit + integration tests (pytest) | 81 passed | |
-| Browser checks: widget / portal | 28 / 28 and 74 / 74 | |
+| Browser checks: widget / portal | 28 / 28 and 76 / 76 | |
 | Accessibility (axe-core) | 0 violations across 17 page states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
