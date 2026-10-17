@@ -270,6 +270,7 @@ body:has(.launcher) .site-footer__note { padding-bottom: 96px; }
 .page-banner h1 { margin: 0 0 10px; font-size: clamp(2rem, 4.5vw, 2.9rem); line-height: 1.1; }
 .page-banner p { margin: 0; max-width: 62ch; font-size: 1.12rem; }
 .page-banner .pill-new { margin-bottom: 12px; }
+.page-banner .section-gap { margin-top: 24px; }
 .page-banner--status { background-image: url("assets/photos/flight-status-kq-787.jpg"); background-position: center 40%; }
 .page-banner--destinations { background-image: url("assets/photos/nairobi.jpg"); background-position: center 60%; }
 .page-banner--info { background-image: url("assets/photos/jkia-terminal.jpg"); }
