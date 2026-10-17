@@ -12,11 +12,14 @@
   <a class="skip-link" href="#main">Skip to main content</a>
   <div id="site-header"></div>
 
-  <main id="main" class="container">
-    <div class="page-head">
-      <h1 id="account-title">My bookings</h1>
-      <p id="account-subtitle">Loading your trips…</p>
-    </div>
+  <main id="main">
+    <section class="page-banner page-banner--account page-banner--compact" aria-labelledby="account-title">
+      <div class="container">
+        <h1 id="account-title">My bookings</h1>
+        <p id="account-subtitle">Loading your trips…</p>
+      </div>
+    </section>
+    <div class="container section">
     <div class="alert" id="bookings-error" role="alert" hidden></div>
     <div class="bookings" id="bookings" aria-labelledby="account-title" aria-busy="true"></div>
     <div class="card empty" id="bookings-empty" hidden>
@@ -24,6 +27,7 @@
       <h2>No bookings yet</h2>
       <p class="muted">The assistant can find flights for you.</p>
       <button type="button" class="btn btn--primary" id="find-flights">Find a flight</button>
+    </div>
     </div>
   </main>
 

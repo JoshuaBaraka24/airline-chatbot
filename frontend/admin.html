@@ -11,11 +11,14 @@
   <a class="skip-link" href="#main">Skip to main content</a>
   <div id="site-header"></div>
 
-  <main id="main" class="container">
-    <div class="page-head">
-      <h1>Staff dashboard</h1>
-      <p>Conversations handled by the virtual assistant and chats waiting for an agent.</p>
-    </div>
+  <main id="main">
+    <section class="page-banner page-banner--admin page-banner--compact" aria-labelledby="admin-title">
+      <div class="container">
+        <h1 id="admin-title">Staff dashboard</h1>
+        <p>Conversations handled by the Virtual Assistant and chats waiting for an agent.</p>
+      </div>
+    </section>
+    <div class="container">
     <div class="alert" id="admin-error" role="alert" hidden></div>
 
     <section class="stats" aria-label="Conversation statistics">
@@ -71,6 +74,7 @@
           <ul class="bars" id="booking-bars"></ul>
         </section>
       </div>
+    </div>
     </div>
   </main>
 
