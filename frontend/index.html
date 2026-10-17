@@ -45,8 +45,8 @@
       </div>
     </section>
 
-    <div class="container">
-      <section class="card features" aria-label="What the Virtual Assistant offers">
+    <section class="band band--red features-band" aria-label="What the Virtual Assistant offers">
+      <div class="container features">
         <div class="feature">
           <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.4 3.5 2.1-.8 1.3L11 13V7h2z"/></svg></span>
           <div><h3>Help around the clock</h3><p>Answers day or night, without waiting on hold.</p></div>
@@ -63,10 +63,11 @@
           <span class="feature__icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18z"/></svg></span>
           <div><h3>Built for everyone</h3><p>Keyboard, screen reader and high-contrast friendly.</p></div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
 
-    <section class="section container" aria-labelledby="help-title">
+    <section class="band band--photo band--tint-navy band--terminal" aria-labelledby="help-title">
+      <div class="container">
       <h2 class="section__title" id="help-title">How can we help?</h2>
       <p class="section__lead">Pick a topic and the Virtual Assistant will take it from there.</p>
       <div class="tiles">
@@ -95,9 +96,36 @@
           <button type="button" class="btn btn--secondary btn--small" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
         </article>
       </div>
+      </div>
     </section>
 
-    <section class="section container" aria-labelledby="destinations-title">
+    <section class="band band--deep-sand" aria-labelledby="discover-title">
+      <div class="container">
+        <h2 class="section__title" id="discover-title">Discover Kenya</h2>
+        <p class="section__lead">Safari, mountains, city and coast, all a short hop from Nairobi.</p>
+        <div class="mosaic">
+          <figure class="mosaic__item">
+            <img src="assets/photos/maasai-mara.jpg" alt="An elephant on the grassland of the Maasai Mara" width="640" height="427" loading="lazy">
+            <figcaption><strong>Maasai Mara</strong><span>Fly to Nairobi for safari country</span></figcaption>
+          </figure>
+          <figure class="mosaic__item">
+            <img src="assets/photos/mount-kenya.jpg" alt="The jagged peaks of Mount Kenya" width="640" height="425" loading="lazy">
+            <figcaption><strong>Mount Kenya</strong><span>Africa's second-highest peak</span></figcaption>
+          </figure>
+          <figure class="mosaic__item">
+            <img src="assets/photos/nairobi-giraffe.jpg" alt="A giraffe in Nairobi National Park with the city skyline behind" width="640" height="344" loading="lazy">
+            <figcaption><strong>Nairobi</strong><span>The only capital with a national park</span></figcaption>
+          </figure>
+          <figure class="mosaic__item">
+            <img src="assets/photos/diani-sunrise.jpg" alt="Sunrise over Diani Beach on the Kenyan coast" width="640" height="426" loading="lazy">
+            <figcaption><strong>Diani &amp; the coast</strong><span>White sand beaches via Mombasa</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band--photo band--tint-navy band--sky" aria-labelledby="destinations-title">
+      <div class="container">
       <h2 class="section__title" id="destinations-title">Popular destinations</h2>
       <p class="section__lead">Direct flights from Nairobi. Pick a city and the assistant will find you a flight.</p>
       <div class="destinations">
@@ -129,7 +157,26 @@
           </div>
         </article>
       </div>
-      <p class="section-gap"><a class="btn btn--secondary" href="destinations.html">See all destinations</a></p>
+      <p class="section-gap"><a class="btn btn--gold" href="destinations.html">See all destinations</a></p>
+      </div>
+    </section>
+
+    <section class="band band--photo band--tint-red band--cabin" aria-labelledby="spotlight-title">
+      <div class="container spotlight">
+        <div>
+          <span class="pill-new">New</span>
+          <h2 id="spotlight-title">Your trip, sorted in a conversation</h2>
+          <p>The Virtual Assistant understands everyday language, looks up your booking and confirms with
+             you before changing anything, and a person is always one message away.</p>
+          <a class="btn btn--gold" href="assistant.html">See what it can do</a>
+        </div>
+        <ul class="spotlight__list" aria-label="Things you can ask">
+          <li>Is flight KQ202 on time?</li>
+          <li>Move my booking to next Friday</li>
+          <li>Can I carry a bag that weighs 30 kg?</li>
+          <li>Find me a flight from Nairobi to Dubai</li>
+        </ul>
+      </div>
     </section>
   </main>
 
