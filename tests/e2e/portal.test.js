@@ -34,7 +34,11 @@ async function logout(page) {
   check("header shows the Kenya Airways logo", await page.$eval(".brand__logo", (i) => i.getAttribute("src") === "assets/logo.svg" && i.naturalWidth > 0));
   const note = await page.$eval(".site-footer__note", (e) => e.textContent);
   check("footer presents the site as a prototype for Kenya Airways", note.includes("developed for Kenya Airways") && !note.includes("Not affiliated"));
-  check("announcement bar introduces the new assistant", (await page.$eval("#announce", (e) => e.textContent)).includes("Virtual Assistant"));
+  check("there is no announcement bar above the navigation", !(await page.$("#announce")) && !(await page.$(".announce")));
+  check("pages use a coloured background, not white",
+    await page.evaluate(() => !["rgb(255, 255, 255)", "rgba(0, 0, 0, 0)"].includes(getComputedStyle(document.body).backgroundColor)));
+  check("home page has colour and photo bands",
+    (await page.$$(".band--red, .band--navy, .band--photo, .band--deep-sand")).length >= 5);
   check("Virtual Assistant nav link is marked New", (await page.$eval('.nav__link[href="assistant.html"]', (e) => e.textContent)).includes("New"));
   check("chat launcher is marked New", await page.$("#launcher-new"));
   check("hero uses the Kenya Airways aircraft photo",
@@ -45,7 +49,8 @@ async function logout(page) {
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.waitForFunction(() => [...document.images].every((i) => i.complete), { timeout: 10000 });
   const art = await page.$$eval("img", (imgs) => imgs.map((i) => ({ src: i.getAttribute("src"), ok: i.naturalWidth > 0 })));
-  check("logo and destination photos load", art.length >= 5 && art.every((i) => i.ok), JSON.stringify(art.filter((i) => !i.ok)));
+  check("logo, Discover Kenya and destination photos load", art.length >= 9 && art.every((i) => i.ok), JSON.stringify(art.filter((i) => !i.ok)));
+  check("Discover Kenya mosaic shows four photos", (await page.$$(".mosaic__item img")).length === 4);
   check("three destinations are previewed on the home page", (await page.$$(".destination")).length === 3);
   check("favicon is linked", await page.$('link[rel="icon"][href="assets/favicon.svg"]'));
 
@@ -106,7 +111,7 @@ async function logout(page) {
   await h.axe(page, report, "travel info");
 
   await page.goto(`${BASE}/assistant.html`, { waitUntil: "networkidle0" });
-  check("Virtual Assistant page is marked New and hides the announcement", (await page.$(".page-banner .pill-new")) && !(await page.$("#announce")));
+  check("Virtual Assistant page is marked New", await page.$(".page-banner .pill-new"));
   const beforePrompt = await h.botCount(page);
   await page.click('.prompt[data-chat="Is flight KQ202 on time?"]');
   await h.waitForReply(page, beforePrompt);
@@ -120,15 +125,12 @@ async function logout(page) {
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.waitForFunction(() => [...document.images].every((i) => i.complete), { timeout: 10000 });
   const credits = await page.$$eval("#credit-rows tr", (trs) => trs.map((tr) => ({ text: tr.textContent, img: tr.querySelector("img").naturalWidth > 0 })));
-  check("About page credits all 13 photos with licences", credits.length === 13 && credits.every((c) => c.img && /CC BY|Public domain/.test(c.text)));
+  const expected = await page.evaluate(() => fetch("assets/photos/credits.json").then((r) => r.json()).then((c) => c.length));
+  check(`About page credits all ${expected} photos with licences`, expected >= 21 && credits.length === expected && credits.every((c) => c.img && /CC BY|Public domain/.test(c.text)));
   check("About page names the student, supervisor and client",
     await page.$eval(".facts", (e) => ["Adalo Joshua Baraka", "Mr. Daniel Machanje", "Kenya Airways"].every((t) => e.textContent.includes(t))));
   await h.axe(page, report, "about");
 
-  await page.goto(BASE, { waitUntil: "networkidle0" });
-  await page.click("#announce-close");
-  await page.reload({ waitUntil: "networkidle0" });
-  check("dismissed announcement stays hidden", !(await page.$("#announce")));
 
   // ---------- Access control ----------
   await page.goto(`${BASE}/account.html`, { waitUntil: "networkidle0" });

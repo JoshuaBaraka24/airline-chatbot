@@ -115,5 +115,77 @@
     "license": "Public domain",
     "license_url": null,
     "source": "https://commons.wikimedia.org/wiki/File:Lagos_skyline_with_marina.jpg"
+  },
+  {
+    "file": "assets/photos/maasai-mara.jpg",
+    "used_for": "Home and Destinations: Discover Kenya",
+    "title": "Elephant in Maasai Mara landscape, Kenya",
+    "author": "Daniel Case",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Elephant_in_Maasai_Mara_landscape,_Kenya.jpg"
+  },
+  {
+    "file": "assets/photos/mount-kenya.jpg",
+    "used_for": "Home and Destinations: Discover Kenya",
+    "title": "Mount Kenya Peaks",
+    "author": "Galkey",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mount_Kenya_Peaks.jpg"
+  },
+  {
+    "file": "assets/photos/nairobi-giraffe.jpg",
+    "used_for": "Home and Destinations: Discover Kenya; My bookings banner",
+    "title": "A giraffe with a beautiful background of Nairobi City Skyline",
+    "author": "Alexmbogo",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:A_giraffe_with_a_beautiful_background_of_Nairobi_City_Skyline.jpg"
+  },
+  {
+    "file": "assets/photos/diani-sunrise.jpg",
+    "used_for": "Home and Destinations: Discover Kenya; login background",
+    "title": "Diani Beach Sunrise Kenya",
+    "author": "Łukasz Ciesielski",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Diani_Beach_Sunrise_Kenya.jpg"
+  },
+  {
+    "file": "assets/photos/cabin-787.jpg",
+    "used_for": "Home assistant spotlight background",
+    "title": "Economy class interior of B-209N (20210615125047)",
+    "author": "N509FZ",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Economy_class_interior_of_B-209N_(20210615125047).jpg"
+  },
+  {
+    "file": "assets/photos/baggage-carousel.jpg",
+    "used_for": "Travel information: baggage",
+    "title": "Baggage claim carousel 3 at Terminal 3 of Toronto Pearson International Airport (YYZ)",
+    "author": "Silver Dovelet",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Baggage_claim_carousel_3_at_Terminal_3_of_Toronto_Pearson_International_Airport_(YYZ).jpg"
+  },
+  {
+    "file": "assets/photos/check-in-hall.jpg",
+    "used_for": "Travel information: check-in",
+    "title": "Check-in counters at Suvarnabhumi International Airport",
+    "author": "User:Mattes",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Check-in_counters_at_Suvarnabhumi_International_Airport.JPG"
+  },
+  {
+    "file": "assets/photos/kq-787-lhr.jpg",
+    "used_for": "Staff dashboard banner; Flight status help band",
+    "title": "Kenya Airways 787-8 5Y-KZG at LHR 03",
+    "author": "DaHuzyBru",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kenya_Airways_787-8_5Y-KZG_at_LHR_03.jpg"
   }
 ]

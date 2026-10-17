@@ -36,30 +36,13 @@
   };
   setTheme(storedTheme(), false);
 
-  // ---------- header, announcement and footer ----------
+  // ---------- header and footer ----------
 
   const page = document.body.dataset.page || "home";
-  const ANNOUNCE_KEY = "kq-announce-assistant-dismissed";
 
   function navLink(href, label, key, extra = "") {
     const current = key === page ? ' aria-current="page"' : "";
     return `<li><a class="nav__link" href="${href}"${current}>${label}${extra}</a></li>`;
-  }
-
-  function renderAnnouncement() {
-    let dismissed = false;
-    try { dismissed = localStorage.getItem(ANNOUNCE_KEY) === "1"; } catch (_) { /* storage unavailable */ }
-    if (dismissed || page === "assistant" || page === "admin") return "";
-    return `
-      <div class="announce" id="announce" role="region" aria-label="New feature">
-        <div class="container announce__bar">
-          <span class="pill-new">New</span>
-          <p class="announce__text">Meet the <strong>Kenya Airways Virtual Assistant</strong>: help with flights,
-             bookings, check-in and baggage, 24 hours a day.</p>
-          <a class="announce__link" href="assistant.html">Learn more<span aria-hidden="true"> →</span></a>
-          <button type="button" class="announce__close" id="announce-close" aria-label="Dismiss announcement">×</button>
-        </div>
-      </div>`;
   }
 
   function renderHeader(user) {
@@ -78,14 +61,14 @@
     const account = user
       ? `<span class="user-chip"><span class="user-chip__avatar" aria-hidden="true"></span>
            <span class="user-chip__name"></span></span>
-         <button type="button" class="btn btn--secondary btn--small" id="logout-btn">Log out</button>`
-      : `<a class="btn btn--primary btn--small" href="login.html" id="login-link">Log in</a>`;
+         <button type="button" class="btn btn--light btn--small" id="logout-btn">Log out</button>`
+      : `<a class="btn btn--gold btn--small" href="login.html" id="login-link">Log in</a>`;
 
-    slot.outerHTML = `${renderAnnouncement()}
+    slot.outerHTML = `
       <header class="site-header">
         <div class="container site-header__bar">
           <a class="brand" href="index.html" aria-label="Kenya Airways, home">
-            <img class="brand__logo" src="assets/logo.svg" alt="" width="180" height="41">
+            <span class="brand__badge"><img class="brand__logo" src="assets/logo.svg" alt="" width="180" height="41"></span>
             <span class="brand__product">Virtual<br>Assistant</span>
           </a>
           <nav class="nav" id="site-nav" aria-label="Main" data-open="false">
@@ -103,14 +86,6 @@
           </div>
         </div>
       </header>`;
-
-    const close = document.getElementById("announce-close");
-    if (close) {
-      close.addEventListener("click", () => {
-        try { localStorage.setItem(ANNOUNCE_KEY, "1"); } catch (_) { /* ignore */ }
-        document.getElementById("announce").remove();
-      });
-    }
 
     if (user) {
       // User-supplied text is set with textContent, never inserted as HTML
