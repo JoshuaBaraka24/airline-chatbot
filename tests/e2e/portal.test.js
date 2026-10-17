@@ -111,7 +111,7 @@ async function logout(page) {
   await h.axe(page, report, "travel info");
 
   await page.goto(`${BASE}/assistant.html`, { waitUntil: "networkidle0" });
-  check("Virtual Assistant page is marked New", await page.$(".page-banner .pill-new"));
+  check("Virtual Assistant banner has no breadcrumb or badge", !(await page.$(".page-banner .breadcrumb")) && !(await page.$(".page-banner .pill-new")));
   const beforePrompt = await h.botCount(page);
   await page.click('.prompt[data-chat="Is flight KQ202 on time?"]');
   await h.waitForReply(page, beforePrompt);
