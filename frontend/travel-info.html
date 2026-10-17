@@ -23,7 +23,9 @@
     </section>
 
     <div class="section container info-grid">
-      <section class="card" id="baggage" aria-labelledby="baggage-title">
+      <section class="card photo-card" id="baggage" aria-labelledby="baggage-title">
+        <img class="photo-card__image" src="assets/photos/baggage-carousel.jpg" alt="A baggage claim carousel in an airport terminal" width="640" height="288">
+        <div class="photo-card__body">
         <h2 id="baggage-title">Baggage allowance</h2>
         <table class="table">
           <caption class="visually-hidden">Baggage allowance by cabin</caption>
@@ -35,9 +37,12 @@
         </table>
         <p class="muted">No single bag may weigh more than 32 kg; heavier items travel as cargo. Extra and overweight
           bags can be bought in advance. Allowances vary by route and fare, so always check your e-ticket.</p>
+        </div>
       </section>
 
-      <section class="card" id="check-in" aria-labelledby="checkin-title">
+      <section class="card photo-card" id="check-in" aria-labelledby="checkin-title">
+        <img class="photo-card__image" src="assets/photos/check-in-hall.jpg" alt="Rows of check-in counters in an airport departure hall" width="640" height="480">
+        <div class="photo-card__body">
         <h2 id="checkin-title">Check-in</h2>
         <ol class="steps">
           <li><strong>Online, from 36 hours before departure</strong> Check in on the website and get your boarding pass.</li>
@@ -45,10 +50,12 @@
           <li><strong>Bring your documents</strong> Your booking reference and a valid passport or ID.</li>
         </ol>
         <button type="button" class="btn btn--secondary btn--small" data-ask="/check_in_status" data-label="Am I checked in?">Check my check-in status</button>
+        </div>
       </section>
     </div>
 
-    <section class="section container" aria-labelledby="faq-title">
+    <section class="band band--navy" aria-labelledby="faq-title">
+      <div class="container">
       <div class="card faq">
         <h2 id="faq-title">Frequently asked questions</h2>
         <details>
@@ -72,15 +79,16 @@
           <p>Type "agent" in the Virtual Assistant at any time, or call +254 20 327 4747.</p>
         </details>
       </div>
+      </div>
     </section>
 
-    <section class="section container">
-      <div class="card cta-band">
+    <section class="band band--red" aria-labelledby="question-title">
+      <div class="container cta-row">
         <div>
-          <h2>Still have a question?</h2>
-          <p>The Virtual Assistant knows the baggage and check-in rules and can look up your booking.</p>
+          <h2 id="question-title">Still have a question?</h2>
+          <p class="muted-on-dark">The Virtual Assistant knows the baggage and check-in rules and can look up your booking.</p>
         </div>
-        <button type="button" class="btn btn--primary" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
+        <button type="button" class="btn btn--gold" data-ask="/baggage_policy" data-label="Baggage allowance">Ask the assistant</button>
       </div>
     </section>
   </main>
