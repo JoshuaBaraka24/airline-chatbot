@@ -168,16 +168,19 @@ See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report
 
 Tracked with [GitHub milestones](https://github.com/JoshuaBaraka24/airline-chatbot/milestones) that follow the project Gantt chart:
 
-| Milestone | Gantt period | Status |
-|---|---|---|
-| M1: Data Collection & Preprocessing | Jun–Jul 2026 | Done |
-| M2: NLU Model Training | Jul–Aug 2026 | Done |
-| M3: Dialogue Manager Development | Jul–Sep 2026 | Done |
-| M4: Backend API & Database | Aug–Sep 2026 | Done |
-| M5: Chat Widget (Frontend) | Sep–Oct 2026 | Done |
-| M6: System Integration & Testing | Oct–Nov 2026 | In progress (web portal and DB integration tests done) |
-| M7: User Acceptance Testing | Nov 2026 | Not started |
-| M8: Report Writing & Final Submission | Oct–Dec 2026 | Not started |
+| Milestone | Gantt period | Due | Status |
+|---|---|---|---|
+| M1: Data Collection & Preprocessing | Jun–Jul 2026 | 31 Jul | Done |
+| M2: NLU Model Training | Jul–Aug 2026 | 31 Aug | Done |
+| M3: Dialogue Manager Development | Jul–Sep 2026 | 30 Sep | Done |
+| M4: Backend API & Database | Aug–Sep 2026 | 30 Sep | Done |
+| M5: Chat Widget (Frontend) | Sep–Oct 2026 | 31 Oct | Done |
+| M6: System Integration & Testing | Oct–Nov 2026 | 6 Nov | In progress (web portal, DB integration and browser tests done; NLU hardening and load testing remain) |
+| M7: User Acceptance Testing | Nov 2026 | 13 Nov | Not started |
+| M8: Report Writing & Final Submission | Oct–Nov 2026 | 20 Nov | In progress (documentation drafted) |
+
+The final documentation is due in November 2026, so M6–M8 were brought forward from the
+original Gantt dates (M8 ended in December).
 
 ## Contributing
 
