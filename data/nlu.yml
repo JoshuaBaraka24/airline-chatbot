@@ -259,6 +259,9 @@ nlu:
     - is my booking checked in
     - was my web check-in successful?
     - check-in status please
+    - is my check-in finished
+    - has my check-in gone through for [BK006](booking_reference)
+    - am I all checked in
 
 - intent: escalate_to_agent
   examples: |
@@ -302,6 +305,29 @@ nlu:
     - what is the exchange rate for dollars
     - I want to rent a car
     - tell me about the news
+    - book me a cab to town
+    - can you book a hotel room for me
+    - book a restaurant for tonight
+    - get me a taxi to the airport
+    - book a safari tour in Maasai Mara
+    - reserve a rental car for me
+    - book a bus ticket to Nakuru
+    - book me a train ticket to Mombasa
+    - order food for me
+    - play some music
+    - sing happy birthday
+    - tell me a story
+    - what time is it in London
+    - are you married
+    - asdf
+    - jkl jkl
+    - hfhfhf ksks
+    - aaaaaaa
+    - lkjh gfds
+    - xyz abc qwe
+    - sdfghj
+    - mnbvc xzz
+    - ghjk tyui
 
 - intent: inform
   examples: |
@@ -336,6 +362,11 @@ nlu:
     - to [Amsterdam]{"entity": "city", "role": "to"}
     - going to [Lagos]{"entity": "city", "role": "to"}
     - from [Nairobi]{"entity": "city", "role": "from"} to [Dubai]{"entity": "city", "role": "to"}
+    - to [Kigali]{"entity": "city", "role": "to"}
+    - to [Cape Town]{"entity": "city", "role": "to"}
+    - heading to [Accra]{"entity": "city", "role": "to"}
+    - from [Kisumu]{"entity": "city", "role": "from"}
+    - [Entebbe]{"entity": "city"}
 
 - intent: affirm
   examples: |
