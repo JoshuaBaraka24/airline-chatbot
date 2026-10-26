@@ -156,8 +156,10 @@ Current results (26 Oct 2026):
 |---|---|---|
 | Held-out intent accuracy (99 sentences) | 97.0% | ≥ 85% (NFR-01) |
 | Entity weighted F1 | 0.93 | |
+| 5-fold cross-validation (training data) | 79.7% ± 5.5% intent accuracy | see docs/nlu-evaluation.md |
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
-| API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
+| API response time, 1 passenger | 0.3 s | ≤ 2 s (NFR-01) |
+| Load test, 10 / 50 passengers at once | 75% / 1% of replies within 2 s, 0 errors | see docs/load-test.md |
 | Unit + integration tests (pytest) | 81 passed | |
 | Browser checks: widget / portal | 28 / 28 and 76 / 76 | |
 | Accessibility (axe-core) | 0 violations across 17 page states | WCAG 2.1 AA (NFR-03) |

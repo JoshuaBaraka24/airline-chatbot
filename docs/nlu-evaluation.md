@@ -95,6 +95,67 @@ these three sentences specifically, so the test set stays independent of the tra
 running system the impact is limited: the new booking form asks for an origin and destination and
 rejects places that are not on the network.
 
+## 5-fold cross-validation
+
+The 354 training examples were split into five folds; each fold was held out in turn while a model
+was trained on the other four (about 283 examples, 10 to 22 per intent).
+
+```powershell
+rasa test nlu --nlu data/nlu.yml --config config.yml --cross-validation --folds 5 --out results/cv
+```
+
+| Metric (mean ± standard deviation over 5 folds) | Train folds | Test folds |
+|---|---|---|
+| Intent accuracy | 100% (± 0.0) | **79.7% (± 5.5)** |
+| Intent F1 | 1.00 | 0.79 (± 0.06) |
+| Intent precision | 1.00 | 0.83 (± 0.05) |
+| Entity F1 | 1.00 | 0.87 (± 0.05) |
+
+None of the 72 misclassified examples went to fallback; all were confident confusions.
+
+### Per-intent, accumulated over the test folds
+
+| Intent | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| greet | 0.82 | 0.78 | 0.80 | 18 |
+| goodbye | 0.85 | 0.92 | 0.88 | 12 |
+| thank_you | 0.73 | 0.92 | 0.81 | 12 |
+| bot_capabilities | 0.80 | 0.80 | 0.80 | 20 |
+| check_flight_status | 0.79 | 0.85 | 0.82 | 27 |
+| change_booking | 0.62 | 0.81 | 0.70 | 26 |
+| cancel_booking | 0.95 | 0.88 | 0.91 | 24 |
+| new_booking | 0.67 | 0.92 | 0.77 | 26 |
+| baggage_policy | 0.96 | 1.00 | 0.98 | 25 |
+| check_in_procedure | 0.75 | 0.90 | 0.82 | 20 |
+| check_in_status | 0.86 | 0.95 | 0.90 | 19 |
+| escalate_to_agent | 1.00 | 1.00 | 1.00 | 17 |
+| out_of_scope | 0.95 | 0.47 | 0.62 | 43 |
+| inform | 0.74 | 0.69 | 0.71 | 36 |
+| affirm | 0.73 | 0.69 | 0.71 | 16 |
+| deny | 0.70 | 0.54 | 0.61 | 13 |
+
+### Interpretation
+
+Cross-validated accuracy (79.7%) is lower than accuracy on the held-out test set (97.0%) and below
+the 85% NFR-01 target. The two numbers measure different things:
+
+- The held-out test set contains typical passenger phrasings, and the model is trained on all
+  354 examples.
+- Cross-validation trains on only 80% of the data and tests on the training examples themselves,
+  many of which are deliberately unusual: keyboard gibberish, one-word answers ("BK001", "Nairobi"),
+  and off-topic requests that share nothing with each other. When such an example is held out, the
+  remaining folds often contain nothing similar.
+
+The weakest intents in cross-validation are the ones with the most varied or shortest examples:
+out_of_scope (recall 0.47), deny (0.54), affirm (0.69) and inform (0.69). Common confusions are
+deny ↔ affirm, change_booking ↔ new_booking and out_of_scope → new_booking.
+
+The gap and the fold-to-fold variation (± 5.5 points) show that the model is still data-limited:
+performance depends on how many examples it sees per intent. NFR-01 is met on the held-out test
+set, but the cross-validation result is the more conservative estimate for unseen real passenger
+language. Growing the training data towards the proposal's target (about 2,000 examples, roughly
+100 per intent), especially for out_of_scope, affirm/deny and inform, is the main recommendation.
+
 ## History
 
 | Date | Model | Test set | Intent accuracy | Entity F1 |
@@ -102,6 +163,7 @@ rejects places that are not on the network.
 | 23 Sep 2026 | BERT features only | training data | 93.4% | – |
 | 14 Oct 2026 | BERT + sparse features | 56 sentences | 96.4% | 0.87 |
 | 26 Oct 2026 | + out-of-scope, gibberish and city examples | 99 sentences | 97.0% | 0.93 |
+| 26 Oct 2026 | same model, 5-fold cross-validation | training data | 79.7% (± 5.5) | 0.87 |
 
 Utterances that failed in manual testing on 23 September 2026 ("I want to cancel my booking",
 "can you help me book my flight", "what can you do for me", "What services do you provide",
