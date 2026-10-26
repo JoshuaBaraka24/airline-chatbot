@@ -150,12 +150,12 @@ python database\init_db.py
 cd tests\e2e; npm install; npm test
 ```
 
-Current results (16 Oct 2026):
+Current results (26 Oct 2026):
 
 | Check | Result | Target |
 |---|---|---|
-| Held-out intent accuracy | 96.4% | ≥ 85% (NFR-01) |
-| Entity weighted F1 | 0.87 | |
+| Held-out intent accuracy (99 sentences) | 97.0% | ≥ 85% (NFR-01) |
+| Entity weighted F1 | 0.93 | |
 | End-to-end test stories | 8 / 8 (40 / 40 actions) | |
 | API response time | 0.5–0.9 s | ≤ 2 s (NFR-01) |
 | Unit + integration tests (pytest) | 81 passed | |
