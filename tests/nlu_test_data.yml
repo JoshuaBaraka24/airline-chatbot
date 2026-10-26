@@ -10,18 +10,24 @@ nlu:
     - hi good morning
     - hello, is anyone available
     - hey hello
+    - hiya there
+    - hi assistant
 
 - intent: goodbye
   examples: |
     - ok bye now
     - goodbye and thanks
     - catch you later
+    - alright, I'm off, bye
+    - speak soon, goodbye
 
 - intent: thank_you
   examples: |
     - thank you very much
     - thanks, that helps
     - cool, thanks
+    - much appreciated
+    - thanks a lot for the help
 
 - intent: bot_capabilities
   examples: |
@@ -29,6 +35,8 @@ nlu:
     - what are you for
     - tell me what you can help with
     - what can you do
+    - what help do you offer
+    - what kind of things can I ask you
 
 - intent: check_flight_status
   examples: |
@@ -36,6 +44,9 @@ nlu:
     - can you tell me if [KQ 101](flight_number) is on time
     - I'd like the status of my flight
     - has [kq202](flight_number) left yet
+    - when does [KQ505](flight_number) depart
+    - is my flight still going ahead
+    - check the status of [KQ 789](flight_number)
 
 - intent: change_booking
   examples: |
@@ -43,6 +54,9 @@ nlu:
     - can I rebook my flight for another day
     - I want to reschedule my trip to [next Tuesday](date)
     - please move my reservation
+    - I'd like to fly on a different date
+    - can you push my flight to [the 30th](date)
+    - change booking [BK005](booking_reference) please
 
 - intent: cancel_booking
   examples: |
@@ -50,6 +64,8 @@ nlu:
     - I need to cancel booking [BK004](booking_reference)
     - how can I cancel my trip
     - cancel my ticket please
+    - I no longer want to travel, cancel it
+    - I'd like to cancel [BK006](booking_reference)
 
 - intent: new_booking
   examples: |
@@ -57,6 +73,8 @@ nlu:
     - can you find me a flight from [Nairobi]{"entity": "city", "role": "from"} to [Dubai]{"entity": "city", "role": "to"}
     - I would like to make a booking
     - book a seat for me please
+    - are there flights to [London]{"entity": "city", "role": "to"} next week
+    - I need a flight to [Mombasa]{"entity": "city", "role": "to"}
 
 - intent: baggage_policy
   examples: |
@@ -64,6 +82,8 @@ nlu:
     - can my bag weigh 40 kg
     - what is the hand luggage limit
     - do you charge for extra bags
+    - how many suitcases can I check in on economy
+    - what's the weight limit for business class bags
 
 - intent: check_in_procedure
   examples: |
@@ -71,24 +91,39 @@ nlu:
     - what time should I get to the airport
     - where can I get a boarding pass
     - can I do check-in on the website
+    - when does online check-in open
+    - how early do check-in counters open
 
 - intent: check_in_status
   examples: |
     - did my check-in work
     - am I already checked in for [BK001](booking_reference)
     - is my check in done
+    - has the check-in gone through
+    - tell me if I'm checked in
 
 - intent: escalate_to_agent
   examples: |
     - I want to talk to a person please
     - get me customer service
     - can I speak with an agent
+    - transfer me to someone real
+    - I need a human
 
 - intent: out_of_scope
   examples: |
     - what's the weather like in Mombasa today
     - can you book me an uber
     - sing me a song
+    - book me a table for dinner
+    - reserve a room in a hotel in Mombasa
+    - I need a car rental at the airport
+    - what's the latest football score
+    - asdkj qwpoe
+    - zxcvb nmlk
+    - qwerty uiop
+    - how do I apply for a passport
+    - tell me something funny
 
 - intent: inform
   examples: |
@@ -96,15 +131,23 @@ nlu:
     - [KQ450](flight_number)
     - [Lagos]{"entity": "city"}
     - [20 November](date)
+    - [kq 789](flight_number)
+    - [bk005](booking_reference)
+    - [next Wednesday](date)
+    - to [Johannesburg]{"entity": "city", "role": "to"}
 
 - intent: affirm
   examples: |
     - yes that's fine
     - sure go ahead
     - yes correct
+    - yep, do it
+    - yes, exactly
 
 - intent: deny
   examples: |
     - no thanks
     - no, stop
     - not that
+    - nope, leave it
+    - no, I changed my mind
