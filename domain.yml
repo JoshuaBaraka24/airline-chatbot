@@ -26,6 +26,8 @@ entities:
       roles:
         - from
         - to
+  # Set only by the flight buttons offered during a new booking (value: flight_id)
+  - flight_option
 
 # All slots are filled through forms, so none of them steer dialogue
 # predictions directly (influence_conversation: false).
@@ -144,6 +146,60 @@ slots:
           - active_loop: change_booking_form
             requested_slot: confirm_change
 
+  # New booking (FR-03): the flight chosen from the list, passenger details for
+  # passengers who aren't logged in, and the final yes/no
+  selected_flight_id:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: flight_option
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: selected_flight_id
+      - type: from_text
+        not_intent: [deny, escalate_to_agent]
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: selected_flight_id
+
+  passenger_name:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        not_intent: [deny, escalate_to_agent]
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: passenger_name
+
+  passenger_email:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        not_intent: [deny, escalate_to_agent]
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: passenger_email
+
+  confirm_booking:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        intent: affirm
+        value: true
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: confirm_booking
+      - type: from_intent
+        intent: deny
+        value: false
+        conditions:
+          - active_loop: new_booking_form
+            requested_slot: confirm_booking
+
   # Set by validate_change_booking_form once a new flight is found
   new_flight_id:
     type: any
@@ -167,11 +223,17 @@ forms:
       - booking_reference
       - travel_date
       - confirm_change
+  # passenger_name and passenger_email are skipped for logged-in passengers
+  # (see ValidateNewBookingForm.required_slots)
   new_booking_form:
     required_slots:
       - origin
       - destination
       - travel_date
+      - selected_flight_id
+      - passenger_name
+      - passenger_email
+      - confirm_booking
 
 responses:
   utter_greet:
@@ -192,7 +254,7 @@ responses:
   utter_you_are_welcome:
     - text: "You're welcome! Is there anything else I can help you with?"
   utter_bot_capabilities:
-    - text: "I can help you with:\n- Flight status\n- New bookings (flight search)\n- Changing or cancelling a booking\n- Check-in status and procedure\n- Baggage allowance\nWhat do you need?"
+    - text: "I can help you with:\n- Flight status\n- Booking a new flight\n- Changing or cancelling a booking\n- Check-in status and procedure\n- Baggage allowance\nWhat do you need?"
       buttons:
         - title: "Flight Status"
           payload: "/check_flight_status"
@@ -215,6 +277,10 @@ responses:
     - text: "Where are you flying from?"
   utter_ask_destination:
     - text: "Where would you like to fly to?"
+  utter_ask_passenger_name:
+    - text: "What is the passenger's full name, as it appears on their passport or ID?"
+  utter_ask_passenger_email:
+    - text: "What email address should I send the booking confirmation to?"
 
   utter_how_can_i_help:
     - text: "Great! What can I help you with? You can ask about flight status, bookings, check-in or baggage."
@@ -245,6 +311,8 @@ actions:
   - action_ask_confirm_cancel
   - action_ask_confirm_change
   - action_ask_booking_reference
+  - action_ask_selected_flight_id
+  - action_ask_confirm_booking
   - validate_flight_status_form
   - validate_check_in_status_form
   - validate_cancel_booking_form

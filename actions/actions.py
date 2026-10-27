@@ -1,6 +1,6 @@
 """Task actions executed when a form completes, plus fallback and escalation."""
 import logging
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Text
 
 from rasa_sdk import Action, Tracker
@@ -8,13 +8,15 @@ from rasa_sdk.events import EventType, FollowupAction, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions import repository as repo
-from actions.parsing import format_date, format_datetime
+from actions.forms import logged_in_user
+from actions.parsing import format_datetime
 
 logger = logging.getLogger(__name__)
 
 TASK_SLOTS = [
     "flight_number", "booking_reference", "travel_date", "origin", "destination",
     "confirm_cancel", "confirm_change", "new_flight_id",
+    "selected_flight_id", "passenger_name", "passenger_email", "confirm_booking",
 ]
 ONLINE_CHECK_IN_WINDOW = timedelta(hours=36)
 FALLBACKS_BEFORE_ESCALATION = 2
@@ -151,43 +153,44 @@ class ActionChangeBooking(Action):
 
 
 class ActionNewBooking(Action):
-    """Searches the schedule for the requested route and date."""
+    """Reserves the chosen flight once the passenger has confirmed (FR-03)."""
 
     def name(self) -> Text:
         return "action_new_booking"
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker,
             domain: Dict[Text, Any]) -> List[EventType]:
-        origin = tracker.get_slot("origin")
-        destination = tracker.get_slot("destination")
-        travel_date = date.fromisoformat(tracker.get_slot("travel_date"))
+        if not tracker.get_slot("confirm_booking"):
+            dispatcher.utter_message(text="Okay, I haven't booked anything. Let me know if you'd like to look at other flights.")
+            return reset_task_slots()
+
+        user = logged_in_user(tracker)
+        email = tracker.get_slot("passenger_email")
+        flight_id = int(tracker.get_slot("selected_flight_id"))
         try:
-            flights = repo.search_flights(origin, destination, travel_date)
-            nearby = False
-            if not flights:
-                flights = repo.next_flights_on_route(origin, destination)
-                nearby = True
+            if user:
+                booking_ref = repo.create_booking(flight_id, user_id=int(user["user_id"]))
+            else:
+                booking_ref = repo.create_booking(
+                    flight_id, passenger_name=tracker.get_slot("passenger_name"), email=email
+                )
+            booking = repo.get_booking(booking_ref) if booking_ref else None
         except Exception:
-            logger.exception("Flight search failed for %s -> %s", origin, destination)
+            logger.exception("Booking failed for flight %s", flight_id)
             dispatcher.utter_message(text=DB_ERROR)
             return reset_task_slots()
 
-        if not flights:
-            dispatcher.utter_message(
-                text=f"There are no flights with seats from {origin} to {destination} at the moment. "
-                     "Please call +254 20 327 4747 for more options."
-            )
+        if not booking:
+            dispatcher.utter_message(text="Sorry, that flight has just sold out. Please ask me to book again and choose another flight.")
             return reset_task_slots()
 
-        lines = "\n".join(
-            f"- {f['flight_number']}: {format_datetime(f['departure_time'])} ({f['seats_available']} seats left)"
-            for f in flights
-        )
-        heading = (f"There are no flights from {origin} to {destination} around {format_date(travel_date)}. "
-                   "The next available ones are:" if nearby
-                   else f"Flights from {origin} to {destination} from {format_date(travel_date)}:")
+        sent_to = f" to {email}" if email else ""
         dispatcher.utter_message(
-            text=f"{heading}\n{lines}\n\nTo complete your booking, visit kenyaairways.com or call +254 20 327 4747."
+            text=f"Booked! Your booking reference is {booking['booking_ref']}.\n"
+                 f"- {booking['flight_number']} {booking['origin']} to {booking['destination']}, "
+                 f"departing {format_datetime(booking['departure_time'])}\n"
+                 f"- Passenger: {booking['passenger_name']}\n"
+                 f"A confirmation email is on its way{sent_to}. Online check-in opens 36 hours before departure."
         )
         return reset_task_slots()
 

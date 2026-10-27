@@ -21,16 +21,21 @@ class EmailAlreadyRegistered(Exception):
 
 
 def create_passenger(name: str, email: str, password: str) -> dict:
-    try:
-        with get_cursor() as cur:
-            cur.execute(
-                f"""INSERT INTO users (name, email, password_hash, role)
-                    VALUES (%s, LOWER(%s), %s, 'passenger') RETURNING {_USER_FIELDS}""",
-                (name, email, hash_password(password)),
-            )
-            return dict(cur.fetchone())
-    except psycopg2.errors.UniqueViolation as error:
-        raise EmailAlreadyRegistered(email) from error
+    """Register a passenger. An account created by a chat booking (no password yet) is
+    taken over, so the bookings made with that email appear under My bookings."""
+    with get_cursor() as cur:
+        cur.execute(
+            f"""INSERT INTO users (name, email, password_hash, role)
+                VALUES (%s, LOWER(%s), %s, 'passenger')
+                ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, password_hash = EXCLUDED.password_hash
+                WHERE users.password_hash IS NULL
+                RETURNING {_USER_FIELDS}""",
+            (name, email, hash_password(password)),
+        )
+        row = cur.fetchone()
+    if not row:
+        raise EmailAlreadyRegistered(email)
+    return dict(row)
 
 
 def authenticate(email: str, password: str) -> Optional[dict]:

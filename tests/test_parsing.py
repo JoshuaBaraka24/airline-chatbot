@@ -7,8 +7,11 @@ from actions.parsing import (
     format_datetime,
     match_city,
     normalize_booking_ref,
+    normalize_email,
     normalize_flight_number,
+    normalize_person_name,
     parse_date,
+    parse_option_number,
 )
 
 TODAY = date(2026, 10, 14)  # a Wednesday
@@ -82,3 +85,34 @@ def test_match_city_prefers_longest_and_ignores_case():
 def test_formatting():
     assert format_datetime(datetime(2026, 10, 20, 8, 0)) == "Tue 20 Oct 2026 at 08:00"
     assert format_date(date(2026, 10, 20)) == "Tue 20 Oct 2026"
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("Brian Otieno", "Brian Otieno"),
+    ("my name is jane wambui", "Jane Wambui"),
+    ("I'm John McDonald", "John McDonald"),
+    ("it's Amina Hassan.", "Amina Hassan"),
+    ("O'Brien Mary-Jane", "O'Brien Mary-Jane"),
+    ("Jane", None),                         # a last name is needed too
+    ("kq101 yes", None),
+    ("1234 5678", None),
+    (None, None),
+])
+def test_normalize_person_name(text, expected):
+    assert normalize_person_name(text) == expected
+
+
+def test_normalize_email():
+    assert normalize_email("Jane.W@Gmail.com") == "jane.w@gmail.com"
+    assert normalize_email("my email is a@b.co.ke") == "a@b.co.ke"
+    assert normalize_email("jane at gmail") is None
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("1", 0), ("option 2", 1), ("the second one", 1), ("first", 0), ("the last one", 2),
+    ("4", None),                            # only three options
+    ("KQ101", None),                        # a flight number, not an option number
+    ("the 8am one", None),
+])
+def test_parse_option_number(text, expected):
+    assert parse_option_number(text, 3) == expected

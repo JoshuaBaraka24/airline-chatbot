@@ -140,3 +140,48 @@ def format_datetime(value: datetime) -> str:
 def format_date(value: date) -> str:
     """e.g. 'Tue 20 Oct 2026'"""
     return f"{value:%a %d %b %Y}"
+
+
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
+NAME_PREFIX_RE = re.compile(r"^\s*(?:(?:my|the passenger'?s?|his|her|their)\s+(?:full\s+)?name\s+is|i\s*'?\s*a?m|it'?s|name:?)\s+",
+                            re.IGNORECASE)
+NAME_RE = re.compile(r"^[^\W\d_][^\W\d_'.-]*(?:['.-][^\W\d_]+)*\.?$")
+ORDINALS = {"first": 1, "1st": 1, "second": 2, "2nd": 2, "third": 3, "3rd": 3, "last": -1}
+OPTION_NUMBER_RE = re.compile(r"^\D*\b(\d)\b\D*$")
+
+
+def normalize_email(text: Optional[str]) -> Optional[str]:
+    """Extracts an email address, lower-cased; None if there isn't one."""
+    if not text:
+        return None
+    match = EMAIL_RE.search(text)
+    return match.group(0).lower() if match else None
+
+
+def normalize_person_name(text: Optional[str]) -> Optional[str]:
+    """'my name is jane wambui' -> 'Jane Wambui'.
+
+    Needs a first and last name (2-4 words of letters); returns None otherwise.
+    """
+    if not text:
+        return None
+    words = NAME_PREFIX_RE.sub("", text.strip()).rstrip(".!").split()
+    if not 2 <= len(words) <= 4 or not all(NAME_RE.match(w) for w in words):
+        return None
+    return " ".join(w if any(c.isupper() for c in w[1:]) else w[:1].upper() + w[1:].lower() for w in words)
+
+
+def parse_option_number(text: Optional[str], count: int) -> Optional[int]:
+    """'the second one' / '2' -> 1 (zero-based index into a list of `count` options)."""
+    if not text:
+        return None
+    lowered = text.lower()
+    for word, number in ORDINALS.items():
+        if re.search(rf"\b{word}\b", lowered):
+            index = number - 1 if number > 0 else count - 1
+            return index if 0 <= index < count else None
+    match = OPTION_NUMBER_RE.match(lowered)
+    if match and not FLIGHT_NUMBER_RE.search(lowered):
+        index = int(match.group(1)) - 1
+        return index if 0 <= index < count else None
+    return None

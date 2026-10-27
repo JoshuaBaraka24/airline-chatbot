@@ -84,6 +84,12 @@ offers your own bookings as buttons instead of asking you to type a reference. I
 replies, voice input and read-aloud replies (Chrome or Edge), a high-contrast theme, full keyboard
 use, and a conversation that survives a page reload.
 
+**New bookings** are real reservations (FR-03). The assistant asks for the route and date, lists the
+flights with seats as buttons, and asks for the passenger's name and email (skipped when you're logged
+in). After you confirm, it reserves the seat and issues the next booking reference (BK007, BK008, ...).
+Bookings made without logging in are attached to an account with that email, which is created
+without a password if needed, so they show up under **My bookings** once that passenger registers.
+
 Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
 `DEMO_ADMIN_PASSWORD` before running `init_db.py`):
 
@@ -120,7 +126,8 @@ rasa shell --port 5006
 Sample data: booking references `BK001`–`BK006` and flight numbers `KQ101`,
 `KQ202`, `KQ305`, `KQ450`, `KQ505`, `KQ601`, `KQ702`, `KQ789`. Departures
 are relative to the day the seed was loaded. Re-run `python database\init_db.py`
-to reset bookings and refresh dates.
+to reset bookings and refresh dates. Re-run it as well after pulling a change to
+`database\schema.sql` (for example, the `passenger_name` column added for new bookings).
 
 Example conversation:
 

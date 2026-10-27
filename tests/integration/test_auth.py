@@ -24,6 +24,22 @@ def test_register_rejects_duplicate_email_and_weak_password(client):
         assert weak.status_code == 422, password
 
 
+def test_register_takes_over_an_account_created_by_a_chat_booking(client):
+    from actions import repository as repo
+    flight_id = repo.next_flights_on_route("Nairobi", "Dubai")[0]["flight_id"]
+    ref = repo.create_booking(flight_id, passenger_name="Faith Njeri", email="faith@example.com")
+
+    response = client.post("/api/auth/register",
+                           json={"name": "Faith Njeri", "email": "Faith@example.com", "password": "safari2026"})
+
+    assert response.status_code == 201
+    assert [b["booking_ref"] for b in client.get("/api/me/bookings").json()] == [ref]
+    # Once it has a password, the account can't be registered again
+    again = client.post("/api/auth/register",
+                        json={"name": "Someone Else", "email": "faith@example.com", "password": "another123"})
+    assert again.status_code == 409
+
+
 def test_login_is_case_insensitive_and_sets_httponly_cookie(client):
     response = login(client, "John@Email.com", PASSENGER_PASSWORD)
 
