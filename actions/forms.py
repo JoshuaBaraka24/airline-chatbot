@@ -20,8 +20,11 @@ from actions.parsing import (
     format_datetime,
     match_city,
     normalize_booking_ref,
+    normalize_email,
     normalize_flight_number,
+    normalize_person_name,
     parse_date,
+    parse_option_number,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,6 +58,21 @@ def answered_interruption(dispatcher: CollectingDispatcher, tracker: Tracker) ->
         dispatcher.utter_message(response=response)
         return True
     return False
+
+
+def logged_in_user(tracker: Tracker) -> Optional[dict]:
+    """The passenger the web portal says is logged in (message metadata), if any."""
+    metadata = tracker.latest_message.get("metadata") or {}
+    return metadata if metadata.get("user_id") else None
+
+
+def flight_options(origin: Text, destination: Text, travel_date: date) -> tuple:
+    """Flights offered for a new booking: those around the requested date or, if there
+    are none, the next ones on the route. Returns (flights, nearby)."""
+    flights = repo.search_flights(origin, destination, travel_date)
+    if flights:
+        return flights, False
+    return repo.next_flights_on_route(origin, destination), True
 
 
 def previous_slot_value(tracker: Tracker, slot: Text) -> Any:
@@ -275,6 +293,13 @@ class ValidateNewBookingForm(FormValidationAction):
                 logger.exception("Route lookup failed")
         return result
 
+    async def required_slots(self, domain_slots: List[Text], dispatcher: CollectingDispatcher,
+                             tracker: Tracker, domain: DomainDict) -> List[Text]:
+        # A logged-in passenger books under their own account, so name and email aren't asked
+        if logged_in_user(tracker):
+            return [s for s in domain_slots if s not in ("passenger_name", "passenger_email")]
+        return domain_slots
+
     def validate_travel_date(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
         if answered_interruption(dispatcher, tracker):
             return {"travel_date": None}
@@ -285,7 +310,133 @@ class ValidateNewBookingForm(FormValidationAction):
         if travel_date < date.today():
             dispatcher.utter_message(text=f"{format_date(travel_date)} is in the past. Please choose a future date.")
             return {"travel_date": None}
-        return {"travel_date": travel_date.isoformat()}
+
+        origin, destination = tracker.get_slot("origin"), tracker.get_slot("destination")
+        if origin and destination:
+            try:
+                flights, _ = flight_options(origin, destination, travel_date)
+            except Exception:
+                logger.exception("Flight search failed for %s -> %s", origin, destination)
+                dispatcher.utter_message(text=DB_ERROR)
+                return {"travel_date": None}
+            if not flights:
+                dispatcher.utter_message(
+                    text=f"There are no flights with seats from {origin} to {destination} at the moment. "
+                         "Say 'never mind' to stop, or call +254 20 327 4747 for more options."
+                )
+                return {"travel_date": None}
+        # A new date means a new list of flights to choose from
+        return {"travel_date": travel_date.isoformat(), "selected_flight_id": None}
+
+    def validate_selected_flight_id(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        if answered_interruption(dispatcher, tracker):
+            return {"selected_flight_id": None}
+        try:
+            flights, _ = flight_options(tracker.get_slot("origin"), tracker.get_slot("destination"),
+                                        date.fromisoformat(tracker.get_slot("travel_date")))
+        except Exception:
+            logger.exception("Flight search failed while choosing a flight")
+            dispatcher.utter_message(text=DB_ERROR)
+            return {"selected_flight_id": None}
+
+        chosen = None
+        option_ids = [e.get("value") for e in tracker.latest_message.get("entities", [])
+                      if e.get("entity") == "flight_option"]
+        text = str(slot_value)
+        if option_ids:
+            # A button press: the payload carries the flight_id
+            chosen = next((f for f in flights if str(f["flight_id"]) == str(option_ids[-1])), None)
+        else:
+            index = parse_option_number(text, len(flights))
+            flight_number = normalize_flight_number(text)
+            if index is not None:
+                chosen = flights[index]
+            elif flight_number:
+                matches = [f for f in flights if f["flight_number"] == flight_number]
+                on_date = parse_date(text)
+                if on_date:
+                    matches = [f for f in matches if f["departure_time"].date() == on_date]
+                chosen = matches[0] if len(matches) == 1 else None
+
+        if not chosen:
+            dispatcher.utter_message(text="Please choose one of the flights listed, for example by tapping it or typing '1'.")
+            return {"selected_flight_id": None}
+        return {"selected_flight_id": str(chosen["flight_id"])}
+
+    def validate_passenger_name(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        name = normalize_person_name(slot_value)
+        intent = tracker.latest_message.get("intent", {}).get("name")
+        if name and intent not in ("affirm", "deny"):
+            return {"passenger_name": name}
+        if answered_interruption(dispatcher, tracker):
+            return {"passenger_name": None}
+        dispatcher.utter_message(text="Please give the passenger's first and last name, for example 'Jane Wambui'.")
+        return {"passenger_name": None}
+
+    def validate_passenger_email(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        email = normalize_email(slot_value)
+        if email:
+            return {"passenger_email": email}
+        if answered_interruption(dispatcher, tracker):
+            return {"passenger_email": None}
+        dispatcher.utter_message(text="That doesn't look like an email address. It should look like jane@example.com.")
+        return {"passenger_email": None}
+
+
+class ActionAskSelectedFlightId(Action):
+    """Lists the flights for the requested route and date as buttons."""
+
+    def name(self) -> Text:
+        return "action_ask_selected_flight_id"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
+        origin, destination = tracker.get_slot("origin"), tracker.get_slot("destination")
+        travel_date = date.fromisoformat(tracker.get_slot("travel_date"))
+        try:
+            flights, nearby = flight_options(origin, destination, travel_date)
+        except Exception:
+            logger.exception("Flight search failed for %s -> %s", origin, destination)
+            dispatcher.utter_message(text=DB_ERROR)
+            return []
+
+        heading = (f"There are no flights from {origin} to {destination} around {format_date(travel_date)}. "
+                   "The next available ones are:" if nearby
+                   else f"Flights from {origin} to {destination} from {format_date(travel_date)}:")
+        lines = "\n".join(
+            f"{i}. {f['flight_number']}: {format_datetime(f['departure_time'])} ({f['seats_available']} seats left)"
+            for i, f in enumerate(flights, start=1)
+        )
+        buttons = [
+            {"title": f"{f['flight_number']} · {f['departure_time']:%a %d %b, %H:%M}",
+             "payload": f'/inform{{"flight_option":"{f["flight_id"]}"}}'}
+            for f in flights
+        ]
+        dispatcher.utter_message(text=f"{heading}\n{lines}\nWhich flight would you like to book?", buttons=buttons)
+        return []
+
+
+class ActionAskConfirmBooking(Action):
+    """Summarises the new booking and asks for a yes/no before reserving the seat."""
+
+    def name(self) -> Text:
+        return "action_ask_confirm_booking"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
+        user = logged_in_user(tracker)
+        name = user.get("name") if user else tracker.get_slot("passenger_name")
+        email = None if user else tracker.get_slot("passenger_email")
+        try:
+            f = repo.flight_by_id(int(tracker.get_slot("selected_flight_id")))
+            details = (f"- Flight: {f['flight_number']} {f['origin']} to {f['destination']}\n"
+                       f"- Departs: {format_datetime(f['departure_time'])}\n"
+                       f"- Arrives: {format_datetime(f['arrival_time'])}\n")
+        except Exception:
+            logger.exception("Could not load the chosen flight for confirmation")
+            details = ""
+        details += f"- Passenger: {name}\n" if name else ""
+        details += f"- Email: {email}\n" if email else ""
+        dispatcher.utter_message(text=f"Please check your booking:\n{details}Shall I book it?", buttons=YES_NO_BUTTONS)
+        return []
 
 
 class ActionAskConfirmCancel(Action):

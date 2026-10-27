@@ -84,6 +84,12 @@ offers your own bookings as buttons instead of asking you to type a reference. I
 replies, voice input and read-aloud replies (Chrome or Edge), a high-contrast theme, full keyboard
 use, and a conversation that survives a page reload.
 
+**New bookings** are real reservations (FR-03). The assistant asks for the route and date, lists the
+flights with seats as buttons, and asks for the passenger's name and email (skipped when you're logged
+in). After you confirm, it reserves the seat and issues the next booking reference (BK007, BK008, ...).
+Bookings made without logging in are attached to an account with that email, which is created
+without a password if needed, so they show up under **My bookings** once that passenger registers.
+
 Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
 `DEMO_ADMIN_PASSWORD` before running `init_db.py`):
 
@@ -120,7 +126,8 @@ rasa shell --port 5006
 Sample data: booking references `BK001`–`BK006` and flight numbers `KQ101`,
 `KQ202`, `KQ305`, `KQ450`, `KQ505`, `KQ601`, `KQ702`, `KQ789`. Departures
 are relative to the day the seed was loaded. Re-run `python database\init_db.py`
-to reset bookings and refresh dates.
+to reset bookings and refresh dates. Re-run it as well after pulling a change to
+`database\schema.sql` (for example, the `passenger_name` column added for new bookings).
 
 Example conversation:
 
@@ -150,17 +157,17 @@ python database\init_db.py
 cd tests\e2e; npm install; npm test
 ```
 
-Current results (26 Oct 2026):
+Current results (27 Oct 2026):
 
 | Check | Result | Target |
 |---|---|---|
 | Held-out intent accuracy (99 sentences) | 97.0% | ≥ 85% (NFR-01) |
-| Entity weighted F1 | 0.93 | |
-| 5-fold cross-validation (training data) | 79.7% ± 5.5% intent accuracy | see docs/nlu-evaluation.md |
-| End-to-end test stories | 8 / 8 (40 / 40 actions) | |
+| Entity weighted F1 | 0.94 | |
+| 5-fold cross-validation (806 training examples) | 87.7% ± 1.9% intent accuracy | ≥ 85% |
+| End-to-end test stories | 8 / 8 (48 / 48 actions) | |
 | API response time, 1 passenger | 0.3 s | ≤ 2 s (NFR-01) |
 | Load test, 10 / 50 passengers at once | 75% / 1% of replies within 2 s, 0 errors | see docs/load-test.md |
-| Unit + integration tests (pytest) | 81 passed | |
+| Unit + integration tests (pytest) | 109 passed | |
 | Browser checks: widget / portal | 28 / 28 and 76 / 76 | |
 | Accessibility (axe-core) | 0 violations across 17 page states | WCAG 2.1 AA (NFR-03) |
 
@@ -177,7 +184,7 @@ Tracked with [GitHub milestones](https://github.com/JoshuaBaraka24/airline-chatb
 | M3: Dialogue Manager Development | Jul–Sep 2026 | 30 Sep | Done |
 | M4: Backend API & Database | Aug–Sep 2026 | 30 Sep | Done |
 | M5: Chat Widget (Frontend) | Sep–Oct 2026 | 31 Oct | Done |
-| M6: System Integration & Testing | Oct–Nov 2026 | 6 Nov | In progress (web portal, DB integration and browser tests done; NLU hardening and load testing remain) |
+| M6: System Integration & Testing | Oct–Nov 2026 | 6 Nov | In progress (portal, NLU hardening, load test and new-booking reservations done) |
 | M7: User Acceptance Testing | Nov 2026 | 13 Nov | Not started |
 | M8: Report Writing & Final Submission | Oct–Nov 2026 | 20 Nov | In progress (documentation drafted) |
 

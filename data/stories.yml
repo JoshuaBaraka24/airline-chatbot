@@ -104,6 +104,24 @@ stories:
     entities:
     - date: "25 October"
   - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: selected_flight_id
+  - intent: inform
+    entities:
+    - flight_option: "12"
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: passenger_name
+  - intent: inform
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: passenger_email
+  - intent: inform
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_booking
+  - intent: affirm
+  - action: new_booking_form
   - active_loop: null
   - slot_was_set:
     - requested_slot: null

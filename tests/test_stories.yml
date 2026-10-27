@@ -101,6 +101,30 @@ stories:
       [next Friday](date)
     intent: inform
   - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: selected_flight_id
+  - user: |
+      the first one
+    intent: inform
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: passenger_name
+  - user: |
+      my name is Wanjiru Kariuki
+    intent: inform
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: passenger_email
+  - user: |
+      wanjiru.kariuki@example.com
+    intent: inform
+  - action: new_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_booking
+  - user: |
+      yes please book it
+    intent: affirm
+  - action: new_booking_form
   - active_loop: null
   - slot_was_set:
     - requested_slot: null

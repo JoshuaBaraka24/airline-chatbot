@@ -38,6 +38,8 @@ CREATE TABLE bookings (
     booking_ref  VARCHAR(20) PRIMARY KEY,
     user_id      INTEGER     NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     flight_id    INTEGER     NOT NULL REFERENCES flights (flight_id),
+    -- Name of the traveller when it differs from the account holder (bookings made in the chat)
+    passenger_name VARCHAR(100),
     status       VARCHAR(20) NOT NULL DEFAULT 'confirmed'
                  CHECK (status IN ('confirmed', 'cancelled', 'checked_in')),
     created_at   TIMESTAMP   NOT NULL DEFAULT NOW(),

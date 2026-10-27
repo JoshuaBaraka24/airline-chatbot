@@ -10,7 +10,7 @@ from actions.db import get_cursor
 
 _BOOKING_SELECT = """
     SELECT b.booking_ref, b.status, b.flight_id,
-           u.name AS passenger_name,
+           COALESCE(b.passenger_name, u.name) AS passenger_name,
            f.flight_number, f.origin, f.destination,
            f.departure_time, f.arrival_time, f.status AS flight_status
     FROM bookings b
@@ -154,6 +154,56 @@ def change_booking_flight(booking_ref: str, new_flight_id: int) -> bool:
             (row["old_flight_id"],),
         )
         return True
+
+
+def flight_by_id(flight_id: int) -> Optional[dict]:
+    with get_cursor() as cur:
+        cur.execute("SELECT * FROM flights WHERE flight_id = %s", (flight_id,))
+        return cur.fetchone()
+
+
+def create_booking(flight_id: int, user_id: Optional[int] = None, passenger_name: Optional[str] = None,
+                   email: Optional[str] = None) -> Optional[str]:
+    """Reserve a seat and create a confirmed booking (FR-03). Returns the new reference,
+    or None if the flight has no seats left.
+
+    A logged-in passenger books under their own account (user_id). Otherwise the booking
+    is attached to the account with that email, which is created without a password if
+    it doesn't exist yet.
+    """
+    with get_cursor() as cur:
+        cur.execute(
+            "UPDATE flights SET seats_available = seats_available - 1 "
+            "WHERE flight_id = %s AND seats_available > 0 AND status <> 'cancelled' "
+            "AND departure_time > NOW() RETURNING flight_id",
+            (flight_id,),
+        )
+        if not cur.fetchone():
+            return None
+        if user_id is None:
+            cur.execute(
+                """INSERT INTO users (name, email) VALUES (%s, %s)
+                   ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+                   RETURNING user_id""",
+                (passenger_name, email.lower()),
+            )
+            user_id = cur.fetchone()["user_id"]
+        # References are sequential (BK001, BK002, ...); the lock stops two
+        # simultaneous bookings from taking the same number.
+        cur.execute("LOCK TABLE bookings IN SHARE ROW EXCLUSIVE MODE")
+        cur.execute(
+            """SELECT COALESCE(MAX(SUBSTRING(booking_ref FROM 3)::int), 0) + 1 AS next
+               FROM bookings WHERE booking_ref ~ '^BK[0-9]{3}$'"""
+        )
+        number = cur.fetchone()["next"]
+        if number > 999:
+            raise OverflowError("booking reference range BK001-BK999 is exhausted")
+        booking_ref = f"BK{number:03d}"
+        cur.execute(
+            "INSERT INTO bookings (booking_ref, user_id, flight_id, passenger_name) VALUES (%s, %s, %s, %s)",
+            (booking_ref, user_id, flight_id, passenger_name),
+        )
+        return booking_ref
 
 
 def mark_conversation_escalated(sender_id: str) -> None:

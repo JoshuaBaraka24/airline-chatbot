@@ -235,6 +235,17 @@ rules:
     - requested_slot: null
   - action: action_new_booking
 
+# Names and email addresses can fall below the NLU confidence threshold. The form
+# validators check these answers themselves, so a low-confidence reply goes to
+# the form instead of interrupting the booking with a fallback.
+- rule: let the new booking form handle low-confidence answers
+  condition:
+  - active_loop: new_booking_form
+  steps:
+  - intent: nlu_fallback
+  - action: new_booking_form
+  - active_loop: new_booking_form
+
 - rule: stop new booking form on request
   condition:
   - active_loop: new_booking_form
