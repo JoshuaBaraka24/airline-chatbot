@@ -157,7 +157,7 @@ python database\init_db.py
 cd tests\e2e; npm install; npm test
 ```
 
-Current results (27 Oct 2026):
+Current results (28 Oct 2026):
 
 | Check | Result | Target |
 |---|---|---|
