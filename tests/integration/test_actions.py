@@ -8,7 +8,12 @@ from rasa_sdk.executor import CollectingDispatcher
 from actions import repository as repo
 from actions.actions import ActionNewBooking
 from actions.db import get_cursor
-from actions.forms import ActionAskBookingReference, ActionAskSelectedFlightId, ValidateNewBookingForm
+from actions.forms import (
+    ActionAskBookingReference,
+    ActionAskSelectedFlightId,
+    ValidateCancelBookingForm,
+    ValidateNewBookingForm,
+)
 
 
 def ask(metadata, form="cancel_booking_form"):
@@ -137,3 +142,14 @@ def test_declined_booking_saves_nothing(db):
 
     assert "haven't booked anything" in dispatcher.messages[0]["text"]
     assert repo.get_booking("BK007") is None
+
+
+def test_a_hesitation_does_not_confirm_a_cancellation(db):
+    form = ValidateCancelBookingForm()
+    confirm = lambda text, value=True: form.validate_confirm_cancel(
+        value, CollectingDispatcher(), booking_tracker({}, text=text, intent="affirm"), {})
+
+    assert confirm("erm") == {"confirm_cancel": None}           # asked again
+    assert confirm("yes please") == {"confirm_cancel": True}
+    assert confirm("/affirm") == {"confirm_cancel": True}      # the Yes button
+    assert confirm("no", value=False) == {"confirm_cancel": False}
