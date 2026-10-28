@@ -197,6 +197,23 @@ async function logout(page) {
   await page.waitForSelector(".booking");
   check("My bookings shows the cancellation", (await page.$eval(".booking__status", (e) => e.textContent)) === "Cancelled");
 
+  // ---------- Passenger: new booking through the assistant (FR-03) ----------
+  // The seed schedules KQ202 Nairobi -> Dubai seven days from today
+  const travel = new Date(Date.now() + 7 * 864e5).toLocaleDateString("en-GB", { day: "numeric", month: "long" });
+  reply = await h.sendChat(page, "Book me a flight from Nairobi to Dubai");
+  check("new booking asks for the travel date", /What date would you like to travel/.test(reply), reply);
+  reply = await h.sendChat(page, travel);
+  check("flights with seats are listed", /1\. KQ202/.test(reply) && /Which flight would you like to book/.test(reply), reply.slice(0, 80));
+  reply = await h.clickChip(page, "KQ202");
+  check("logged-in passenger skips name and email", /Passenger: John Mwangi/.test(reply) && /Shall I book it/.test(reply), reply.slice(0, 120));
+  reply = await h.clickChip(page, "Yes");
+  check("confirming issues a booking reference", /Booked! Your booking reference is BK007/.test(reply), reply.slice(0, 80));
+  await h.shot(page, SHOTS, "portal-6-booking.png");
+  await page.reload({ waitUntil: "networkidle0" });
+  await page.waitForSelector(".booking");
+  const refs = await page.$$eval(".booking", (els) => els.map((e) => e.textContent));
+  check("My bookings shows the new booking", refs.some((t) => t.includes("BK007") && t.includes("Dubai")), refs.join(" | "));
+
   await page.goto(`${BASE}/admin.html`, { waitUntil: "networkidle0" });
   check("passengers cannot open the staff dashboard", page.url().endsWith("/account.html"));
   await logout(page);
