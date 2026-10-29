@@ -185,3 +185,19 @@ def parse_option_number(text: Optional[str], count: int) -> Optional[int]:
         index = int(match.group(1)) - 1
         return index if 0 <= index < count else None
     return None
+
+
+# Words that make a reply an explicit "yes". Confirmations change bookings, so a
+# reply the classifier labels affirm (e.g. "erm") must also contain one of these.
+YES_WORDS = {
+    "yes", "yeah", "yea", "yep", "yup", "ya", "y", "sure", "ok", "okay", "k", "confirm", "confirmed",
+    "correct", "right", "fine", "proceed", "absolutely", "definitely", "agreed", "alright", "perfect",
+    "exactly", "affirmative", "ndio", "sawa", "please", "go", "do", "works", "good", "course",
+}
+
+
+def is_explicit_yes(text: Optional[str]) -> bool:
+    """'yes please' / 'go ahead' -> True; 'erm' / 'blah' -> False."""
+    if not text:
+        return False
+    return any(word in YES_WORDS for word in re.findall(r"[a-z]+", text.lower()))

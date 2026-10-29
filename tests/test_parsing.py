@@ -5,6 +5,7 @@ import pytest
 from actions.parsing import (
     format_date,
     format_datetime,
+    is_explicit_yes,
     match_city,
     normalize_booking_ref,
     normalize_email,
@@ -116,3 +117,13 @@ def test_normalize_email():
 ])
 def test_parse_option_number(text, expected):
     assert parse_option_number(text, 3) == expected
+
+
+@pytest.mark.parametrize("text", ["yes", "Yes, do it", "go ahead", "sure thing", "of course", "ndio", "ok book it"])
+def test_explicit_yes(text):
+    assert is_explicit_yes(text)
+
+
+@pytest.mark.parametrize("text", ["erm", "uhh", "blah", "mmm", "", None])
+def test_hesitation_is_not_a_yes(text):
+    assert not is_explicit_yes(text)

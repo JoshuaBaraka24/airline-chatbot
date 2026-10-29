@@ -18,6 +18,7 @@ from actions import repository as repo
 from actions.parsing import (
     format_date,
     format_datetime,
+    is_explicit_yes,
     match_city,
     normalize_booking_ref,
     normalize_email,
@@ -73,6 +74,20 @@ def flight_options(origin: Text, destination: Text, travel_date: date) -> tuple:
     if flights:
         return flights, False
     return repo.next_flights_on_route(origin, destination), True
+
+
+def checked_confirmation(slot: Text, slot_value: Any, dispatcher: CollectingDispatcher,
+                         tracker: Tracker) -> Dict[Text, Any]:
+    """Accept a "yes" only if it came from the Yes button or contains an explicit yes word.
+
+    These answers cancel, change or create bookings, so a hesitation such as "erm",
+    which the classifier may label affirm, must not count as consent.
+    """
+    text = tracker.latest_message.get("text") or ""
+    if slot_value is True and not text.startswith("/") and not is_explicit_yes(text):
+        dispatcher.utter_message(text="Sorry, I need a clear answer before I go ahead. Please answer yes or no.")
+        return {slot: None}
+    return {slot: slot_value}
 
 
 def previous_slot_value(tracker: Tracker, slot: Text) -> Any:
@@ -168,6 +183,9 @@ class ValidateCancelBookingForm(BookingReferenceMixin, FormValidationAction):
     def status_not_allowed_message(self, booking: dict) -> Text:
         return _confirmed_only_message("cancel")(booking)
 
+    def validate_confirm_cancel(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        return checked_confirmation("confirm_cancel", slot_value, dispatcher, tracker)
+
 
 class ValidateChangeBookingForm(BookingReferenceMixin, FormValidationAction):
     allowed_statuses = ("confirmed",)
@@ -177,6 +195,9 @@ class ValidateChangeBookingForm(BookingReferenceMixin, FormValidationAction):
 
     def status_not_allowed_message(self, booking: dict) -> Text:
         return _confirmed_only_message("change")(booking)
+
+    def validate_confirm_change(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        return checked_confirmation("confirm_change", slot_value, dispatcher, tracker)
 
     def validate_travel_date(
         self, slot_value: Any, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict
@@ -372,6 +393,9 @@ class ValidateNewBookingForm(FormValidationAction):
             return {"passenger_name": None}
         dispatcher.utter_message(text="Please give the passenger's first and last name, for example 'Jane Wambui'.")
         return {"passenger_name": None}
+
+    def validate_confirm_booking(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        return checked_confirmation("confirm_booking", slot_value, dispatcher, tracker)
 
     def validate_passenger_email(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
         email = normalize_email(slot_value)

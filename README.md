@@ -157,7 +157,7 @@ python database\init_db.py
 cd tests\e2e; npm install; npm test
 ```
 
-Current results (27 Oct 2026):
+Current results (28 Oct 2026):
 
 | Check | Result | Target |
 |---|---|---|
@@ -167,8 +167,8 @@ Current results (27 Oct 2026):
 | End-to-end test stories | 8 / 8 (48 / 48 actions) | |
 | API response time, 1 passenger | 0.3 s | ≤ 2 s (NFR-01) |
 | Load test, 10 / 50 passengers at once | 75% / 1% of replies within 2 s, 0 errors | see docs/load-test.md |
-| Unit + integration tests (pytest) | 109 passed | |
-| Browser checks: widget / portal | 28 / 28 and 76 / 76 | |
+| Unit + integration tests (pytest) | 123 passed | |
+| Browser checks: widget / portal | 28 / 28 and 81 / 81 | |
 | Accessibility (axe-core) | 0 violations across 17 page states | WCAG 2.1 AA (NFR-03) |
 
 See [docs/nlu-evaluation.md](docs/nlu-evaluation.md) for the detailed NLU report.
@@ -184,7 +184,7 @@ Tracked with [GitHub milestones](https://github.com/JoshuaBaraka24/airline-chatb
 | M3: Dialogue Manager Development | Jul–Sep 2026 | 30 Sep | Done |
 | M4: Backend API & Database | Aug–Sep 2026 | 30 Sep | Done |
 | M5: Chat Widget (Frontend) | Sep–Oct 2026 | 31 Oct | Done |
-| M6: System Integration & Testing | Oct–Nov 2026 | 6 Nov | In progress (portal, NLU hardening, load test and new-booking reservations done) |
+| M6: System Integration & Testing | Oct–Nov 2026 | 6 Nov | Done |
 | M7: User Acceptance Testing | Nov 2026 | 13 Nov | Not started |
 | M8: Report Writing & Final Submission | Oct–Nov 2026 | 20 Nov | In progress (documentation drafted) |
 
