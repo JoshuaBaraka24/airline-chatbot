@@ -531,8 +531,6 @@ main > :last-child:not(.band) { margin-bottom: 64px; }
 .tab[aria-selected="true"] { color: var(--brand-dark); border-bottom-color: var(--brand); }
 :root[data-theme="high-contrast"] .tab[aria-selected="true"] { color: #ffff00; border-bottom-color: #ffff00; }
 .auth__submit { width: 100%; }
-.demo-accounts { font-size: 0.9rem; margin: 20px 0 0; }
-.demo-accounts code { font-size: 0.85rem; }
 
 /* ---------- Account page ---------- */
 
