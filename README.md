@@ -90,6 +90,11 @@ in). After you confirm, it reserves the seat and issues the next booking referen
 Bookings made without logging in are attached to an account with that email, which is created
 without a password if needed, so they show up under **My bookings** once that passenger registers.
 
+**Confirmation emails:** booking, changing or cancelling sends an email to the account holder when
+`SMTP_HOST` and the other `SMTP_*` settings in `.env` are filled in; restart the action server after
+changing them. The assistant says an email was sent only if the mail server accepted it. The sample
+accounts (`@email.com`) are never mailed, so set `EMAIL_REDIRECT_TO` to your own inbox for a demo.
+
 Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
 `DEMO_ADMIN_PASSWORD` before running `init_db.py`):
 

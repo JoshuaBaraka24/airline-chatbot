@@ -10,7 +10,7 @@ from actions.db import get_cursor
 
 _BOOKING_SELECT = """
     SELECT b.booking_ref, b.status, b.flight_id,
-           COALESCE(b.passenger_name, u.name) AS passenger_name,
+           COALESCE(b.passenger_name, u.name) AS passenger_name, u.email AS account_email,
            f.flight_number, f.origin, f.destination,
            f.departure_time, f.arrival_time, f.status AS flight_status
     FROM bookings b
