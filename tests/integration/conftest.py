@@ -43,6 +43,9 @@ def test_database():
 
 @pytest.fixture
 def db(test_database, monkeypatch):
+    # Never send real email from tests, whatever the developer's .env says
+    monkeypatch.delenv("SMTP_HOST", raising=False)
+    monkeypatch.delenv("EMAIL_REDIRECT_TO", raising=False)
     """Fresh seeded test database, used by both the gateway and the action server code."""
     os.environ.pop("DEMO_PASSWORD", None)
     os.environ.pop("DEMO_ADMIN_PASSWORD", None)

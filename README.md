@@ -95,6 +95,11 @@ are in `.env` (see `.env.example`). A first sign-in creates a passenger account,
 account made by a chat booking with that email. An account with a password, including every staff
 account, is never linked, because registering does not prove that someone owns the email.
 
+**Confirmation emails:** booking, changing or cancelling sends an email to the account holder when
+`SMTP_HOST` and the other `SMTP_*` settings in `.env` are filled in; restart the action server after
+changing them. The assistant says an email was sent only if the mail server accepted it. The sample
+accounts (`@email.com`) are never mailed, so set `EMAIL_REDIRECT_TO` to your own inbox for a demo.
+
 Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
 `DEMO_ADMIN_PASSWORD` before running `init_db.py`):
 
