@@ -280,7 +280,7 @@ responses:
   utter_ask_passenger_name:
     - text: "What is the passenger's full name, as it appears on their passport or ID?"
   utter_ask_passenger_email:
-    - text: "What email address should I send the booking confirmation to?"
+    - text: "What email address should we use for this booking?"
 
   utter_how_can_i_help:
     - text: "Great! What can I help you with? You can ask about flight status, bookings, check-in or baggage."
@@ -293,9 +293,34 @@ responses:
   utter_out_of_scope:
     - text: "I'm sorry, I can only assist with flight status, baggage, check-in, and bookings. For other queries, please call +254 20 327 4747."
   utter_baggage_policy:
-    - text: "Kenya Airways baggage allowance:\n- Economy: checked bags up to 23kg each\n- Business: checked bags up to 32kg each\n- Cabin: one bag up to 12kg\nNo single bag may weigh more than 32kg; heavier items must be sent as cargo. Overweight and extra bags are charged and can be bought in advance at kenyaairways.com. Your exact allowance depends on route and fare, so check your e-ticket."
+    - text: "Kenya Airways baggage allowance:\n- Economy: checked bags up to 23kg each\n- Business: checked bags up to 32kg each\n- Cabin: one bag up to 12kg\nNo single bag may weigh more than 32kg; heavier items must be sent as cargo. Overweight and extra bags are charged. Your exact allowance depends on route and fare, so check your e-ticket."
+      buttons:
+        - title: "Baggage details"
+          payload: "page:travel-info.html#baggage"
+        - title: "My bookings"
+          payload: "page:account.html"
+        - title: "Talk to an agent"
+          payload: "/escalate_to_agent"
   utter_check_in_procedure:
-    - text: "You can check in online at kenyaairways.com from 36 hours before departure, or at the airport counter 3 hours before. Have your booking reference and a valid passport or ID ready."
+    # The status button starts a form, so it is offered only when no form is asking a question
+    - text: "Airport check-in counters open 3 hours before departure. Online check-in opens 36 hours before departure, but this prototype can't complete it, so please use the counter. Have your booking reference and a valid passport or ID ready."
+      condition:
+        - type: slot
+          name: requested_slot
+          value: null
+      buttons:
+        - title: "Check-in guide"
+          payload: "page:travel-info.html#check-in"
+        - title: "Check my check-in status"
+          payload: "/check_in_status"
+        - title: "Talk to an agent"
+          payload: "/escalate_to_agent"
+    - text: "Airport check-in counters open 3 hours before departure. Online check-in opens 36 hours before departure, but this prototype can't complete it, so please use the counter. Have your booking reference and a valid passport or ID ready."
+      buttons:
+        - title: "Check-in guide"
+          payload: "page:travel-info.html#check-in"
+        - title: "Talk to an agent"
+          payload: "/escalate_to_agent"
   utter_default:
     - text: "I didn't understand that. Could you rephrase? Or type 'agent' to speak to a human."
 

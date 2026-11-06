@@ -19,6 +19,8 @@ TASK_SLOTS = [
     "selected_flight_id", "passenger_name", "passenger_email", "confirm_booking",
 ]
 ONLINE_CHECK_IN_WINDOW = timedelta(hours=36)
+AIRPORT_CHECK_IN_WINDOW = timedelta(hours=3)
+CHECK_IN_GUIDE = [{"title": "Check-in guide", "payload": "page:travel-info.html#check-in"}]
 FALLBACKS_BEFORE_ESCALATION = 2
 IGNORED_ACTIONS = {"action_listen", "action_extract_slots", "action_session_start"}
 
@@ -103,11 +105,16 @@ class ActionCheckInStatus(Action):
             dispatcher.utter_message(text=f"Booking {ref} has been cancelled, so there is nothing to check in.")
         else:
             opens_at = booking["departure_time"] - ONLINE_CHECK_IN_WINDOW
+            counter = format_datetime(booking["departure_time"] - AIRPORT_CHECK_IN_WINDOW)
             if datetime.now() >= opens_at:
-                when = "Online check-in is open now at kenyaairways.com."
+                when = "Online check-in is open now, but this prototype can't complete it."
             else:
-                when = f"Online check-in opens {format_datetime(opens_at)} (36 hours before departure)."
-            dispatcher.utter_message(text=f"Booking {ref} for {flight} is confirmed but not yet checked in. {when}")
+                when = f"Online check-in opens {format_datetime(opens_at)}, but this prototype can't complete it."
+            dispatcher.utter_message(
+                text=f"Booking {ref} for {flight} is confirmed but not yet checked in. {when} "
+                     f"The airport counter opens {counter}.",
+                buttons=CHECK_IN_GUIDE,
+            )
         return reset_task_slots()
 
 
@@ -204,7 +211,7 @@ class ActionNewBooking(Action):
                  f"departing {format_datetime(booking['departure_time'])}\n"
                  f"- Passenger: {booking['passenger_name']}\n"
                  f"{confirmation_note('booked', booking['booking_ref'], show_address=True)} "
-                 "Online check-in opens 36 hours before departure."
+                 "Airport check-in counters open 3 hours before departure."
         )
         return reset_task_slots()
 

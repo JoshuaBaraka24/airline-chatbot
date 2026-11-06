@@ -6,6 +6,8 @@
 
   const API_BASE = window.KQ_CHAT_API_BASE || "";
   const HEALTH_INTERVAL_MS = 30000;
+  // Replies can link to our own pages only, for example page:travel-info.html#baggage
+  const PAGE_LINK = /^page:([a-z-]+\.html(?:#[a-z-]+)?)$/;
   const STORAGE = {
     session: "kq-chat-session",
     transcript: "kq-chat-transcript",
@@ -172,6 +174,18 @@
       list.setAttribute("aria-label", "Suggested replies");
       for (const button of buttons) {
         const item = document.createElement("li");
+        const page = PAGE_LINK.exec(button.payload || "");
+        if (page) {
+          const link = document.createElement("a");
+          link.className = "chip chip--link";
+          link.href = page[1];
+          link.textContent = button.title;
+          // Close the chat so it doesn't cover the page, which matters on phones
+          link.addEventListener("click", closeChat);
+          item.append(link);
+          list.append(item);
+          continue;
+        }
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "chip";
