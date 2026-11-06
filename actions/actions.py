@@ -7,7 +7,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.events import EventType, FollowupAction, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
-from actions import repository as repo
+from actions import notify, repository as repo
 from actions.forms import logged_in_user
 from actions.parsing import format_datetime
 
@@ -30,6 +30,20 @@ STATUS_TEXT = {
     "departed": "Departed",
     "landed": "Landed",
 }
+
+
+def confirmation_note(kind: Text, booking_ref: Text, show_address: bool = False) -> Text:
+    """Emails the account holder and says truthfully whether it worked. The address is shown
+    only to whoever just typed it or is logged in, never to someone who only knows a reference."""
+    try:
+        booking = repo.get_booking(booking_ref)
+        sent = notify.send_booking_email(kind, booking)
+    except Exception:
+        logger.exception("Confirmation email failed for %s", booking_ref)
+        sent = False
+    if not sent:
+        return "I couldn't send a confirmation email, so please keep this message."
+    return f"A confirmation email has been sent{' to ' + booking['account_email'] if show_address else ''}."
 
 
 def reset_task_slots() -> List[EventType]:
@@ -116,8 +130,8 @@ class ActionCancelBooking(Action):
 
         if cancelled:
             dispatcher.utter_message(
-                text=f"Booking {booking_ref} has been cancelled. Your refund will be processed within 7 business days "
-                     "and a confirmation email is on its way."
+                text=f"Booking {booking_ref} has been cancelled. Your refund will be processed within 7 business days. "
+                     f"{confirmation_note('cancelled', booking_ref)}"
             )
         else:
             dispatcher.utter_message(text=f"Booking {booking_ref} could not be cancelled because it is no longer active.")
@@ -145,7 +159,7 @@ class ActionChangeBooking(Action):
         if changed:
             dispatcher.utter_message(
                 text=f"Done! Booking {booking_ref} is now on {booking['flight_number']} departing "
-                     f"{format_datetime(booking['departure_time'])}. A confirmation email is on its way."
+                     f"{format_datetime(booking['departure_time'])}. {confirmation_note('changed', booking_ref)}"
             )
         else:
             dispatcher.utter_message(text="Sorry, that flight has just sold out. Please try another date.")
@@ -184,13 +198,13 @@ class ActionNewBooking(Action):
             dispatcher.utter_message(text="Sorry, that flight has just sold out. Please ask me to book again and choose another flight.")
             return reset_task_slots()
 
-        sent_to = f" to {email}" if email else ""
         dispatcher.utter_message(
             text=f"Booked! Your booking reference is {booking['booking_ref']}.\n"
                  f"- {booking['flight_number']} {booking['origin']} to {booking['destination']}, "
                  f"departing {format_datetime(booking['departure_time'])}\n"
                  f"- Passenger: {booking['passenger_name']}\n"
-                 f"A confirmation email is on its way{sent_to}. Online check-in opens 36 hours before departure."
+                 f"{confirmation_note('booked', booking['booking_ref'], show_address=True)} "
+                 "Online check-in opens 36 hours before departure."
         )
         return reset_task_slots()
 

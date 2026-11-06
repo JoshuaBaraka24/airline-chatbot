@@ -1,16 +1,26 @@
-"""Register, log in, log out and current-user endpoints."""
+"""Register, log in (with a password or Google), log out and current-user endpoints."""
+import re
+import secrets
 from typing import Optional
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+import psycopg2
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Query, Response, status
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field, validator
 
-from backend import auth
+from backend import auth, google_auth
 from backend.config import COOKIE_SECURE, SESSION_COOKIE, SESSION_HOURS
 from backend.security import MIN_PASSWORD_LENGTH
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+GOOGLE_COOKIE = "kq_google_login"
+GOOGLE_COOKIE_PATH = "/api/auth/google"
+GOOGLE_LOGIN_SECONDS = 600
+MAX_NAME_LENGTH = 100
+MAX_EMAIL_LENGTH = 150
 
 
 class Credentials(BaseModel):
@@ -77,6 +87,73 @@ def login(credentials: Credentials, response: Response) -> dict:
     auth.login_throttle.reset(key)
     _start_session(response, user)
     return user
+
+
+# ---------- Sign in with Google ----------
+
+
+@router.get("/providers")
+def providers() -> dict:
+    """Which optional ways of logging in are set up, so the login page can offer them."""
+    return {"google": google_auth.is_configured()}
+
+
+def _safe_next(page: Optional[str]) -> Optional[str]:
+    """Only our own passenger pages (prevents open redirects via ?next=)."""
+    return page if page and re.fullmatch(r"[a-z]+\.html", page) and page != "admin.html" else None
+
+
+def _back_to_login(**query: str) -> RedirectResponse:
+    response = RedirectResponse(f"/login.html?{urlencode(query)}", status_code=status.HTTP_302_FOUND)
+    response.delete_cookie(GOOGLE_COOKIE, path=GOOGLE_COOKIE_PATH)
+    return response
+
+
+@router.get("/google/start")
+def google_start(next: Optional[str] = Query(None, max_length=50)) -> RedirectResponse:
+    if not google_auth.is_configured():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Google sign-in is not set up.")
+    login_values = google_auth.new_login()
+    response = RedirectResponse(google_auth.authorization_url(login_values), status_code=status.HTTP_302_FOUND)
+    # Lax, so that it is sent when Google redirects the browser back
+    response.set_cookie(
+        GOOGLE_COOKIE, ".".join([*login_values.values(), _safe_next(next) or ""]),
+        max_age=GOOGLE_LOGIN_SECONDS, httponly=True, samesite="lax", secure=COOKIE_SECURE, path=GOOGLE_COOKIE_PATH,
+    )
+    return response
+
+
+@router.get("/google/callback")
+def google_callback(
+    code: Optional[str] = Query(None, max_length=2048),
+    state: Optional[str] = Query(None, max_length=128),
+    error: Optional[str] = Query(None, max_length=128),
+    login_cookie: Optional[str] = Cookie(None, alias=GOOGLE_COOKIE),
+) -> RedirectResponse:
+    if error:
+        return _back_to_login(error="google_cancelled")
+    parts = (login_cookie or "").split(".", 3)
+    if not code or not state or len(parts) != 4 or not secrets.compare_digest(state, parts[0]):
+        return _back_to_login(error="google")
+    login_values = dict(zip(("state", "nonce", "verifier"), parts))
+    try:
+        claims = google_auth.exchange_code(code, login_values)
+        email = claims["email"]
+        if len(email) > MAX_EMAIL_LENGTH:
+            raise google_auth.GoogleSignInError("email too long")
+        name = " ".join(str(claims.get("name") or email.split("@")[0]).split())[:MAX_NAME_LENGTH]
+        user = auth.google_user(str(claims["sub"]), email, name)
+    except auth.EmailAlreadyRegistered:
+        return _back_to_login(error="google_password")
+    except (google_auth.GoogleSignInError, psycopg2.Error):
+        return _back_to_login(error="google")
+    # google=1 makes the login page clear any chat from before this login
+    query = {"google": "1"}
+    if parts[3]:
+        query["next"] = parts[3]
+    response = _back_to_login(**query)
+    _start_session(response, user)
+    return response
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)

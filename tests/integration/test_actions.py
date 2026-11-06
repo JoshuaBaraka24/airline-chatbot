@@ -6,7 +6,8 @@ from rasa_sdk import Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions import repository as repo
-from actions.actions import ActionNewBooking
+from actions import notify
+from actions.actions import ActionCancelBooking, ActionChangeBooking, ActionNewBooking
 from actions.db import get_cursor
 from actions.forms import (
     ActionAskBookingReference,
@@ -129,8 +130,82 @@ def test_confirmed_guest_booking_is_saved(db):
     ActionNewBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
 
     assert dispatcher.messages[0]["text"].startswith("Booked! Your booking reference is BK007.")
-    assert "faith@example.com" in dispatcher.messages[0]["text"]
+    assert "couldn't send a confirmation email" in dispatcher.messages[0]["text"]
+    assert "on its way" not in dispatcher.messages[0]["text"]
     assert repo.get_booking("BK007")["passenger_name"] == "Faith Njeri"
+
+
+def outbox(monkeypatch, accepted=True):
+    sent = []
+
+    def fake_send(to, subject, body):
+        sent.append((to, subject, body))
+        return accepted
+
+    monkeypatch.setattr(notify, "send_email", fake_send)
+    return sent
+
+
+def test_guest_booking_emails_the_address_they_typed(db, monkeypatch):
+    sent = outbox(monkeypatch)
+    flights, route = dubai_flights()
+    slots = dict(route, selected_flight_id=str(flights[0]["flight_id"]), passenger_name="Faith Njeri",
+                 passenger_email="faith@safari.test", confirm_booking=True)
+    dispatcher = CollectingDispatcher()
+
+    ActionNewBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
+
+    assert "A confirmation email has been sent to faith@safari.test." in dispatcher.messages[0]["text"]
+    to, subject, body = sent[0]
+    assert to == "faith@safari.test"
+    assert subject == "[Prototype] Booking BK007: booked"
+    assert "Booking reference: BK007" in body and "Faith Njeri" in body and "not a ticket" in body
+
+
+def test_logged_in_booking_emails_the_account_holder(db, monkeypatch):
+    sent = outbox(monkeypatch)
+    flights, route = dubai_flights()
+    slots = dict(route, selected_flight_id=str(flights[0]["flight_id"]), confirm_booking=True)
+
+    ActionNewBooking().run(CollectingDispatcher(), booking_tracker(slots, metadata={"user_id": 1}, intent="affirm"), {})
+
+    assert sent[0][0] == "john@email.com"
+
+
+def test_cancelling_emails_the_owner_without_showing_their_address(db, monkeypatch):
+    sent = outbox(monkeypatch)
+    dispatcher = CollectingDispatcher()
+    slots = {"booking_reference": "BK002", "confirm_cancel": True}
+
+    ActionCancelBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
+
+    assert sent[0][0] == "amina@email.com" and sent[0][1].endswith("BK002: cancelled")
+    assert "A confirmation email has been sent." in dispatcher.messages[0]["text"]
+    assert "amina@email.com" not in dispatcher.messages[0]["text"]
+
+
+def test_changing_emails_the_owner(db, monkeypatch):
+    sent = outbox(monkeypatch)
+    new_flight = repo.next_flights_on_route("Nairobi", "Dubai")[-1]["flight_id"]
+    dispatcher = CollectingDispatcher()
+    slots = {"booking_reference": "BK002", "confirm_change": True, "new_flight_id": str(new_flight)}
+
+    ActionChangeBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
+
+    assert sent[0][1].endswith("BK002: changed")
+    assert "A confirmation email has been sent." in dispatcher.messages[0]["text"]
+
+
+def test_a_failed_email_keeps_the_booking_and_says_so(db, monkeypatch):
+    outbox(monkeypatch, accepted=False)
+    flights, route = dubai_flights()
+    slots = dict(route, selected_flight_id=str(flights[0]["flight_id"]), confirm_booking=True)
+    dispatcher = CollectingDispatcher()
+
+    ActionNewBooking().run(dispatcher, booking_tracker(slots, metadata={"user_id": 1}, intent="affirm"), {})
+
+    assert "couldn't send a confirmation email" in dispatcher.messages[0]["text"]
+    assert repo.get_booking("BK007")["status"] == "confirmed"
 
 
 def test_declined_booking_saves_nothing(db):

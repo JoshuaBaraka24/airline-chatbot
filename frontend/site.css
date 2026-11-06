@@ -531,6 +531,11 @@ main > :last-child:not(.band) { margin-bottom: 64px; }
 .tab[aria-selected="true"] { color: var(--brand-dark); border-bottom-color: var(--brand); }
 :root[data-theme="high-contrast"] .tab[aria-selected="true"] { color: #ffff00; border-bottom-color: #ffff00; }
 .auth__submit { width: 100%; }
+.btn--google { background: #fff; color: #1f1f1f; border-color: #747775; }
+.btn--google:hover { background: #f2f2f2; }
+:root[data-theme="high-contrast"] .btn--google { background: #fff; color: #000; border-color: #ffff00; }
+.auth__or { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--text-muted); font-size: 0.9rem; }
+.auth__or::before, .auth__or::after { content: ""; flex: 1; border-top: 1px solid var(--border-soft); }
 
 /* ---------- Account page ---------- */
 

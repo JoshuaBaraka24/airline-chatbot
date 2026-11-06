@@ -15,6 +15,8 @@ CREATE TABLE users (
     booking_ref  VARCHAR(20),
     -- scrypt hash 'scrypt$n$r$p$salt$hash'; NULL means the account cannot log in
     password_hash VARCHAR(255),
+    -- Google's permanent id for the account (Sign in with Google); NULL if not linked
+    google_sub   VARCHAR(255) UNIQUE,
     role         VARCHAR(20)  NOT NULL DEFAULT 'passenger'
                  CHECK (role IN ('passenger', 'admin')),
     created_at   TIMESTAMP    NOT NULL DEFAULT NOW()
