@@ -7,7 +7,7 @@ from rasa_sdk.executor import CollectingDispatcher
 
 from actions import repository as repo
 from actions import notify
-from actions.actions import ActionCancelBooking, ActionChangeBooking, ActionNewBooking
+from actions.actions import ActionCancelBooking, ActionChangeBooking, ActionCheckInStatus, ActionNewBooking
 from actions.db import get_cursor
 from actions.forms import (
     ActionAskBookingReference,
@@ -206,6 +206,20 @@ def test_a_failed_email_keeps_the_booking_and_says_so(db, monkeypatch):
 
     assert "couldn't send a confirmation email" in dispatcher.messages[0]["text"]
     assert repo.get_booking("BK007")["status"] == "confirmed"
+
+
+def check_in_reply(ref):
+    dispatcher = CollectingDispatcher()
+    ActionCheckInStatus().run(dispatcher, booking_tracker({"booking_reference": ref}), {})
+    return dispatcher.messages[0]
+
+
+def test_check_in_status_links_to_our_own_guide(db):
+    message = check_in_reply("BK001")
+
+    assert "confirmed but not yet checked in" in message["text"]
+    assert "this prototype can't complete it" in message["text"] and "airport counter opens" in message["text"]
+    assert message["buttons"] == [{"title": "Check-in guide", "payload": "page:travel-info.html#check-in"}]
 
 
 def test_declined_booking_saves_nothing(db):

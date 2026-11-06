@@ -91,6 +91,16 @@ async function axe(page, label) {
   bot = await lastBotTexts(page, 1);
   check("flight status reply rendered with line breaks", /Status: Delayed/.test(bot[0]) && bot[0].includes("\n"), bot[0].slice(0, 80));
 
+  // Replies link to our own pages
+  await send(page, "what is the baggage allowance");
+  check("baggage reply links to the travel page",
+    (await page.$$eval("a.chip--link", (a) => a.map((l) => l.getAttribute("href")))).includes("travel-info.html#baggage"));
+  await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.click('a.chip--link[href="travel-info.html#baggage"]')]);
+  check("link opens the baggage section", page.url().endsWith("travel-info.html#baggage"));
+  check("chat closes so it doesn't cover the page", await page.$eval("#chat-launcher", (b) => b.getAttribute("aria-expanded") !== "true"));
+  await page.goto(BASE, { waitUntil: "networkidle0" });
+  await page.click("#chat-launcher");
+
   // Cancellation with yes/no buttons
   await send(page, "I want to cancel my booking");
   await send(page, "BK001");
