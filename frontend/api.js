@@ -56,6 +56,7 @@
     login: (email, password) => request("/api/auth/login", { method: "POST", body: { email, password } }),
     register: (name, email, password) => request("/api/auth/register", { method: "POST", body: { name, email, password } }),
     logout: () => request("/api/auth/logout", { method: "POST" }),
+    providers: () => request("/api/auth/providers"),
     myBookings: () => request("/api/me/bookings"),
     flightStatus: (flightNumber) => request("/api/flights/status", { query: { flight_number: flightNumber } }),
     adminStats: () => request("/api/admin/stats"),

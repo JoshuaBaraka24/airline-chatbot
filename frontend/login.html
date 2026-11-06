@@ -30,6 +30,13 @@
 
       <div class="alert" id="auth-error" role="alert" hidden></div>
 
+      <div id="google-signin" hidden>
+        <a class="btn btn--google auth__submit" id="google-link" href="/api/auth/google/start">
+          <img src="assets/google-g.svg" alt="" width="18" height="18">Continue with Google
+        </a>
+        <p class="auth__or"><span>or</span></p>
+      </div>
+
       <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
         <h1 class="visually-hidden">Log in</h1>
         <form id="login-form" novalidate>

@@ -87,8 +87,25 @@
     ));
   });
 
+  // Sign in with Google is offered only when the server has it set up.
+  const params = new URLSearchParams(window.location.search);
+  const GOOGLE_ERRORS = {
+    google: "Google sign-in didn't work. Please try again or use your email and password.",
+    google_cancelled: "Google sign-in was cancelled.",
+    google_password: "This email already has an account with a password. Please log in with your password instead.",
+  };
+  if (GOOGLE_ERRORS[params.get("error")]) showError(GOOGLE_ERRORS[params.get("error")]);
+  window.KQApi.providers().then(({ google }) => {
+    if (!google) return;
+    const next = params.get("next");
+    if (next) document.getElementById("google-link").search = `?next=${encodeURIComponent(next)}`;
+    document.getElementById("google-signin").hidden = false;
+  }).catch(() => { /* the password form still works */ });
+
   // Already logged in? Go straight to the right page.
   window.KQSite.ready.then((user) => {
-    if (user) window.location.replace(destination(user));
+    if (!user) return;
+    if (params.has("google")) window.KQSite.clearChat();
+    window.location.replace(destination(user));
   });
 })();

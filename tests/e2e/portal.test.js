@@ -143,6 +143,9 @@ async function logout(page) {
   await page.waitForSelector("#auth-error:not([hidden])");
   check("wrong password shows an error", (await page.$eval("#auth-error", (e) => e.textContent)).includes("Incorrect email or password"));
   await h.axe(page, report, "login");
+  const googleOn = await page.evaluate(() => window.KQApi.providers().then((p) => p.google));
+  check("Google button appears only when Google sign-in is set up",
+    (await page.$eval("#google-signin", (e) => !e.hidden)) === googleOn);
   await h.shot(page, SHOTS, "portal-4-login.png");
 
   await page.click("#tab-register");

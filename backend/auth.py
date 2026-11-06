@@ -28,7 +28,7 @@ def create_passenger(name: str, email: str, password: str) -> dict:
             f"""INSERT INTO users (name, email, password_hash, role)
                 VALUES (%s, LOWER(%s), %s, 'passenger')
                 ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, password_hash = EXCLUDED.password_hash
-                WHERE users.password_hash IS NULL
+                WHERE users.password_hash IS NULL AND users.google_sub IS NULL
                 RETURNING {_USER_FIELDS}""",
             (name, email, hash_password(password)),
         )
@@ -50,6 +50,32 @@ def authenticate(email: str, password: str) -> Optional[dict]:
     row = dict(row)
     del row["password_hash"]
     return row
+
+
+def google_user(google_sub: str, email: str, name: str) -> dict:
+    """The passenger for a verified Google identity, creating or linking the account if needed.
+
+    Registration does not prove that someone owns an email, so an account with a password
+    (which includes all staff) is never linked: EmailAlreadyRegistered asks them to use it.
+    An account from a chat booking has no password, and is taken over as in create_passenger.
+    """
+    with get_cursor() as cur:
+        cur.execute(f"SELECT {_USER_FIELDS} FROM users WHERE google_sub = %s", (google_sub,))
+        row = cur.fetchone()
+        if row:
+            return dict(row)
+        cur.execute(
+            f"""INSERT INTO users (name, email, google_sub, role)
+                VALUES (%s, LOWER(%s), %s, 'passenger')
+                ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, google_sub = EXCLUDED.google_sub
+                WHERE users.password_hash IS NULL AND users.google_sub IS NULL AND users.role = 'passenger'
+                RETURNING {_USER_FIELDS}""",
+            (name, email, google_sub),
+        )
+        row = cur.fetchone()
+    if not row:
+        raise EmailAlreadyRegistered(email)
+    return dict(row)
 
 
 # ---------- sessions ----------

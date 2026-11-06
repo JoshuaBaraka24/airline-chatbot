@@ -90,6 +90,11 @@ in). After you confirm, it reserves the seat and issues the next booking referen
 Bookings made without logging in are attached to an account with that email, which is created
 without a password if needed, so they show up under **My bookings** once that passenger registers.
 
+**Sign in with Google** appears on the login page once `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+are in `.env` (see `.env.example`). A first sign-in creates a passenger account, or takes over an
+account made by a chat booking with that email. An account with a password, including every staff
+account, is never linked, because registering does not prove that someone owns the email.
+
 Demo accounts (sample data only; set different passwords with `DEMO_PASSWORD` and
 `DEMO_ADMIN_PASSWORD` before running `init_db.py`):
 
