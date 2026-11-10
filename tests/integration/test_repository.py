@@ -9,6 +9,15 @@ def seats(flight_id):
         return cur.fetchone()["seats_available"]
 
 
+def test_check_in_only_while_online_check_in_is_open(db):
+    assert repo.check_in_booking("BK001") is False  # opens 36 hours before departure
+    assert repo.check_in_booking("BK004") is False  # already checked in
+    assert repo.check_in_booking("BK006") is False  # cancelled
+    assert repo.check_in_booking("BK003") is True   # departs tomorrow
+    assert repo.get_booking("BK003")["status"] == "checked_in"
+    assert repo.check_in_booking("BK003") is False  # only once
+
+
 def test_get_booking_joins_passenger_and_flight(db):
     booking = repo.get_booking("BK001")
 

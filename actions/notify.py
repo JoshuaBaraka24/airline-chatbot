@@ -26,6 +26,7 @@ HEADLINES = {
     "booked": "Your booking is confirmed.",
     "changed": "Your booking has been changed.",
     "cancelled": "Your booking has been cancelled. Any refund will be processed within 7 business days.",
+    "checked_in": "You're checked in. Show your booking reference and your passport or ID at the airport.",
 }
 
 

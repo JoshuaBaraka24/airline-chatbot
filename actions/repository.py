@@ -206,6 +206,22 @@ def create_booking(flight_id: int, user_id: Optional[int] = None, passenger_name
         return booking_ref
 
 
+def check_in_booking(booking_ref: str) -> bool:
+    """Checks in a confirmed booking while online check-in is open (36 to 1 hours before
+    departure). Returns False if the booking or flight no longer allows it."""
+    with get_cursor() as cur:
+        cur.execute(
+            """UPDATE bookings b SET status = 'checked_in', updated_at = NOW()
+               FROM flights f
+               WHERE f.flight_id = b.flight_id AND b.booking_ref = %s AND b.status = 'confirmed'
+                 AND f.status NOT IN ('cancelled', 'departed', 'landed')
+                 AND NOW() BETWEEN f.departure_time - INTERVAL '36 hours' AND f.departure_time - INTERVAL '1 hour'
+               RETURNING b.booking_ref""",
+            (booking_ref,),
+        )
+        return cur.fetchone() is not None
+
+
 def mark_conversation_escalated(sender_id: str) -> None:
     """Flag the logged conversation for human follow-up (FR-04, FR-07)."""
     with get_cursor() as cur:
