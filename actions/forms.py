@@ -6,7 +6,7 @@ either accept the value or explain the problem and ask again.
 """
 import logging
 import re
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Text
 
 from rasa_sdk import Action, FormValidationAction, Tracker
@@ -45,6 +45,10 @@ INTERRUPTION_RESPONSES = {
 SLOT_ROLE = {"origin": "from", "destination": "to"}
 EXPLICIT_DIRECTION_RE = re.compile(r"\b(from|to)\b", re.IGNORECASE)
 
+ONLINE_CHECK_IN_OPENS = timedelta(hours=36)
+ONLINE_CHECK_IN_CLOSES = timedelta(hours=1)
+CLOSED_FLIGHT_STATUSES = ("cancelled", "departed", "landed")
+
 DB_ERROR = "Sorry, I can't reach our booking system right now. Please try again in a moment or type 'agent'."
 YES_NO_BUTTONS = [
     {"title": "Yes", "payload": "/affirm"},
@@ -76,11 +80,22 @@ def flight_options(origin: Text, destination: Text, travel_date: date) -> tuple:
     return repo.next_flights_on_route(origin, destination), True
 
 
+def online_check_in(booking: dict, now: Optional[datetime] = None) -> Text:
+    """Whether a booking can be checked in online: "open", "not_yet" or "closed"."""
+    now = now or datetime.now()
+    departure = booking["departure_time"]
+    if booking["status"] != "confirmed" or booking["flight_status"] in CLOSED_FLIGHT_STATUSES:
+        return "closed"
+    if now < departure - ONLINE_CHECK_IN_OPENS:
+        return "not_yet"
+    return "open" if now <= departure - ONLINE_CHECK_IN_CLOSES else "closed"
+
+
 def checked_confirmation(slot: Text, slot_value: Any, dispatcher: CollectingDispatcher,
                          tracker: Tracker) -> Dict[Text, Any]:
     """Accept a "yes" only if it came from the Yes button or contains an explicit yes word.
 
-    These answers cancel, change or create bookings, so a hesitation such as "erm",
+    These answers cancel, change, create or check in bookings, so a hesitation such as "erm",
     which the classifier may label affirm, must not count as consent.
     """
     text = tracker.latest_message.get("text") or ""
@@ -172,6 +187,22 @@ class ValidateFlightStatusForm(FormValidationAction):
 class ValidateCheckInStatusForm(BookingReferenceMixin, FormValidationAction):
     def name(self) -> Text:
         return "validate_check_in_status_form"
+
+    async def required_slots(self, domain_slots: List[Text], dispatcher: CollectingDispatcher,
+                             tracker: Tracker, domain: DomainDict) -> List[Text]:
+        # Offer to check in only while online check-in is open for this booking
+        ref = tracker.get_slot("booking_reference")
+        try:
+            booking = repo.get_booking(ref) if ref else None
+        except Exception:
+            logger.exception("Could not load %s for check-in", ref)
+            booking = None
+        if booking and online_check_in(booking) == "open":
+            return domain_slots
+        return [s for s in domain_slots if s != "confirm_check_in"]
+
+    def validate_confirm_check_in(self, slot_value, dispatcher, tracker, domain) -> Dict[Text, Any]:
+        return checked_confirmation("confirm_check_in", slot_value, dispatcher, tracker)
 
 
 class ValidateCancelBookingForm(BookingReferenceMixin, FormValidationAction):
@@ -507,6 +538,26 @@ class ActionAskConfirmChange(Action):
         except Exception:
             logger.exception("Could not load change details for %s", booking_ref)
             dispatcher.utter_message(text=f"Shall I move booking {booking_ref} to {new_date}?", buttons=YES_NO_BUTTONS)
+        return []
+
+
+class ActionAskConfirmCheckIn(Action):
+    def name(self) -> Text:
+        return "action_ask_confirm_check_in"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
+        ref = tracker.get_slot("booking_reference")
+        try:
+            b = repo.get_booking(ref)
+            dispatcher.utter_message(
+                text=f"Online check-in is open for booking {ref}: {b['flight_number']} {b['origin']} to "
+                     f"{b['destination']}, departing {format_datetime(b['departure_time'])}, for "
+                     f"{b['passenger_name']}. Shall I check you in now?",
+                buttons=YES_NO_BUTTONS,
+            )
+        except Exception:
+            logger.exception("Could not load check-in details for %s", ref)
+            dispatcher.utter_message(text=f"Shall I check in booking {ref} now?", buttons=YES_NO_BUTTONS)
         return []
 
 

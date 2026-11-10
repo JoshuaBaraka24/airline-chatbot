@@ -148,6 +148,26 @@ stories:
     - requested_slot: null
   - action: action_escalate_to_agent
 
+- story: check in online
+  steps:
+  - user: |
+      can you check me in for [BK003](booking_reference)
+    intent: check_in_status
+  - action: check_in_status_form
+  - active_loop: check_in_status_form
+  - slot_was_set:
+    - booking_reference: BK003
+  - slot_was_set:
+    - requested_slot: confirm_check_in
+  - user: |
+      yes please
+    intent: affirm
+  - action: check_in_status_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_check_in_status
+
 - story: baggage question and goodbye
   steps:
   - user: |

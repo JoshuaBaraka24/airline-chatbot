@@ -30,7 +30,8 @@ FROM (VALUES
     ('KQ601', 'Mombasa',  'Nairobi',      8, TIME '11:00', INTERVAL '1 hour',         'on_time',   50),
     ('KQ202', 'Nairobi',  'Dubai',        7, TIME '22:00', INTERVAL '5 hours',        'delayed',   12),
     ('KQ202', 'Nairobi',  'Dubai',        9, TIME '22:00', INTERVAL '5 hours',        'on_time',   40),
-    ('KQ305', 'Nairobi',  'London',       8, TIME '23:30', INTERVAL '9 hours',        'on_time',   25),
+    -- Departs tomorrow at noon, so booking BK003 is always within online check-in when the data is loaded
+    ('KQ305', 'Nairobi',  'London',       1, TIME '12:00', INTERVAL '9 hours',        'on_time',   25),
     ('KQ305', 'Nairobi',  'London',      15, TIME '23:30', INTERVAL '9 hours',        'on_time',   70),
     ('KQ450', 'Nairobi',  'Amsterdam',    9, TIME '01:00', INTERVAL '8 hours 30 minutes', 'on_time', 30),
     ('KQ505', 'Nairobi',  'Johannesburg', 10, TIME '09:00', INTERVAL '4 hours',       'cancelled',  0),

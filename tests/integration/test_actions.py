@@ -11,6 +11,8 @@ from actions.actions import ActionCancelBooking, ActionChangeBooking, ActionChec
 from actions.db import get_cursor
 from actions.forms import (
     ActionAskBookingReference,
+    ActionAskConfirmCheckIn,
+    ValidateCheckInStatusForm,
     ActionAskSelectedFlightId,
     ValidateCancelBookingForm,
     ValidateNewBookingForm,
@@ -208,18 +210,69 @@ def test_a_failed_email_keeps_the_booking_and_says_so(db, monkeypatch):
     assert repo.get_booking("BK007")["status"] == "confirmed"
 
 
-def check_in_reply(ref):
+def check_in_reply(ref, confirm=None):
     dispatcher = CollectingDispatcher()
-    ActionCheckInStatus().run(dispatcher, booking_tracker({"booking_reference": ref}), {})
+    ActionCheckInStatus().run(dispatcher, booking_tracker({"booking_reference": ref, "confirm_check_in": confirm}), {})
     return dispatcher.messages[0]
 
 
-def test_check_in_status_links_to_our_own_guide(db):
-    message = check_in_reply("BK001")
+def check_in_questions(ref):
+    tracker = booking_tracker({"booking_reference": ref})
+    return asyncio.run(ValidateCheckInStatusForm().required_slots(
+        ["booking_reference", "confirm_check_in"], CollectingDispatcher(), tracker, {}))
+
+
+def test_before_check_in_opens_it_says_when_and_links_to_our_guide(db):
+    message = check_in_reply("BK001")  # departs in 6 days
 
     assert "confirmed but not yet checked in" in message["text"]
-    assert "this prototype can't complete it" in message["text"] and "airport counter opens" in message["text"]
+    assert "ask me then and I can check you in" in message["text"] and "airport counter opens" in message["text"]
     assert message["buttons"] == [{"title": "Check-in guide", "payload": "page:travel-info.html#check-in"}]
+
+
+def test_check_in_is_offered_only_while_it_is_open(db):
+    assert check_in_questions("BK003") == ["booking_reference", "confirm_check_in"]  # departs tomorrow
+    assert check_in_questions("BK001") == ["booking_reference"]  # not open yet
+    assert check_in_questions("BK004") == ["booking_reference"]  # already checked in
+    assert check_in_questions("BK006") == ["booking_reference"]  # cancelled
+
+
+def test_the_offer_shows_the_booking(db):
+    dispatcher = CollectingDispatcher()
+    ActionAskConfirmCheckIn().run(dispatcher, booking_tracker({"booking_reference": "BK003"}), {})
+
+    message = dispatcher.messages[0]
+    assert message["text"].startswith("Online check-in is open for booking BK003: KQ305 Nairobi to London")
+    assert "Peter Kamau" in message["text"] and message["text"].endswith("Shall I check you in now?")
+    assert [b["title"] for b in message["buttons"]] == ["Yes", "No"]
+
+
+def test_yes_checks_the_booking_in_and_emails_the_owner(db, monkeypatch):
+    sent = outbox(monkeypatch)
+
+    message = check_in_reply("BK003", confirm=True)
+
+    assert message["text"].startswith("You're checked in for KQ305 to London")
+    assert "doesn't issue boarding passes" in message["text"]
+    assert "A confirmation email has been sent." in message["text"]
+    assert repo.get_booking("BK003")["status"] == "checked_in"
+    assert sent[0][0] == "peter@email.com" and sent[0][1].endswith("BK003: checked_in")
+
+
+def test_no_leaves_the_booking_alone(db):
+    message = check_in_reply("BK003", confirm=False)
+
+    assert message["text"].startswith("No problem, booking BK003 is not checked in yet.")
+    assert repo.get_booking("BK003")["status"] == "confirmed"
+
+
+def test_a_hesitation_does_not_check_anyone_in(db):
+    form = ValidateCheckInStatusForm()
+    confirm = lambda text: form.validate_confirm_check_in(
+        True, CollectingDispatcher(), booking_tracker({}, text=text, intent="affirm"), {})
+
+    assert confirm("erm") == {"confirm_check_in": None}
+    assert confirm("yes, check me in") == {"confirm_check_in": True}
 
 
 def test_declined_booking_saves_nothing(db):

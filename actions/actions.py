@@ -8,7 +8,7 @@ from rasa_sdk.events import EventType, FollowupAction, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions import notify, repository as repo
-from actions.forms import logged_in_user
+from actions.forms import ONLINE_CHECK_IN_CLOSES, ONLINE_CHECK_IN_OPENS, logged_in_user, online_check_in
 from actions.parsing import format_datetime
 
 logger = logging.getLogger(__name__)
@@ -16,9 +16,8 @@ logger = logging.getLogger(__name__)
 TASK_SLOTS = [
     "flight_number", "booking_reference", "travel_date", "origin", "destination",
     "confirm_cancel", "confirm_change", "new_flight_id",
-    "selected_flight_id", "passenger_name", "passenger_email", "confirm_booking",
+    "selected_flight_id", "passenger_name", "passenger_email", "confirm_booking", "confirm_check_in",
 ]
-ONLINE_CHECK_IN_WINDOW = timedelta(hours=36)
 AIRPORT_CHECK_IN_WINDOW = timedelta(hours=3)
 CHECK_IN_GUIDE = [{"title": "Check-in guide", "payload": "page:travel-info.html#check-in"}]
 FALLBACKS_BEFORE_ESCALATION = 2
@@ -98,24 +97,51 @@ class ActionCheckInStatus(Action):
             return reset_task_slots()
 
         ref = booking["booking_ref"]
-        flight = f"{booking['flight_number']} to {booking['destination']} on {format_datetime(booking['departure_time'])}"
+        departure = booking["departure_time"]
+        flight = f"{booking['flight_number']} to {booking['destination']} on {format_datetime(departure)}"
+        counter = format_datetime(departure - AIRPORT_CHECK_IN_WINDOW)
+        confirm = tracker.get_slot("confirm_check_in")
         if booking["status"] == "checked_in":
             dispatcher.utter_message(text=f"Booking {ref} is checked in for {flight}. You're all set!")
         elif booking["status"] == "cancelled":
             dispatcher.utter_message(text=f"Booking {ref} has been cancelled, so there is nothing to check in.")
-        else:
-            opens_at = booking["departure_time"] - ONLINE_CHECK_IN_WINDOW
-            counter = format_datetime(booking["departure_time"] - AIRPORT_CHECK_IN_WINDOW)
-            if datetime.now() >= opens_at:
-                when = "Online check-in is open now, but this prototype can't complete it."
-            else:
-                when = f"Online check-in opens {format_datetime(opens_at)}, but this prototype can't complete it."
+        elif confirm is True:
+            self.check_in(dispatcher, ref, flight, counter)
+        elif confirm is False:
             dispatcher.utter_message(
-                text=f"Booking {ref} for {flight} is confirmed but not yet checked in. {when} "
+                text=f"No problem, booking {ref} is not checked in yet. Online check-in stays open until "
+                     f"{format_datetime(departure - ONLINE_CHECK_IN_CLOSES)}.")
+        elif online_check_in(booking) == "not_yet":
+            dispatcher.utter_message(
+                text=f"Booking {ref} for {flight} is confirmed but not yet checked in. Online check-in opens "
+                     f"{format_datetime(departure - ONLINE_CHECK_IN_OPENS)}; ask me then and I can check you in. "
                      f"The airport counter opens {counter}.",
                 buttons=CHECK_IN_GUIDE,
             )
+        else:
+            dispatcher.utter_message(
+                text=f"Booking {ref} for {flight} is not checked in, and online check-in has closed. Please check "
+                     f"in at the airport counter, which opens {counter}.",
+                buttons=CHECK_IN_GUIDE,
+            )
         return reset_task_slots()
+
+    @staticmethod
+    def check_in(dispatcher: CollectingDispatcher, ref: Text, flight: Text, counter: Text) -> None:
+        try:
+            done = repo.check_in_booking(ref)
+        except Exception:
+            logger.exception("Check-in failed for %s", ref)
+            dispatcher.utter_message(text=DB_ERROR)
+            return
+        if not done:
+            dispatcher.utter_message(
+                text=f"Sorry, I couldn't check in booking {ref} because online check-in for this flight has just "
+                     f"closed. Please check in at the airport counter, which opens {counter}.")
+            return
+        dispatcher.utter_message(
+            text=f"You're checked in for {flight}. This prototype doesn't issue boarding passes, so show booking "
+                 f"reference {ref} and your passport or ID at the airport. {confirmation_note('checked_in', ref)}")
 
 
 class ActionCancelBooking(Action):

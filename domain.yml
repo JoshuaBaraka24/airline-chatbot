@@ -112,6 +112,23 @@ slots:
           - active_loop: new_booking_form
             requested_slot: destination
 
+  confirm_check_in:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        intent: affirm
+        value: true
+        conditions:
+          - active_loop: check_in_status_form
+            requested_slot: confirm_check_in
+      - type: from_intent
+        intent: deny
+        value: false
+        conditions:
+          - active_loop: check_in_status_form
+            requested_slot: confirm_check_in
+
   confirm_cancel:
     type: bool
     influence_conversation: false
@@ -214,6 +231,8 @@ forms:
   check_in_status_form:
     required_slots:
       - booking_reference
+      # Asked only when online check-in is open for the booking (see the form validator)
+      - confirm_check_in
   cancel_booking_form:
     required_slots:
       - booking_reference
@@ -303,19 +322,19 @@ responses:
           payload: "/escalate_to_agent"
   utter_check_in_procedure:
     # The status button starts a form, so it is offered only when no form is asking a question
-    - text: "Airport check-in counters open 3 hours before departure. Online check-in opens 36 hours before departure, but this prototype can't complete it, so please use the counter. Have your booking reference and a valid passport or ID ready."
+    - text: "Online check-in opens 36 hours before departure and closes 1 hour before, and I can check you in here. Airport check-in counters open 3 hours before departure. Have your booking reference and a valid passport or ID ready."
       condition:
         - type: slot
           name: requested_slot
           value: null
       buttons:
+        - title: "Check me in"
+          payload: "/check_in_status"
         - title: "Check-in guide"
           payload: "page:travel-info.html#check-in"
-        - title: "Check my check-in status"
-          payload: "/check_in_status"
         - title: "Talk to an agent"
           payload: "/escalate_to_agent"
-    - text: "Airport check-in counters open 3 hours before departure. Online check-in opens 36 hours before departure, but this prototype can't complete it, so please use the counter. Have your booking reference and a valid passport or ID ready."
+    - text: "Online check-in opens 36 hours before departure and closes 1 hour before, and I can check you in here. Airport check-in counters open 3 hours before departure. Have your booking reference and a valid passport or ID ready."
       buttons:
         - title: "Check-in guide"
           payload: "page:travel-info.html#check-in"
@@ -338,6 +357,7 @@ actions:
   - action_ask_booking_reference
   - action_ask_selected_flight_id
   - action_ask_confirm_booking
+  - action_ask_confirm_check_in
   - validate_flight_status_form
   - validate_check_in_status_form
   - validate_cancel_booking_form
