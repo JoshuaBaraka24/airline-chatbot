@@ -42,19 +42,23 @@ Copy-Item $Model (Join-Path $stage "models")
 
 # Hugging Face rejects binary files that are not stored with Git LFS
 @"
+
+# Added for the Hugging Face Space
 *.tar.gz filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
-*.sh text eol=lf
-"@ | Set-Content (Join-Path $stage ".gitattributes") -Encoding ascii
+"@ | Add-Content (Join-Path $stage ".gitattributes") -Encoding ascii
 
 $commit = git rev-parse --short HEAD
 Push-Location $stage
 try {
     git init -q -b main
+    git config core.autocrlf false
     git lfs install --local | Out-Null
     git add -A
+    # .gitignore excludes models/, but the Space needs the trained model
+    git add -f models
     git commit -q -m "Deploy $commit"
     if ($DryRun) {
         Write-Host "Dry run: the Space copy is ready in $stage and was not pushed."
