@@ -36,7 +36,7 @@ PostgreSQL        database/         :5432   users, flights, bookings, conversati
 | `database/` | `schema.sql`, `seed.sql`, `init_db.py` |
 | `tests/` | pytest unit tests, Rasa end-to-end test stories, the held-out NLU test set and browser tests (`tests/e2e/`) |
 | `docs/` | Evaluation reports and the deployment guide |
-| `deploy/` | Single-container image, start script and publish script for a Hugging Face Space |
+| `deploy/` | Docker image, Compose file with HTTPS, server setup and publish scripts |
 
 ## Setup
 
@@ -157,9 +157,9 @@ Bot: Done! Booking BK002 is now on KQ202 departing Fri 23 Oct 2026 at 22:00.
 
 ## Deployment
 
-The whole system can also run as one container on a free Hugging Face Docker Space,
-which gives a public HTTPS link for demonstrations. See [docs/deployment.md](docs/deployment.md)
-for the steps, the secrets to set and how to get confirmation emails working there.
+The whole system can also run on a server (for example an Azure for Students VM) as Docker
+containers behind HTTPS, which gives a public link for demonstrations. See [docs/deployment.md](docs/deployment.md)
+for creating the VM, the settings to fill in and publishing updates.
 
 ## Testing
 

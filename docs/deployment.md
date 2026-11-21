@@ -3,99 +3,126 @@
 The system can run in two ways:
 
 - **Locally**, as four processes on one machine (see the README).
-- **On a Hugging Face Docker Space**, as one container that runs all four parts. This
-  gives a public HTTPS link for demonstrations at no cost.
+- **On a server**, as Docker containers behind HTTPS. This guide uses an Azure
+  virtual machine paid for by the Azure for Students credit, but the same files
+  work on any Ubuntu server with a public IP address.
 
-## How the Space container works
+## How the server deployment works
 
-A Space runs one container with one public port, so `deploy/Dockerfile` puts the
-whole system in a single image and `deploy/start.sh` starts it:
+`deploy/compose.yaml` runs two containers:
 
-| Part | Port | Reachable from outside |
+| Container | What runs in it | Reachable from the internet |
 |---|---|---|
-| PostgreSQL | 5432 | No (bound to 127.0.0.1) |
-| Action server | 5055 | No (Spaces expose only the app port) |
-| Rasa server | 5005 | No (bound to 127.0.0.1) |
-| FastAPI gateway and portal | 7860 | Yes, over HTTPS |
+| `app` | PostgreSQL, the action server, the Rasa server and the FastAPI gateway with the portal (`deploy/Dockerfile`, started by `deploy/start.sh`) | No, only through Caddy |
+| `caddy` | Caddy web server: gets and renews a free HTTPS certificate and forwards requests to `app` | Ports 80 and 443 |
 
-On every start the database is rebuilt from `database/seed.sql`, so each restart
-gives fresh demo data. If any of the servers stops, the container stops and the
-Space restarts it.
+The database is stored in a Docker volume, so bookings and accounts survive
+restarts and redeployments. The demo data is loaded when the database is first
+created. If any server inside `app` stops, the container stops and Docker restarts it.
 
-Free Spaces have 2 CPU cores and 16 GB of memory, enough for the BERT model.
-They sleep after about 48 hours without visitors; the first visit after that
-takes a few minutes while the container starts.
+## Cost
 
-## First deployment
+Azure for Students gives $100 of credit for 12 months, without a credit card.
+A B2s virtual machine (2 vCPUs, 4 GB of memory) costs roughly $30 a month,
+plus a few dollars for the disk and public IP address.
 
-1. **Create the Space.** Sign in at huggingface.co, choose *New Space*, pick the
-   **Docker** SDK with the *Blank* template and the free *CPU basic* hardware.
-   A public Space can be opened by anyone with the link; a private one only by
-   signed-in members of your account.
-2. **Add the secrets** under *Settings → Variables and secrets* (see the table below).
-   At least `DEMO_ADMIN_PASSWORD` is required, or the container refuses to start.
-3. **Create an access token** with *write* permission under
-   *Settings → Access Tokens* on Hugging Face.
-4. **Publish.** From the project root, with the trained model in `models/final.tar.gz`:
+- **Stop the VM** (*Stop* in the portal, which deallocates it) when you are not
+  demonstrating. Compute is then not charged; the disk and IP address still are.
+- Set **auto-shutdown** on the VM so it stops each night if you forget.
+- When the credit runs out, the subscription is disabled and the site goes offline.
+
+## 1. Create the virtual machine (once)
+
+1. Activate Azure for Students at azure.microsoft.com/free/students with your
+   university email address.
+2. Create an SSH key on your PC (press Enter twice to skip the passphrase, or set one):
 
    ```powershell
-   .\deploy\push_space.ps1 -Space your-hf-username/airline-assistant
+   ssh-keygen -t ed25519 -f $HOME\.ssh\azure_airline
    ```
 
-   When Git asks, enter your Hugging Face username and the token as the password.
-   The script publishes the last commit only, so commit your changes first.
-5. **Watch the build** on the Space's *Logs* tab. The first build takes roughly
-   15 to 25 minutes, mostly installing Rasa and TensorFlow.
-6. **Open the app at its own address**, `https://<username>-<space-name>.hf.space`.
-   Inside the Hugging Face page the app runs in a frame, and browsers do not keep
-   the sign-in cookie there.
+3. In the Azure portal choose **Create a resource → Virtual machine**:
+   - **Image:** Ubuntu Server 24.04 LTS (x64)
+   - **Size:** Standard_B2s (if it is not offered in your region, try another region)
+   - **Authentication:** SSH public key, username `azureuser`, *Use existing public key*,
+     and paste the contents of `$HOME\.ssh\azure_airline.pub`
+   - **Inbound ports:** SSH (22), HTTP (80) and HTTPS (443)
+   - **Disk:** Standard SSD, 30 GB is enough
+4. When it is created, open the VM's **public IP address** resource, choose
+   **Configuration**, set a **DNS name label** such as `airline-demo` and save.
+   The VM is now reachable as `airline-demo.<region>.cloudapp.azure.com`.
+5. Recommended: under the VM's **Networking**, limit the SSH rule's source to your
+   own IP address, and under **Auto-shutdown** set a nightly stop time.
 
-To update the Space later, commit and run step 4 again.
+## 2. Fill in the server settings (once)
 
-## Secrets and variables
+Copy `deploy\env.production.example` to `.env.production` in the project root and
+fill it in. Git ignores this file, so the secrets are never committed.
 
-| Name | Required | Value |
+| Setting | Required | Value |
 |---|---|---|
-| `DEMO_ADMIN_PASSWORD` | Yes | Password for the staff account. Never use the default from `init_db.py` on a public site. |
-| `DEMO_PASSWORD` | Recommended | Password for the sample passenger accounts. |
-| `ALLOWED_ORIGINS` | Yes | `https://<username>-<space-name>.hf.space` |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | For email | Email relay settings (see below). |
-| `SMTP_STARTTLS` | No | `true` (default) for ports 587 and 2525. |
-| `EMAIL_REDIRECT_TO` | Recommended | Sends every email to one inbox, so sample accounts are never mailed. |
-| `SMTP_CHECK_PORTS` | No | Extra ports to test at start-up (default `587,2525`). |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google sign-in | From Google Cloud Console. |
-| `GOOGLE_REDIRECT_URI` | For Google sign-in | `https://<username>-<space-name>.hf.space/api/auth/google/callback`. Also add it to the OAuth client's authorised redirect URIs. |
+| `SITE_ADDRESS` | Yes | The VM's DNS name, for example `airline-demo.southafricanorth.cloudapp.azure.com` |
+| `ALLOWED_ORIGINS` | Yes | `https://` followed by the same name |
+| `DEMO_ADMIN_PASSWORD` | Yes | Staff account password. The system refuses to start without it, because the default is in the public code. |
+| `DEMO_PASSWORD` | Recommended | Password for the sample passenger accounts |
+| `RESET_DEMO_DATA` | No | `true` reloads the demo data on every start |
+| `SMTP_*`, `EMAIL_REDIRECT_TO` | For email | The same Gmail settings as your local `.env`. Azure blocks only port 25, so Gmail on port 587 works. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google sign-in | The same values as your local `.env` |
+| `GOOGLE_REDIRECT_URI` | For Google sign-in | `https://<DNS name>/api/auth/google/callback`. Add it to the OAuth client's authorised redirect URIs in Google Cloud Console. |
 
-The start script sets the database and Rasa addresses itself, and turns on secure
-cookies, so these do not need secrets.
+The database and Rasa addresses are set inside the container, so they are not needed here.
 
-## Email on a Space
+## 3. Publish
 
-Hugging Face Spaces block some outgoing email ports, including Gmail's port 587.
-The email code sends through any SMTP server, so the fix is a relay that listens
-on port 2525, such as SMTP2GO or Brevo:
+From the project root, with the trained model in `models\final.tar.gz` and your changes committed:
 
-1. Create an account with the relay and verify the sender address you will send from.
-2. Set `SMTP_HOST`, `SMTP_PORT=2525`, `SMTP_USER`, `SMTP_PASSWORD` and `SMTP_FROM`
-   from the relay's SMTP settings.
-3. Restart the Space and look for lines like these near the top of the logs:
+```powershell
+.\deploy\push_server.ps1 -Server azureuser@airline-demo.<region>.cloudapp.azure.com
+```
 
-   ```
-   Email check: mail.example.com:587 BLOCKED or unreachable
-   Email check: mail.example.com:2525 (configured) reachable
-   ```
+The script uploads the last commit, the model and `.env.production`, installs
+Docker and a swap file on the first run, then builds and starts the containers.
+The first build takes 15 to 25 minutes; later ones reuse the installed packages.
 
-4. Make a booking in the chat and check the `EMAIL_REDIRECT_TO` inbox, including
-   the spam folder: email from a Gmail address sent through a relay is often
-   marked as spam.
+Follow the start-up with:
 
-If port 2525 is also blocked, the alternative is the relay's HTTPS API, which
-needs a small change to `actions/notify.py`.
+```powershell
+ssh -i $HOME\.ssh\azure_airline azureuser@<DNS name> sudo docker compose -f airline-assistant/deploy/compose.yaml logs -f app
+```
 
-## Limitations of the Space deployment
+Near the top, the email check shows whether the email server can be reached:
 
-- Data does not persist: bookings and accounts reset when the Space restarts or sleeps.
-- One container on 2 CPU cores: replies slow down under concurrent use, as in the
-  load test (Section 5.6.4 of the report).
-- It is a demonstration, not a production deployment: no monitoring, backups or
-  second Rasa instance.
+```
+Email check: smtp.gmail.com:587 (configured) reachable
+```
+
+The site is ready when Uvicorn reports that it is running and `https://<DNS name>/api/health`
+shows `"status": "ok"`. The language model takes a minute or two to load after the
+container starts.
+
+To update the server later, commit your changes and run the same command again.
+`-DryRun` prepares the upload without sending it.
+
+## Everyday tasks
+
+Run these over SSH (`ssh -i $HOME\.ssh\azure_airline azureuser@<DNS name>`), in `~/airline-assistant`:
+
+| Task | Command |
+|---|---|
+| Reset the demo data | `sudo docker compose -f deploy/compose.yaml exec app python database/init_db.py` |
+| Restart the system | `sudo docker compose -f deploy/compose.yaml restart` |
+| See the logs | `sudo docker compose -f deploy/compose.yaml logs --tail 100 app` |
+| Stop the system | `sudo docker compose -f deploy/compose.yaml down` (the data volume is kept) |
+
+The sample flights are dated relative to the day the data was loaded, so reset
+the demo data shortly before a demonstration.
+
+## Limitations of this deployment
+
+- One VM with 2 burstable CPU cores: after a few minutes of heavy use Azure
+  throttles the CPU, and replies slow down further than in the load test
+  (Section 5.6.4 of the report).
+- No monitoring, backups or second Rasa instance, so it suits demonstrations,
+  not production use.
+- Email is sent from a personal Gmail account, and Google sign-in stays in
+  Google's testing mode, which allows only listed test users.
