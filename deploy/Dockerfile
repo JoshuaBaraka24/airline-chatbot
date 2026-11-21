@@ -1,14 +1,12 @@
-# Single-container image for a Hugging Face Docker Space.
-# Runs PostgreSQL, the action server, the Rasa server and the FastAPI gateway
-# together, because a Space runs one container with one public port (7860).
-# deploy/push_space.ps1 copies this file to the root of the Space repository.
+# One image that runs the whole system: PostgreSQL, the action server,
+# the Rasa server and the FastAPI gateway (see deploy/start.sh).
+# deploy/compose.yaml builds it and puts Caddy in front for HTTPS.
 FROM python:3.10-slim
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends postgresql build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Spaces run the container as user 1000
 RUN useradd -m -u 1000 user
 USER user
 ENV HOME=/home/user \
@@ -26,7 +24,7 @@ RUN python -c "from transformers import BertTokenizer, TFBertModel; \
 BertTokenizer.from_pretrained('bert-base-uncased'); TFBertModel.from_pretrained('bert-base-uncased')"
 
 COPY --chown=user . .
-RUN chmod +x deploy/start.sh
+RUN chmod +x deploy/start.sh && mkdir -p /home/user/pgdata
 
 EXPOSE 7860
 CMD ["deploy/start.sh"]

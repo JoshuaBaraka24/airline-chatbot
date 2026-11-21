@@ -1,0 +1,13 @@
+# Keep secrets and local-only files out of the image
+.env
+.env.*
+!.env.example
+.git
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+.rasa/
+results/
+tests/e2e/node_modules/
+tests/e2e/screenshots/

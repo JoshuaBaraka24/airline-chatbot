@@ -1,6 +1,6 @@
 """Logs whether this host can open a connection to the SMTP server.
 
-Some hosts, such as Hugging Face Spaces, block outgoing email ports. Running
+Some hosts block outgoing email ports (Azure blocks port 25). Running
 this at start-up shows in the logs which ports are open, so a blocked port is
 not mistaken for a bug in the email code.
 
