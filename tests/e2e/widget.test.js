@@ -105,6 +105,14 @@ async function axe(page, label) {
   await send(page, "I want to cancel my booking");
   await send(page, "BK001");
   bot = await lastBotTexts(page, 1);
+  check("guest is asked for the booking's email before seeing anything",
+    /what email address/i.test(bot[0]) && !/John|KQ101|Mombasa/.test(bot[0]), bot[0].slice(0, 80));
+  await send(page, "someone.else@email.com");
+  bot = await lastBotTexts(page, 2);
+  check("wrong email shows nothing about the booking",
+    /couldn't find booking BK001/.test(bot.join(" ")) && !/John|KQ101|Mombasa/.test(bot.join(" ")), bot.join(" | ").slice(0, 120));
+  await send(page, "john@email.com");
+  bot = await lastBotTexts(page, 1);
   check("confirmation shows booking details", /BK001.*John Mwangi/s.test(bot[0]), bot[0].slice(0, 80));
   check("No button cancels nothing", await clickChip(page, "No"));
   bot = await lastBotTexts(page, 1);
@@ -131,8 +139,11 @@ async function axe(page, label) {
   // Outage: API returns 503, then recovers via Try again
   await page.setRequestInterception(true);
   let fail = true;
+  let limited = false;
   const intercept = (req) => {
     if (fail && req.url().endsWith("/api/chat")) req.respond({ status: 503, contentType: "application/json", body: "{}" });
+    else if (limited && req.url().endsWith("/api/chat"))
+      req.respond({ status: 429, headers: { "Retry-After": "30" }, contentType: "application/json", body: "{}" });
     else req.continue();
   };
   page.on("request", intercept);
@@ -145,6 +156,12 @@ async function axe(page, label) {
   await page.waitForFunction((c) => document.querySelectorAll(".msg--bot").length > c, { timeout: 30000 }, before);
   bot = await lastBotTexts(page, 1);
   check("retry succeeds", /baggage allowance/i.test(bot[0]), bot[0].slice(0, 60));
+  limited = true;
+  await send(page, "hello");
+  const errors = await page.$$eval(".msg--error", (e) => e.map((m) => m.textContent));
+  check("sending too fast says how long to wait", /wait 30 seconds/.test(errors[errors.length - 1]), errors.join(" | ").slice(0, 120));
+  check("and the assistant still shows as online", (await page.$eval("#chat-status-text", (e) => e.textContent)) === "Online");
+  limited = false;
   page.off("request", intercept);
   await page.setRequestInterception(false);
 

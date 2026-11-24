@@ -96,6 +96,15 @@ are in `.env` (see `.env.example`). A first sign-in creates a passenger account,
 account made by a chat booking with that email. An account with a password, including every staff
 account, is never linked, because registering does not prove that someone owns the email.
 
+**Who can use a booking:** a logged-in passenger can use only the bookings on their own account. A guest
+must also give the email address the booking was made with, and sees nothing about it before that. The
+check is repeated at every step that shows or changes a booking. Five wrong emails for a booking, or in a
+conversation, mean a 15-minute wait. The replies never show whether a reference exists.
+
+**Message limits:** 20 messages a minute in a conversation, and 60 a minute or 600 an hour from one network
+address (everyone on the same Wi-Fi usually shares one). The `CHAT_PER_...` settings change them; 0 switches
+a limit off, which the load test needs.
+
 **Confirmation emails:** booking, changing or cancelling sends an email to the account holder when
 `SMTP_HOST` and the other `SMTP_*` settings in `.env` are filled in; restart the action server after
 changing them. The assistant says an email was sent only if the mail server accepted it. The sample
@@ -146,6 +155,8 @@ Example conversation:
 You: I want to change my flight
 Bot: Please provide your booking reference (e.g. BK001).
 You: BK002
+Bot: To check that this booking is yours, what email address was it made with?
+You: amina@email.com
 Bot: What date would you like to move your flight to? (e.g. 25 October)
 You: tomorrow
 Bot: There's no available KQ202 flight on Thu 15 Oct 2026. It operates on: Fri 23 Oct 2026. Which date would you like?

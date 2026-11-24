@@ -8,13 +8,19 @@ from rasa_sdk.events import EventType, FollowupAction, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
 from actions import notify, repository as repo
-from actions.forms import ONLINE_CHECK_IN_CLOSES, ONLINE_CHECK_IN_OPENS, logged_in_user, online_check_in
+from actions.forms import (
+    ONLINE_CHECK_IN_CLOSES,
+    ONLINE_CHECK_IN_OPENS,
+    logged_in_user,
+    online_check_in,
+    permitted_booking,
+)
 from actions.parsing import format_datetime
 
 logger = logging.getLogger(__name__)
 
 TASK_SLOTS = [
-    "flight_number", "booking_reference", "travel_date", "origin", "destination",
+    "flight_number", "booking_reference", "booking_email", "travel_date", "origin", "destination",
     "confirm_cancel", "confirm_change", "new_flight_id",
     "selected_flight_id", "passenger_name", "passenger_email", "confirm_booking", "confirm_check_in",
 ]
@@ -24,6 +30,8 @@ FALLBACKS_BEFORE_ESCALATION = 2
 IGNORED_ACTIONS = {"action_listen", "action_extract_slots", "action_session_start"}
 
 DB_ERROR = "Sorry, I can't reach our booking system right now. Please try again in a moment or type 'agent'."
+NOT_THEIRS = ("Sorry, I couldn't confirm that this booking is yours, so I haven't done anything. "
+              "Please start again, or type 'agent'.")
 STATUS_TEXT = {
     "on_time": "On time",
     "delayed": "Delayed",
@@ -90,10 +98,13 @@ class ActionCheckInStatus(Action):
             domain: Dict[Text, Any]) -> List[EventType]:
         booking_ref = tracker.get_slot("booking_reference")
         try:
-            booking = repo.get_booking(booking_ref)
+            booking = permitted_booking(tracker)
         except Exception:
             logger.exception("Check-in status lookup failed for %s", booking_ref)
             dispatcher.utter_message(text=DB_ERROR)
+            return reset_task_slots()
+        if not booking:
+            dispatcher.utter_message(text=NOT_THEIRS)
             return reset_task_slots()
 
         ref = booking["booking_ref"]
@@ -155,6 +166,9 @@ class ActionCancelBooking(Action):
             dispatcher.utter_message(text=f"No problem, booking {booking_ref} has not been cancelled.")
             return reset_task_slots()
         try:
+            if not permitted_booking(tracker):
+                dispatcher.utter_message(text=NOT_THEIRS)
+                return reset_task_slots()
             cancelled = repo.cancel_booking(booking_ref)
         except Exception:
             logger.exception("Cancellation failed for %s", booking_ref)
@@ -182,6 +196,9 @@ class ActionChangeBooking(Action):
             dispatcher.utter_message(text=f"Okay, I've left booking {booking_ref} unchanged.")
             return reset_task_slots()
         try:
+            if not permitted_booking(tracker):
+                dispatcher.utter_message(text=NOT_THEIRS)
+                return reset_task_slots()
             changed = repo.change_booking_flight(booking_ref, int(tracker.get_slot("new_flight_id")))
             booking = repo.get_booking(booking_ref) if changed else None
         except Exception:

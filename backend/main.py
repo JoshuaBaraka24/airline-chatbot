@@ -24,8 +24,9 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, validator
 
-from backend import api_admin, api_auth, api_portal, auth, conversation_log, rasa_client
+from backend import api_admin, api_auth, api_portal, auth, config, conversation_log, rasa_client
 from backend.config import ALLOWED_ORIGINS, FRONTEND_DIR, MAX_MESSAGE_LENGTH
+from backend.throttle import Throttle
 
 logger = logging.getLogger("backend")
 
@@ -64,6 +65,28 @@ async def security_headers(request: Request, call_next):
     return response
 
 
+conversation_limit = Throttle(config.CHAT_PER_CONVERSATION_MINUTE, 60)
+address_minute_limit = Throttle(config.CHAT_PER_ADDRESS_MINUTE, 60)
+address_hour_limit = Throttle(config.CHAT_PER_ADDRESS_HOUR, 3600)
+
+
+def check_chat_limits(sender_id: str, address: str) -> None:
+    """Count this message, or refuse it with 429 if the conversation or address sent too many.
+
+    Refused messages are not counted, so waiting is always enough to continue.
+    """
+    limits = ((conversation_limit, sender_id), (address_minute_limit, address), (address_hour_limit, address))
+    wait = max(limit.retry_after(key) for limit, key in limits)
+    if wait:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many messages. Please wait before sending another.",
+            headers={"Retry-After": str(wait)},
+        )
+    for limit, key in limits:
+        limit.record(key)
+
+
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=MAX_MESSAGE_LENGTH)
     # Session token issued by this API on the first message; omit it to start a new conversation.
@@ -94,9 +117,10 @@ class ChatResponse(BaseModel):
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(request: ChatRequest, user: Optional[dict] = Depends(auth.optional_user)) -> ChatResponse:
+def chat(request: ChatRequest, http: Request, user: Optional[dict] = Depends(auth.optional_user)) -> ChatResponse:
     started = time.perf_counter()
     sender_id = request.sender_id or str(uuid.uuid4())
+    check_chat_limits(sender_id, http.client.host if http.client else "unknown")
 
     try:
         # Tell the assistant who is logged in so it can offer the passenger's own bookings

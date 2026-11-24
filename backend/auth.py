@@ -1,8 +1,6 @@
 """Accounts, login sessions and role checks for the web portal (FR-06, NFR-06)."""
-import time
-from collections import defaultdict, deque
 from datetime import datetime, timedelta
-from typing import Deque, Dict, Optional
+from typing import Optional
 
 import psycopg2
 from fastapi import Cookie, HTTPException, status
@@ -10,6 +8,7 @@ from fastapi import Cookie, HTTPException, status
 from backend.config import SESSION_COOKIE, SESSION_HOURS
 from backend.db import get_cursor
 from backend.security import hash_password, hash_token, new_session_token, verify_password
+from backend.throttle import Throttle
 
 _USER_FIELDS = "user_id, name, email, role"
 
@@ -112,32 +111,8 @@ def delete_session(token: str) -> None:
 # ---------- login throttling ----------
 
 
-class LoginThrottle:
-    """Blocks an email after too many failed attempts in a time window (in memory)."""
-
-    def __init__(self, max_failures: int = 5, window_seconds: int = 900):
-        self.max_failures = max_failures
-        self.window = window_seconds
-        self._failures: Dict[str, Deque[float]] = defaultdict(deque)
-
-    def _recent(self, key: str) -> Deque[float]:
-        attempts = self._failures[key]
-        cutoff = time.monotonic() - self.window
-        while attempts and attempts[0] < cutoff:
-            attempts.popleft()
-        return attempts
-
-    def is_blocked(self, key: str) -> bool:
-        return len(self._recent(key)) >= self.max_failures
-
-    def record_failure(self, key: str) -> None:
-        self._recent(key).append(time.monotonic())
-
-    def reset(self, key: str) -> None:
-        self._failures.pop(key, None)
-
-
-login_throttle = LoginThrottle()
+# Blocks an email after five failed attempts in 15 minutes
+login_throttle = Throttle(max_events=5, window_seconds=900)
 
 # ---------- FastAPI dependencies ----------
 

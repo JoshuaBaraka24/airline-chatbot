@@ -60,6 +60,12 @@ stories:
     intent: inform
   - action: cancel_booking_form
   - slot_was_set:
+    - requested_slot: booking_email
+  - user: |
+      john@email.com
+    intent: inform
+  - action: cancel_booking_form
+  - slot_was_set:
     - requested_slot: confirm_cancel
   - user: |
       yes
@@ -158,6 +164,12 @@ stories:
   - slot_was_set:
     - booking_reference: BK003
   - slot_was_set:
+    - requested_slot: booking_email
+  - user: |
+      it's peter@email.com
+    intent: inform
+  - action: check_in_status_form
+  - slot_was_set:
     - requested_slot: confirm_check_in
   - user: |
       yes please
@@ -182,3 +194,27 @@ stories:
       bye
     intent: goodbye
   - action: utter_goodbye
+
+- story: logged-in passenger cancels without giving an email
+  steps:
+  - user: |
+      please cancel my booking
+    intent: cancel_booking
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - user: |
+      [BK001](booking_reference)
+    intent: inform
+  - action: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_cancel
+  - user: |
+      no
+    intent: deny
+  - action: cancel_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_cancel_booking

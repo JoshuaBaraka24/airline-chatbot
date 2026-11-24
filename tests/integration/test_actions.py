@@ -177,7 +177,7 @@ def test_logged_in_booking_emails_the_account_holder(db, monkeypatch):
 def test_cancelling_emails_the_owner_without_showing_their_address(db, monkeypatch):
     sent = outbox(monkeypatch)
     dispatcher = CollectingDispatcher()
-    slots = {"booking_reference": "BK002", "confirm_cancel": True}
+    slots = {"booking_reference": "BK002", "booking_email": "amina@email.com", "confirm_cancel": True}
 
     ActionCancelBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
 
@@ -190,7 +190,8 @@ def test_changing_emails_the_owner(db, monkeypatch):
     sent = outbox(monkeypatch)
     new_flight = repo.next_flights_on_route("Nairobi", "Dubai")[-1]["flight_id"]
     dispatcher = CollectingDispatcher()
-    slots = {"booking_reference": "BK002", "confirm_change": True, "new_flight_id": str(new_flight)}
+    slots = {"booking_reference": "BK002", "booking_email": "amina@email.com", "confirm_change": True,
+             "new_flight_id": str(new_flight)}
 
     ActionChangeBooking().run(dispatcher, booking_tracker(slots, intent="affirm"), {})
 
@@ -210,16 +211,20 @@ def test_a_failed_email_keeps_the_booking_and_says_so(db, monkeypatch):
     assert repo.get_booking("BK007")["status"] == "confirmed"
 
 
+OWNERS = {"BK001": "john@email.com", "BK003": "peter@email.com", "BK004": "grace@email.com", "BK006": "mary@email.com"}
+
+
 def check_in_reply(ref, confirm=None):
     dispatcher = CollectingDispatcher()
-    ActionCheckInStatus().run(dispatcher, booking_tracker({"booking_reference": ref, "confirm_check_in": confirm}), {})
+    slots = {"booking_reference": ref, "booking_email": OWNERS[ref], "confirm_check_in": confirm}
+    ActionCheckInStatus().run(dispatcher, booking_tracker(slots), {})
     return dispatcher.messages[0]
 
 
 def check_in_questions(ref):
-    tracker = booking_tracker({"booking_reference": ref})
+    tracker = booking_tracker({"booking_reference": ref, "booking_email": OWNERS[ref]})
     return asyncio.run(ValidateCheckInStatusForm().required_slots(
-        ["booking_reference", "confirm_check_in"], CollectingDispatcher(), tracker, {}))
+        ["booking_reference", "booking_email", "confirm_check_in"], CollectingDispatcher(), tracker, {}))
 
 
 def test_before_check_in_opens_it_says_when_and_links_to_our_guide(db):
@@ -231,15 +236,17 @@ def test_before_check_in_opens_it_says_when_and_links_to_our_guide(db):
 
 
 def test_check_in_is_offered_only_while_it_is_open(db):
-    assert check_in_questions("BK003") == ["booking_reference", "confirm_check_in"]  # departs tomorrow
-    assert check_in_questions("BK001") == ["booking_reference"]  # not open yet
-    assert check_in_questions("BK004") == ["booking_reference"]  # already checked in
-    assert check_in_questions("BK006") == ["booking_reference"]  # cancelled
+    known = ["booking_reference", "booking_email"]
+    assert check_in_questions("BK003") == known + ["confirm_check_in"]  # departs tomorrow
+    assert check_in_questions("BK001") == known  # not open yet
+    assert check_in_questions("BK004") == known  # already checked in
+    assert check_in_questions("BK006") == known  # cancelled
 
 
 def test_the_offer_shows_the_booking(db):
     dispatcher = CollectingDispatcher()
-    ActionAskConfirmCheckIn().run(dispatcher, booking_tracker({"booking_reference": "BK003"}), {})
+    tracker = booking_tracker({"booking_reference": "BK003", "booking_email": "peter@email.com"})
+    ActionAskConfirmCheckIn().run(dispatcher, tracker, {})
 
     message = dispatcher.messages[0]
     assert message["text"].startswith("Online check-in is open for booking BK003: KQ305 Nairobi to London")

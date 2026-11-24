@@ -267,6 +267,13 @@
         renderError("Sorry, that message couldn't be sent. Please keep it under 500 characters.", false);
         return;
       }
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get("Retry-After")) || 60;
+        const wait = seconds < 60 ? `${seconds} second${seconds === 1 ? "" : "s"}` : `about ${Math.ceil(seconds / 60)} min`;
+        lastFailedMessage = { payload, display };
+        renderError(`You're sending messages very quickly. Please wait ${wait} and try again.`, true);
+        return;
+      }
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data = await response.json();

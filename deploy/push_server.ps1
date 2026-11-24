@@ -7,13 +7,14 @@ and (re)starts the system there with Docker Compose.
 .\deploy\push_server.ps1 -Server azureuser@your-label.your-region.cloudapp.azure.com
 
 Builds a clean copy from the last commit (uncommitted changes are not included),
-adds models/final.tar.gz, uploads it over SSH, installs Docker on the first run,
+adds the newest trained model, uploads it over SSH, installs Docker on the first run,
 and starts the containers. The first build on the server takes 15 to 25 minutes.
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Server,
     [string]$Key = (Join-Path $HOME ".ssh\azure_airline"),
-    [string]$Model = "models\final.tar.gz",
+    # The newest model in models\ unless another is named
+    [string]$Model,
     [string]$EnvFile = ".env.production",
     # Prepare the upload but do not send it
     [switch]$DryRun
@@ -22,7 +23,9 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
-if (-not (Test-Path $Model)) { throw "Trained model not found: $Model. Train it with 'rasa train' first." }
+if (-not $Model) { $Model = Get-ChildItem models -Filter *.tar.gz | Sort-Object LastWriteTime | Select-Object -Last 1 -ExpandProperty FullName }
+if (-not $Model -or -not (Test-Path $Model)) { throw "Trained model not found: $Model. Train it with 'rasa train' first." }
+Write-Host "Model: $Model"
 if (-not (Test-Path $EnvFile)) { throw "$EnvFile not found. Copy deploy\env.production.example to $EnvFile and fill it in." }
 if (-not (Test-Path $Key)) { throw "SSH key not found: $Key (see docs/deployment.md)." }
 if (git status --porcelain) { Write-Warning "You have uncommitted changes; only the last commit is published." }

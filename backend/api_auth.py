@@ -82,7 +82,7 @@ def login(credentials: Credentials, response: Response) -> dict:
         )
     user = auth.authenticate(credentials.email, credentials.password)
     if not user:
-        auth.login_throttle.record_failure(key)
+        auth.login_throttle.record(key)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password.")
     auth.login_throttle.reset(key)
     _start_session(response, user)

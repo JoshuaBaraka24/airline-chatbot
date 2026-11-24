@@ -52,6 +52,10 @@ stories:
     - booking_reference: "BK001"
   - action: change_booking_form
   - slot_was_set:
+    - requested_slot: booking_email
+  - intent: inform
+  - action: change_booking_form
+  - slot_was_set:
     - requested_slot: travel_date
   - intent: inform
     entities:
@@ -75,6 +79,10 @@ stories:
     - booking_reference: "BK003"
   - action: cancel_booking_form
   - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_email
+  - intent: inform
+  - action: cancel_booking_form
   - slot_was_set:
     - requested_slot: confirm_cancel
   - intent: deny
@@ -153,6 +161,10 @@ stories:
   - slot_was_set:
     - booking_reference: "BK003"
   - slot_was_set:
+    - requested_slot: booking_email
+  - intent: inform
+  - action: check_in_status_form
+  - slot_was_set:
     - requested_slot: confirm_check_in
   - intent: affirm
   - action: check_in_status_form
@@ -176,3 +188,24 @@ stories:
   - action: action_stop_task
   - intent: thank_you
   - action: utter_you_are_welcome
+
+# Logged-in passengers are not asked for an email
+- story: logged-in passenger cancels a booking
+  steps:
+  - intent: cancel_booking
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_reference
+  - intent: inform
+    entities:
+    - booking_reference: "BK001"
+  - action: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: confirm_cancel
+  - intent: affirm
+  - action: cancel_booking_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_cancel_booking

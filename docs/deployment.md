@@ -67,6 +67,7 @@ fill it in. Git ignores this file, so the secrets are never committed.
 | `DEMO_ADMIN_PASSWORD` | Yes | Staff account password. The system refuses to start without it, because the default is in the public code. |
 | `DEMO_PASSWORD` | Yes | Password for the sample passenger accounts, required for the same reason. Avoid `$`, `#`, quotes and spaces in both, because Compose gives them special meaning in this file. |
 | `RESET_DEMO_DATA` | No | `true` reloads the demo data on every start |
+| `CHAT_PER_...` | No | Chat message limits: 20 a minute per conversation, 60 a minute and 600 an hour per network address. Raise the last two if a large audience shares one Wi-Fi network; 0 switches a limit off. |
 | `SMTP_*`, `EMAIL_REDIRECT_TO` | For email | The same Gmail settings as your local `.env`. Azure blocks only port 25, so Gmail on port 587 works. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google sign-in | The same values as your local `.env` |
 | `GOOGLE_REDIRECT_URI` | For Google sign-in | `https://<DNS name>/api/auth/google/callback`. Add it to the OAuth client's authorised redirect URIs in Google Cloud Console. |
@@ -75,7 +76,7 @@ The database and Rasa addresses are set inside the container, so they are not ne
 
 ## 3. Publish
 
-From the project root, with the trained model in `models\final.tar.gz` and your changes committed:
+From the project root, with your changes committed (the newest model in `models` is used):
 
 ```powershell
 .\deploy\push_server.ps1 -Server azureuser@airline-demo.<region>.cloudapp.azure.com

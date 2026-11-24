@@ -115,6 +115,17 @@ rules:
     - requested_slot: null
   - action: action_check_in_status
 
+# An email address can fall below the NLU confidence threshold; the form checks it itself
+- rule: let the check-in status form handle a low-confidence email
+  condition:
+  - active_loop: check_in_status_form
+  - slot_was_set:
+    - requested_slot: booking_email
+  steps:
+  - intent: nlu_fallback
+  - action: check_in_status_form
+  - active_loop: check_in_status_form
+
 - rule: stop check-in status form on request
   condition:
   - active_loop: check_in_status_form
@@ -155,6 +166,17 @@ rules:
     - requested_slot: null
   - action: action_cancel_booking
 
+# An email address can fall below the NLU confidence threshold; the form checks it itself
+- rule: let the cancel booking form handle a low-confidence email
+  condition:
+  - active_loop: cancel_booking_form
+  - slot_was_set:
+    - requested_slot: booking_email
+  steps:
+  - intent: nlu_fallback
+  - action: cancel_booking_form
+  - active_loop: cancel_booking_form
+
 - rule: stop cancel booking form on request
   condition:
   - active_loop: cancel_booking_form
@@ -194,6 +216,17 @@ rules:
   - slot_was_set:
     - requested_slot: null
   - action: action_change_booking
+
+# An email address can fall below the NLU confidence threshold; the form checks it itself
+- rule: let the change booking form handle a low-confidence email
+  condition:
+  - active_loop: change_booking_form
+  - slot_was_set:
+    - requested_slot: booking_email
+  steps:
+  - intent: nlu_fallback
+  - action: change_booking_form
+  - active_loop: change_booking_form
 
 - rule: stop change booking form on request
   condition:
