@@ -5,6 +5,9 @@ read-only conversation (greeting, flight status, baggage, check-in, capabilities
 so the test never changes bookings. Response times are measured by the client,
 end to end through the gateway, Rasa, the action server and PostgreSQL.
 
+Every simulated passenger has the same network address, so start the gateway with its chat limits
+off: CHAT_PER_CONVERSATION_MINUTE=0 CHAT_PER_ADDRESS_MINUTE=0 CHAT_PER_ADDRESS_HOUR=0
+
 Usage (against a running stack; use a separate test stack, not the demo one):
     python tests/load/run_load.py --url http://127.0.0.1:8001 --levels 1,10,25,50
 """

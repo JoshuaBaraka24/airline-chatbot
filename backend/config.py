@@ -15,6 +15,12 @@ ALLOWED_ORIGINS = [
 ]
 MAX_MESSAGE_LENGTH = 500
 
+# Chat limits (0 switches one off). The limits per network address are higher because
+# everyone on one Wi-Fi network usually shares an address.
+CHAT_PER_CONVERSATION_MINUTE = int(os.getenv("CHAT_PER_CONVERSATION_MINUTE") or 20)
+CHAT_PER_ADDRESS_MINUTE = int(os.getenv("CHAT_PER_ADDRESS_MINUTE") or 60)
+CHAT_PER_ADDRESS_HOUR = int(os.getenv("CHAT_PER_ADDRESS_HOUR") or 600)
+
 # Web portal login sessions
 SESSION_COOKIE = "kq_session"
 SESSION_HOURS = int(os.getenv("SESSION_HOURS", "8"))
