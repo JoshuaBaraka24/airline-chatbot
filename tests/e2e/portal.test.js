@@ -22,6 +22,25 @@ async function logout(page) {
   await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.click("#logout-btn")]);
 }
 
+// Pages wider than the phone screen, and whether the menu button is off screen, at common phone widths
+async function phoneProblems(page, pages) {
+  const problems = [];
+  for (const width of [320, 360, 390, 430]) {
+    await page.setViewport({ width, height: 800, isMobile: true });
+    for (const name of pages) {
+      await page.goto(`${BASE}/${name}`, { waitUntil: "networkidle0" });
+      await page.waitForSelector("#menu-toggle");
+      const { wide, menu } = await page.evaluate(() => ({
+        wide: document.documentElement.scrollWidth, menu: document.getElementById("menu-toggle").getBoundingClientRect().right,
+      }));
+      if (wide > width || menu > width) problems.push(`${name} at ${width}: page ${wide}, menu ${Math.round(menu)}`);
+    }
+  }
+  return problems;
+}
+
+const PUBLIC_PAGES = ["index.html", "flight-status.html", "destinations.html", "travel-info.html", "assistant.html", "about.html"];
+
 (async () => {
   const { browser, page, consoleErrors } = await h.launch();
   await page.goto(BASE, { waitUntil: "networkidle0" });
@@ -270,6 +289,28 @@ async function logout(page) {
   check("no horizontal scroll on phones", await page.evaluate(() => document.documentElement.scrollWidth <= 390));
   await h.axe(page, report, "home on phone");
   await h.shot(page, SHOTS, "portal-9-mobile.png");
+
+  let problems = await phoneProblems(page, [...PUBLIC_PAGES, "login.html"]);
+  check("guest pages fit phones from 320 to 430 px wide", problems.length === 0, problems.join("; "));
+  check("Log in stays reachable on the narrowest phones", await (async () => {
+    await page.setViewport({ width: 320, height: 800, isMobile: true });
+    await page.click("#menu-toggle");
+    return page.$eval(".nav__account--guest a", (e) => e.getBoundingClientRect().height >= 44);
+  })());
+
+  for (const [who, email, password, own] of [["passenger", "john@email.com", "Passenger@2026", "account.html"],
+    ["staff", "admin@kq-demo.local", "Admin@2026", "admin.html"]]) {
+    await login(page, email, password);
+    problems = await phoneProblems(page, [...PUBLIC_PAGES, own]);
+    check(`${who} pages fit phones from 320 to 430 px wide`, problems.length === 0, problems.join("; "));
+    await page.setViewport({ width: 360, height: 800, isMobile: true });
+    await page.goto(`${BASE}/${own}`, { waitUntil: "networkidle0" });
+    await page.click("#menu-toggle");
+    await h.axe(page, report, `${who} on phone, menu open`);
+    await page.screenshot({ path: path.join(SHOTS, `portal-10-phone-${who}.png`) });
+    await Promise.all([page.waitForNavigation({ waitUntil: "networkidle0" }), page.click("#menu-logout-btn")]);
+    check(`${who} can log out from the phone menu`, await page.waitForSelector("#login-link"));
+  }
 
   const csp = consoleErrors.filter((e) => /Content Security Policy/i.test(e));
   check("no CSP violations", csp.length === 0, csp.join(" | "));
