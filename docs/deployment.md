@@ -23,8 +23,8 @@ created. If any server inside `app` stops, the container stops and Docker restar
 ## Cost
 
 Azure for Students gives $100 of credit for 12 months, without a credit card.
-A B2s virtual machine (2 vCPUs, 4 GB of memory) costs roughly $30 a month,
-plus a few dollars for the disk and public IP address.
+A B2als_v2 virtual machine (2 vCPUs, 4 GB of memory) in Central India costs about
+$18 a month, plus a few dollars for the disk and public IP address.
 
 - **Stop the VM** (*Stop* in the portal, which deallocates it) when you are not
   demonstrating. Compute is then not charged; the disk and IP address still are.
@@ -43,7 +43,8 @@ plus a few dollars for the disk and public IP address.
 
 3. In the Azure portal choose **Create a resource → Virtual machine**:
    - **Image:** Ubuntu Server 24.04 LTS (x64)
-   - **Size:** Standard_B2s (if it is not offered in your region, try another region)
+   - **Region:** one your subscription allows (the portal lists the others as *Ineligible*)
+   - **Size:** Standard_B2als_v2. Sizes with a "p", such as B2pls_v2, are Arm64 and will not work.
    - **Authentication:** SSH public key, username `azureuser`, *Use existing public key*,
      and paste the contents of `$HOME\.ssh\azure_airline.pub`
    - **Inbound ports:** SSH (22), HTTP (80) and HTTPS (443)
@@ -61,10 +62,10 @@ fill it in. Git ignores this file, so the secrets are never committed.
 
 | Setting | Required | Value |
 |---|---|---|
-| `SITE_ADDRESS` | Yes | The VM's DNS name, for example `airline-demo.southafricanorth.cloudapp.azure.com` |
+| `SITE_ADDRESS` | Yes | The VM's DNS name, for example `airline-chatbot.centralindia.cloudapp.azure.com` |
 | `ALLOWED_ORIGINS` | Yes | `https://` followed by the same name |
 | `DEMO_ADMIN_PASSWORD` | Yes | Staff account password. The system refuses to start without it, because the default is in the public code. |
-| `DEMO_PASSWORD` | Recommended | Password for the sample passenger accounts |
+| `DEMO_PASSWORD` | Yes | Password for the sample passenger accounts, required for the same reason. Avoid `$`, `#`, quotes and spaces in both, because Compose gives them special meaning in this file. |
 | `RESET_DEMO_DATA` | No | `true` reloads the demo data on every start |
 | `SMTP_*`, `EMAIL_REDIRECT_TO` | For email | The same Gmail settings as your local `.env`. Azure blocks only port 25, so Gmail on port 587 works. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | For Google sign-in | The same values as your local `.env` |
@@ -79,6 +80,9 @@ From the project root, with the trained model in `models\final.tar.gz` and your 
 ```powershell
 .\deploy\push_server.ps1 -Server azureuser@airline-demo.<region>.cloudapp.azure.com
 ```
+
+Some Wi-Fi networks block SSH (port 22). If the connection times out, publish from
+another network, such as a phone hotspot.
 
 The script uploads the last commit, the model and `.env.production`, installs
 Docker and a swap file on the first run, then builds and starts the containers.
