@@ -191,6 +191,9 @@ async function logout(page) {
   check("logged-in passenger is greeted by name", /^John, which booking/.test(reply), reply);
   const chips = await page.$$eval(".chip:not([disabled])", (els) => els.map((e) => e.textContent));
   check("their bookings are offered as buttons", chips.length === 1 && chips[0].startsWith("BK001 · KQ101 Nairobi → Mombasa"), chips.join(" | "));
+  reply = await h.sendChat(page, "BK002");
+  const refusal = await page.$$eval(".msg--bot", (els) => els.slice(-2).map((e) => e.textContent).join(" "));
+  check("another passenger's booking is refused", /couldn't find booking BK002 on your account/.test(refusal) && !/Amina|KQ202/.test(refusal), refusal.slice(0, 120));
   reply = await h.clickChip(page, "BK001");
   check("choosing a booking button goes to confirmation", /Are you sure you want to cancel it/.test(reply), reply.slice(0, 80));
   reply = await h.clickChip(page, "Yes");
