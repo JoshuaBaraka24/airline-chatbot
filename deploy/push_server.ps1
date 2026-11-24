@@ -55,7 +55,7 @@ $ssh = @("-i", $Key, "-o", "StrictHostKeyChecking=accept-new", "-o", "ServerAliv
 scp @ssh $bundle "${Server}:/tmp/airline-server.tar.gz"
 $uploaded = $LASTEXITCODE -eq 0
 Remove-Item $bundle -Force
-if (-not $uploaded) { throw "Upload failed. If it timed out, this network may block SSH (port 22); try a phone hotspot." }
+if (-not $uploaded) { throw "Upload failed; see the message above. Run the command again if the connection dropped. If it timed out, this network may block SSH (port 22): try a phone hotspot." }
 
 # Replace the old copy, keep the database volume, rebuild and restart
 $remote = @'

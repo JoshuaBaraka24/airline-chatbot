@@ -28,6 +28,12 @@ services:
       - app
     restart: unless-stopped
 
+# Same packet size as in setup_server.sh; Compose networks do not inherit it
+networks:
+  default:
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"
+
 volumes:
   pgdata:
   caddy_data:

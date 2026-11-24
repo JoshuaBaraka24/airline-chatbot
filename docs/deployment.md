@@ -84,6 +84,9 @@ From the project root, with the trained model in `models\final.tar.gz` and your 
 Some Wi-Fi networks block SSH (port 22). If the connection times out, publish from
 another network, such as a phone hotspot.
 
+If your key has a passphrase, the script asks for it twice: before the upload and
+after it. Enter it within two minutes each time, or the server closes the connection.
+
 The script uploads the last commit, the model and `.env.production`, installs
 Docker and a swap file on the first run, then builds and starts the containers.
 The first build takes 15 to 25 minutes; later ones reuse the installed packages.

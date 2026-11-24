@@ -10,6 +10,14 @@ if ! command -v docker > /dev/null; then
     sudo systemctl enable --now docker
 fi
 
+# On Azure, full-size packets to some sites (PyPI among them) are lost, and secure
+# connections then hang. Smaller packets inside Docker avoid it.
+if [ ! -f /etc/docker/daemon.json ]; then
+    echo "Setting Docker's packet size (MTU) to 1400"
+    echo '{ "mtu": 1400 }' | sudo tee /etc/docker/daemon.json > /dev/null
+    sudo systemctl restart docker
+fi
+
 # The language model needs about 3 GB of memory while it loads; on a 4 GB
 # server a swap file stops it from being killed for lack of memory
 if [ ! -f /swapfile ]; then
