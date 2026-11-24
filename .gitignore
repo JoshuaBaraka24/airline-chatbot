@@ -13,6 +13,7 @@ results/
 
 # Secrets and local data
 .env
+.env.production
 *.db
 
 # Editors / OS

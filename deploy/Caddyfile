@@ -1,0 +1,7 @@
+# SITE_ADDRESS is the server's public name, for example
+# airline-demo.southafricanorth.cloudapp.azure.com. Caddy gets and renews
+# the HTTPS certificate for it automatically.
+{$SITE_ADDRESS} {
+	encode gzip
+	reverse_proxy app:7860
+}

@@ -35,7 +35,8 @@ PostgreSQL        database/         :5432   users, flights, bookings, conversati
 | `backend/` | FastAPI gateway; also serves the widget |
 | `database/` | `schema.sql`, `seed.sql`, `init_db.py` |
 | `tests/` | pytest unit tests, Rasa end-to-end test stories, the held-out NLU test set and browser tests (`tests/e2e/`) |
-| `docs/` | Evaluation reports |
+| `docs/` | Evaluation reports and the deployment guide |
+| `deploy/` | Docker image, Compose file with HTTPS, server setup and publish scripts |
 
 ## Setup
 
@@ -153,6 +154,12 @@ Bot: Booking BK002 (KQ202 Nairobi to Dubai): Current: Wed 21 Oct 22:00 / New: Fr
 You: yes
 Bot: Done! Booking BK002 is now on KQ202 departing Fri 23 Oct 2026 at 22:00.
 ```
+
+## Deployment
+
+The whole system can also run on a server (for example an Azure for Students VM) as Docker
+containers behind HTTPS, which gives a public link for demonstrations. See [docs/deployment.md](docs/deployment.md)
+for creating the VM, the settings to fill in and publishing updates.
 
 ## Testing
 
