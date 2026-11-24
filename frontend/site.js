@@ -154,7 +154,7 @@
         </div>
         <p class="site-footer__note">
           Prototype of the Kenya Airways Virtual Assistant, developed for Kenya Airways as a Strathmore University
-          ICS Project II. Flights, bookings and accounts shown are sample data for demonstration.
+          student project. Flights, bookings and accounts shown are sample data for demonstration.
           The Kenya Airways name and logo are trademarks of Kenya Airways PLC. <a href="about.html">Photo credits</a>
         </p>
       </footer>`;
