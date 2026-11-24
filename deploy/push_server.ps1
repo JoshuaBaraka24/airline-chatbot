@@ -51,7 +51,7 @@ if ($DryRun) {
     return
 }
 
-$ssh = @("-i", $Key, "-o", "StrictHostKeyChecking=accept-new")
+$ssh = @("-i", $Key, "-o", "StrictHostKeyChecking=accept-new", "-o", "ServerAliveInterval=30")
 scp @ssh $bundle "${Server}:/tmp/airline-server.tar.gz"
 $uploaded = $LASTEXITCODE -eq 0
 Remove-Item $bundle -Force
