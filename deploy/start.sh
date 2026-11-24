@@ -46,7 +46,7 @@ fi
 python deploy/check_smtp.py || true
 
 rasa run actions --port 5055 &
-rasa run --enable-api --interface 127.0.0.1 --port 5005 --model models &
+rasa run --enable-api --endpoints deploy/endpoints.yml --interface 127.0.0.1 --port 5005 --model models &
 uvicorn backend.main:app --host 0.0.0.0 --port 7860 --proxy-headers --forwarded-allow-ips '*' &
 
 # If any server stops, stop the container so Docker restarts it

@@ -2,6 +2,16 @@
 -- Implements the ERD in Chapter 4 (Users, Flights, Bookings, Conversations).
 -- Re-runnable: drops and recreates all tables.
 
+-- On a server Rasa keeps transcripts in its own "events" table. Clear it rather than
+-- drop it, because Rasa creates the table only when it starts.
+DO $$
+BEGIN
+    IF to_regclass('events') IS NOT NULL THEN
+        DELETE FROM events;
+    END IF;
+END
+$$;
+
 DROP TABLE IF EXISTS auth_sessions;
 DROP TABLE IF EXISTS conversations;
 DROP TABLE IF EXISTS bookings;
