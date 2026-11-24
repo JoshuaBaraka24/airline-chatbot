@@ -27,6 +27,7 @@ from actions.parsing import (
     parse_date,
     parse_option_number,
 )
+from backend.throttle import Throttle
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,35 @@ def logged_in_user(tracker: Tracker) -> Optional[dict]:
     """The passenger the web portal says is logged in (message metadata), if any."""
     metadata = tracker.latest_message.get("metadata") or {}
     return metadata if metadata.get("user_id") else None
+
+
+def owns_booking(tracker: Tracker, booking: dict) -> bool:
+    """Whether whoever is chatting may see and change a booking: a logged-in passenger only
+    their own bookings, a guest only bookings under the email address they gave."""
+    user = logged_in_user(tracker)
+    if user:
+        return booking["owner_id"] == int(user["user_id"])
+    return tracker.get_slot("booking_email") == booking["account_email"].lower()
+
+
+def permitted_booking(tracker: Tracker) -> Optional[dict]:
+    """The booking being discussed, or None if it doesn't exist or isn't theirs.
+
+    Every step that shows or changes a booking uses this rather than trusting an earlier check,
+    because a passenger can type another reference at any point in a conversation.
+    """
+    ref = tracker.get_slot("booking_reference")
+    booking = repo.get_booking(ref) if ref else None
+    return booking if booking and owns_booking(tracker, booking) else None
+
+
+# Wrong emails allowed per booking and per conversation before a 15-minute wait. References
+# that don't exist count as well, so the replies never show which references are real.
+email_guesses = Throttle(max_events=5, window_seconds=900)
+
+
+def guess_keys(tracker: Tracker, ref: Text) -> tuple:
+    return f"ref:{ref}", f"chat:{tracker.sender_id}"
 
 
 def flight_options(origin: Text, destination: Text, travel_date: date) -> tuple:
@@ -117,16 +147,36 @@ def previous_slot_value(tracker: Tracker, slot: Text) -> Any:
 
 
 class BookingReferenceMixin:
-    """Shared booking-reference validation.
+    """Shared booking-reference validation and ownership check.
+
+    A logged-in passenger can use only their own bookings. A guest must also give the email
+    address the booking is under. Nothing about a booking is shown before that.
 
     allowed_statuses: booking statuses the form can act on.
     """
 
     allowed_statuses = ("confirmed", "checked_in", "cancelled")
 
+    async def required_slots(self, domain_slots: List[Text], dispatcher: CollectingDispatcher,
+                             tracker: Tracker, domain: DomainDict) -> List[Text]:
+        # Only guests are asked for an email. Someone who logged in after giving a reference
+        # that isn't theirs still gets this question, whose validator turns them away.
+        if not logged_in_user(tracker):
+            return domain_slots
+        try:
+            others_booking = tracker.get_slot("booking_reference") and not permitted_booking(tracker)
+        except Exception:
+            logger.exception("Could not check who owns a booking")
+            others_booking = False
+        return domain_slots if others_booking else [s for s in domain_slots if s != "booking_email"]
+
     def validate_booking_reference(
         self, slot_value: Any, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict
     ) -> Dict[Text, Any]:
+        if tracker.get_slot("requested_slot") == "booking_email" and normalize_email(
+                tracker.latest_message.get("text")):
+            # Part of the email address was mistaken for a reference; keep the one already given
+            return {"booking_reference": previous_slot_value(tracker, "booking_reference")}
         if answered_interruption(dispatcher, tracker):
             return {"booking_reference": None}
 
@@ -136,6 +186,12 @@ class BookingReferenceMixin:
                 text="That doesn't look like a booking reference. It should look like BK001."
             )
             return {"booking_reference": None}
+
+        user = logged_in_user(tracker)
+        # normalised because a reference typed at the email question also lands in this slot
+        email = None if user else normalize_email(tracker.get_slot("booking_email"))
+        if not user and not email:
+            return {"booking_reference": booking_ref}  # checked together with the email
         try:
             booking = repo.get_booking(booking_ref)
         except Exception:
@@ -143,16 +199,76 @@ class BookingReferenceMixin:
             dispatcher.utter_message(text=DB_ERROR)
             return {"booking_reference": None}
 
-        if not booking:
-            dispatcher.utter_message(
-                text=f"I couldn't find a booking with reference {booking_ref}. Please check it and try again, "
-                     "or say 'never mind' to stop."
-            )
-            return {"booking_reference": None}
+        if user:
+            if not booking or not owns_booking(tracker, booking):
+                dispatcher.utter_message(text=self.not_on_account(booking_ref))
+                return {"booking_reference": None}
+        else:
+            problem = self.email_problem(tracker, booking_ref, booking, email)
+            if problem:
+                dispatcher.utter_message(text=problem)
+                return {"booking_reference": None, "booking_email": None}
         if booking["status"] not in self.allowed_statuses:
             dispatcher.utter_message(text=self.status_not_allowed_message(booking))
             return {"booking_reference": None}
         return {"booking_reference": booking_ref}
+
+    def validate_booking_email(
+        self, slot_value: Any, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict
+    ) -> Dict[Text, Any]:
+        email = normalize_email(slot_value)
+        if not email:
+            if normalize_booking_ref(slot_value):  # a new reference is dealt with above
+                return {"booking_email": None}
+            if not answered_interruption(dispatcher, tracker):
+                dispatcher.utter_message(
+                    text="That doesn't look like an email address. It should look like jane@example.com."
+                )
+            return {"booking_email": None}
+
+        booking_ref = tracker.get_slot("booking_reference")
+        if not booking_ref:
+            return {"booking_email": None}
+        if logged_in_user(tracker):
+            dispatcher.utter_message(text=self.not_on_account(booking_ref))
+            return {"booking_reference": None, "booking_email": None}
+        try:
+            booking = repo.get_booking(booking_ref)
+        except Exception:
+            logger.exception("Booking lookup failed for %s", booking_ref)
+            dispatcher.utter_message(text=DB_ERROR)
+            return {"booking_email": None}
+
+        problem = self.email_problem(tracker, booking_ref, booking, email)
+        if problem:
+            dispatcher.utter_message(text=problem)
+            return {"booking_email": None}
+        if booking["status"] not in self.allowed_statuses:
+            dispatcher.utter_message(text=self.status_not_allowed_message(booking))
+            return {"booking_reference": None, "booking_email": email}
+        return {"booking_email": email}
+
+    @staticmethod
+    def not_on_account(booking_ref: Text) -> Text:
+        return (f"I couldn't find booking {booking_ref} on your account. Please check the reference, "
+                "or say 'never mind' to stop.")
+
+    @staticmethod
+    def email_problem(tracker: Tracker, booking_ref: Text, booking: Optional[dict], email: Text) -> Optional[Text]:
+        """Why a guest's email doesn't unlock a booking, in words that never reveal whether
+        the booking exists; None if it does."""
+        keys = guess_keys(tracker, booking_ref)
+        if any(email_guesses.is_blocked(key) for key in keys):
+            return ("There have been too many attempts with the wrong details. Please try again in 15 minutes, "
+                    "log in to see your bookings, or type 'agent'.")
+        if booking and booking["account_email"].lower() == email:
+            for key in keys:
+                email_guesses.reset(key)
+            return None
+        for key in keys:
+            email_guesses.record(key)
+        return (f"I couldn't find booking {booking_ref} under that email address. Please check the email, give a "
+                "different booking reference, or say 'never mind' to stop.")
 
     def status_not_allowed_message(self, booking: dict) -> Text:
         return f"Booking {booking['booking_ref']} can't be used for this request."
@@ -190,12 +306,12 @@ class ValidateCheckInStatusForm(BookingReferenceMixin, FormValidationAction):
 
     async def required_slots(self, domain_slots: List[Text], dispatcher: CollectingDispatcher,
                              tracker: Tracker, domain: DomainDict) -> List[Text]:
+        domain_slots = await super().required_slots(domain_slots, dispatcher, tracker, domain)
         # Offer to check in only while online check-in is open for this booking
-        ref = tracker.get_slot("booking_reference")
         try:
-            booking = repo.get_booking(ref) if ref else None
+            booking = permitted_booking(tracker)
         except Exception:
-            logger.exception("Could not load %s for check-in", ref)
+            logger.exception("Could not load %s for check-in", tracker.get_slot("booking_reference"))
             booking = None
         if booking and online_check_in(booking) == "open":
             return domain_slots
@@ -237,8 +353,14 @@ class ValidateChangeBookingForm(BookingReferenceMixin, FormValidationAction):
             return {"travel_date": None}
 
         booking_ref = tracker.get_slot("booking_reference")
-        if not booking_ref:
-            # The date will be asked again once a valid booking is known
+        try:
+            booking = permitted_booking(tracker)
+        except Exception:
+            logger.exception("Booking lookup failed for %s", booking_ref)
+            dispatcher.utter_message(text=DB_ERROR)
+            return {"travel_date": None}
+        if not booking:
+            # The date will be asked again once the booking is known to be theirs
             return {"travel_date": None}
 
         new_date = parse_date(slot_value)
@@ -250,7 +372,6 @@ class ValidateChangeBookingForm(BookingReferenceMixin, FormValidationAction):
             return {"travel_date": None}
 
         try:
-            booking = repo.get_booking(booking_ref)
             if booking["departure_time"].date() == new_date:
                 dispatcher.utter_message(text=f"Your booking is already on {format_date(new_date)}. Please choose a different date.")
                 return {"travel_date": None}
@@ -503,7 +624,7 @@ class ActionAskConfirmCancel(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
         booking_ref = tracker.get_slot("booking_reference")
         try:
-            b = repo.get_booking(booking_ref)
+            b = permitted_booking(tracker)
             dispatcher.utter_message(
                 text=f"I found booking {b['booking_ref']} for {b['passenger_name']}: {b['flight_number']} "
                      f"{b['origin']} to {b['destination']}, {format_datetime(b['departure_time'])}.\n"
@@ -526,7 +647,7 @@ class ActionAskConfirmChange(Action):
         booking_ref = tracker.get_slot("booking_reference")
         new_date = tracker.get_slot("travel_date")
         try:
-            b = repo.get_booking(booking_ref)
+            b = permitted_booking(tracker)
             new_flight = repo.find_available_flight(b["flight_number"], date.fromisoformat(new_date))
             dispatcher.utter_message(
                 text=f"Booking {b['booking_ref']} ({b['flight_number']} {b['origin']} to {b['destination']}):\n"
@@ -548,7 +669,7 @@ class ActionAskConfirmCheckIn(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: DomainDict) -> List[EventType]:
         ref = tracker.get_slot("booking_reference")
         try:
-            b = repo.get_booking(ref)
+            b = permitted_booking(tracker)
             dispatcher.utter_message(
                 text=f"Online check-in is open for booking {ref}: {b['flight_number']} {b['origin']} to "
                      f"{b['destination']}, departing {format_datetime(b['departure_time'])}, for "

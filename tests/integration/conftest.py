@@ -12,6 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg2 import sql
 
+from actions import forms
 from backend import auth, config, rasa_client
 from database import init_db
 
@@ -52,7 +53,8 @@ def db(test_database, monkeypatch):
     init_db.initialise(dbname=test_database)
     monkeypatch.setitem(config.DB_SETTINGS, "dbname", test_database)  # backend
     monkeypatch.setenv("DB_NAME", test_database)                      # actions/db.py
-    auth.login_throttle._failures.clear()
+    auth.login_throttle.clear()
+    forms.email_guesses.clear()
     return test_database
 
 
