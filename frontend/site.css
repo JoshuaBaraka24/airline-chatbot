@@ -210,6 +210,8 @@ a { color: var(--brand-dark); }
 }
 :root[data-theme="high-contrast"] .user-chip__avatar { background: #000; color: #fff; border: 2px solid #fff; }
 .menu-toggle { display: none; }
+button.nav__link { border: 0; background: none; font: inherit; font-weight: 600; cursor: pointer; }
+.nav__account { display: none; }
 
 /* ---------- Footer ---------- */
 
@@ -569,7 +571,8 @@ main > :last-child:not(.band) { margin-bottom: 64px; }
 .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 12px; }
 .toolbar .field { margin: 0; }
-.table-wrap { overflow-x: auto; }
+/* Positioned so that visually hidden labels inside scroll with the table, not the page */
+.table-wrap { overflow-x: auto; position: relative; }
 .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .bar__label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
 .bar__track { height: 10px; border-radius: 999px; background: var(--badge-neutral-bg); overflow: hidden; }
@@ -618,7 +621,8 @@ dialog.transcript::backdrop { background: rgba(0, 0, 0, 0.5); }
 }
 
 @media (max-width: 960px) {
-  .hero__grid, .dash-grid, .info-grid, .status-layout, .about-grid { grid-template-columns: 1fr; }
+  /* minmax(0, ...) lets a wide table scroll in its own box instead of widening the page */
+  .hero__grid, .dash-grid, .info-grid, .status-layout, .about-grid { grid-template-columns: minmax(0, 1fr); }
   .capabilities { grid-template-columns: 1fr 1fr; }
   .proof { grid-template-columns: 1fr 1fr; }
   .spotlight { grid-template-columns: 1fr; }
@@ -640,6 +644,13 @@ dialog.transcript::backdrop { background: rgba(0, 0, 0, 0.5); }
 }
 
 @media (max-width: 560px) {
+  .site-header__bar { gap: 8px; min-height: 64px; }
+  .brand__badge { padding: 5px 8px; }
+  .brand__logo { height: 28px; }
+  .header-actions { gap: 4px; }
+  #logout-btn { display: none; }
+  .nav__account { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.25); }
+  .nav__account:not(.nav__account--guest) { display: block; }
   .stats { grid-template-columns: 1fr 1fr; }
   .tiles { grid-template-columns: 1fr; }
   .site-footer__grid { grid-template-columns: 1fr; }
@@ -654,6 +665,12 @@ dialog.transcript::backdrop { background: rgba(0, 0, 0, 0.5); }
   .flight-row { grid-template-columns: 1fr auto; }
   .flight-row__time { grid-column: 1 / -1; }
   .bookings { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 350px) {
+  .brand__logo { height: 26px; }
+  #login-link { display: none; }
+  .nav__account--guest { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {

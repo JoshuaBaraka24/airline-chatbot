@@ -57,6 +57,10 @@
     ];
     if (user && user.role === "passenger") links.push(navLink("account.html", "My bookings", "account"));
     if (user && user.role === "admin") links.push(navLink("admin.html", "Staff dashboard", "admin"));
+    // On phones the header has no room for this, so site.css shows it in the menu instead
+    links.push(user
+      ? `<li class="nav__account"><button type="button" class="nav__link" id="menu-logout-btn">Log out</button></li>`
+      : `<li class="nav__account nav__account--guest"><a class="nav__link" href="login.html">Log in</a></li>`);
 
     const account = user
       ? `<span class="user-chip"><span class="user-chip__avatar" aria-hidden="true"></span>
@@ -92,11 +96,13 @@
       document.querySelector(".user-chip__name").textContent = user.name;
       document.querySelector(".user-chip__avatar").textContent =
         user.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
-      document.getElementById("logout-btn").addEventListener("click", async () => {
+      const logOut = async () => {
         try { await window.KQApi.logout(); } catch (_) { /* session may already be gone */ }
         clearChat();
         window.location.href = "index.html";
-      });
+      };
+      document.getElementById("logout-btn").addEventListener("click", logOut);
+      document.getElementById("menu-logout-btn").addEventListener("click", logOut);
     }
 
     const themeButton = document.getElementById("theme-toggle");
