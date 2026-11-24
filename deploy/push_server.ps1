@@ -43,15 +43,19 @@ Copy-Item $Model (Join-Path $stage "models")
 Copy-Item $EnvFile (Join-Path $stage ".env")
 
 tar -czf $bundle -C $stage .
+# The staged copy contains the server's secrets, so do not leave it behind
+Remove-Item $stage -Recurse -Force
 $commit = git rev-parse --short HEAD
 if ($DryRun) {
-    Write-Host "Dry run: $bundle is ready (commit $commit) and was not uploaded."
+    Write-Host "Dry run: $bundle is ready (commit $commit) and was not uploaded. It contains your secrets; delete it when done."
     return
 }
 
 $ssh = @("-i", $Key, "-o", "StrictHostKeyChecking=accept-new")
 scp @ssh $bundle "${Server}:/tmp/airline-server.tar.gz"
-if ($LASTEXITCODE) { throw "Upload failed" }
+$uploaded = $LASTEXITCODE -eq 0
+Remove-Item $bundle -Force
+if (-not $uploaded) { throw "Upload failed. If it timed out, this network may block SSH (port 22); try a phone hotspot." }
 
 # Replace the old copy, keep the database volume, rebuild and restart
 $remote = @'

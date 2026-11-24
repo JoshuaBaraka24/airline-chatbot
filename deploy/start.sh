@@ -7,8 +7,9 @@
 set -euo pipefail
 cd /home/user/app
 
-# The seed data has a known default admin password; never publish it
+# The default demo passwords are in the public code; never publish them
 : "${DEMO_ADMIN_PASSWORD:?Set DEMO_ADMIN_PASSWORD in the .env file}"
+: "${DEMO_PASSWORD:?Set DEMO_PASSWORD in the .env file}"
 
 export DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=airline_db DB_USER=user DB_PASSWORD=""
 export RASA_URL=http://127.0.0.1:5005
@@ -17,19 +18,28 @@ export COOKIE_SECURE=true
 # PostgreSQL, reachable only from inside the container
 PGBIN=$(ls -d /usr/lib/postgresql/*/bin | head -n 1)
 PGDATA=/home/user/pgdata/data
-fresh=false
+SEEDED=/home/user/pgdata/seeded
 if [ ! -s "$PGDATA/PG_VERSION" ]; then
     mkdir -p "$PGDATA"
     "$PGBIN/initdb" -D "$PGDATA" -U user --auth=trust > /dev/null
-    fresh=true
 fi
+# Left behind if the server lost power. No PostgreSQL can be running yet, and
+# the old process number may now belong to something else in the new container.
+rm -f "$PGDATA/postmaster.pid"
+
+# Shut PostgreSQL down cleanly when the container stops or a server fails
+trap '"$PGBIN/pg_ctl" -D "$PGDATA" -m fast -w stop || true' EXIT
+trap 'exit 0' TERM INT
+
 "$PGBIN/pg_ctl" -D "$PGDATA" -l /home/user/pgdata/postgres.log -w \
     -o "-c listen_addresses=127.0.0.1 -k /tmp" start
-if [ "$fresh" = true ]; then
-    "$PGBIN/createdb" -h 127.0.0.1 -U user airline_db
+if [ ! -f "$SEEDED" ]; then
+    "$PGBIN/createdb" -h 127.0.0.1 -U user airline_db 2> /dev/null || true
 fi
-if [ "$fresh" = true ] || [ "${RESET_DEMO_DATA:-false}" = true ]; then
+# The marker is written only after loading succeeds, so a failed first start is retried
+if [ ! -f "$SEEDED" ] || [ "${RESET_DEMO_DATA:-false}" = true ]; then
     python database/init_db.py
+    touch "$SEEDED"
 fi
 
 # Logs whether the email server's port is open from this host
