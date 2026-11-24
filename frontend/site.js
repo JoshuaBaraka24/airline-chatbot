@@ -122,7 +122,7 @@
         <div class="container site-footer__grid">
           <div>
             <img class="site-footer__logo" src="assets/logo.svg" alt="Kenya Airways" width="180" height="41">
-            <p>The Virtual Assistant helps with flight status, bookings, check-in and baggage, 24 hours a day.
+            <p>The Virtual Assistant helps with flight status, bookings, check-in and baggage.
                Prefer to talk to someone? Call <a href="tel:+254203274747">+254 20 327 4747</a>.</p>
           </div>
           <div>
