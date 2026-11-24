@@ -1,0 +1,13 @@
+# Rasa's connections inside the server's container (see deploy/start.sh).
+action_endpoint:
+  url: "http://127.0.0.1:5055/webhook"
+
+# Keeps conversations in PostgreSQL (table "events"). Without this Rasa holds them
+# in memory, and the dashboard's transcripts are lost whenever the server restarts.
+tracker_store:
+  type: SQL
+  dialect: "postgresql"
+  url: "127.0.0.1"
+  port: 5432
+  db: "airline_db"
+  username: "user"

@@ -16,8 +16,8 @@ The system can run in two ways:
 | `app` | PostgreSQL, the action server, the Rasa server and the FastAPI gateway with the portal (`deploy/Dockerfile`, started by `deploy/start.sh`) | No, only through Caddy |
 | `caddy` | Caddy web server: gets and renews a free HTTPS certificate and forwards requests to `app` | Ports 80 and 443 |
 
-The database is stored in a Docker volume, so bookings and accounts survive
-restarts and redeployments. The demo data is loaded when the database is first
+The database is stored in a Docker volume, so bookings, accounts and conversation
+transcripts survive restarts and redeployments. The demo data is loaded when the database is first
 created. If any server inside `app` stops, the container stops and Docker restarts it.
 
 ## Cost
