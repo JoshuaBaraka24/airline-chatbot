@@ -117,13 +117,19 @@ Run these over SSH (`ssh -i $HOME\.ssh\azure_airline azureuser@<DNS name>`), in 
 
 | Task | Command |
 |---|---|
-| Reset the demo data | `sudo docker compose -f deploy/compose.yaml exec app python database/init_db.py` |
+| Reset the demo data | `sudo docker compose -f deploy/compose.yaml exec -T -e DB_HOST=127.0.0.1 -e DB_PORT=5432 -e DB_NAME=airline_db -e DB_USER=user -e DB_PASSWORD= app python database/init_db.py` |
 | Restart the system | `sudo docker compose -f deploy/compose.yaml restart` |
 | See the logs | `sudo docker compose -f deploy/compose.yaml logs --tail 100 app` |
 | Stop the system | `sudo docker compose -f deploy/compose.yaml down` (the data volume is kept) |
 
-The sample flights are dated relative to the day the data was loaded, so reset
-the demo data shortly before a demonstration.
+The reset command passes the database settings itself, because `start.sh` sets them only for
+the servers it starts and the `.env` file does not contain them. The reset replaces every
+booking, account, login session and dashboard conversation with the sample data, and the demo
+passwords become `DEMO_PASSWORD` and `DEMO_ADMIN_PASSWORD` from `.env` again.
+
+The sample flights are dated relative to the day the data was loaded, so reset the demo data
+shortly before a demonstration. Booking BK003 departs at noon on the day after a reset, so its
+online check-in can be shown only until 11:00 that day.
 
 ## Limitations of this deployment
 
